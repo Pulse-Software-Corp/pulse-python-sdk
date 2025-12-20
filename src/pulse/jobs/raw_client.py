@@ -26,13 +26,13 @@ class RawJobsClient:
         self, job_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> HttpResponse[JobStatusResponse]:
         """
-        Retrieves the latest status and metadata for an asynchronous extraction job
-        that was previously submitted via `/extract_async`.
+        Check the status and retrieve results of an asynchronous job
+        (e.g., submitted via `/extract_async`).
 
         Parameters
         ----------
         job_id : str
-            Identifier returned from the `/extract_async` submission.
+            Identifier returned from an async job submission (e.g., `/extract_async`).
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -121,13 +121,13 @@ class RawJobsClient:
         self, job_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> HttpResponse[JobCancellationResponse]:
         """
-        Attempts to cancel an asynchronous extraction job that is currently pending
+        Attempts to cancel an asynchronous job that is currently pending
         or processing. Jobs that have already completed will remain unchanged.
 
         Parameters
         ----------
         job_id : str
-            Identifier returned from the `/extract_async` submission.
+            Identifier returned from an async job submission (e.g., `/extract_async`).
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -221,13 +221,13 @@ class AsyncRawJobsClient:
         self, job_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[JobStatusResponse]:
         """
-        Retrieves the latest status and metadata for an asynchronous extraction job
-        that was previously submitted via `/extract_async`.
+        Check the status and retrieve results of an asynchronous job
+        (e.g., submitted via `/extract_async`).
 
         Parameters
         ----------
         job_id : str
-            Identifier returned from the `/extract_async` submission.
+            Identifier returned from an async job submission (e.g., `/extract_async`).
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -316,13 +316,13 @@ class AsyncRawJobsClient:
         self, job_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[JobCancellationResponse]:
         """
-        Attempts to cancel an asynchronous extraction job that is currently pending
+        Attempts to cancel an asynchronous job that is currently pending
         or processing. Jobs that have already completed will remain unchanged.
 
         Parameters
         ----------
         job_id : str
-            Identifier returned from the `/extract_async` submission.
+            Identifier returned from an async job submission (e.g., `/extract_async`).
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
