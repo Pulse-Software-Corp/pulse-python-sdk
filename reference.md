@@ -1,5 +1,5 @@
 # Reference
-<details><summary><code>client.<a href="src/pulse/client.py">extract</a>(...)</code></summary>
+<details><summary><code>client.<a href="src/pulse/client.py">extract</a>(...) -> AsyncHttpResponse[ExtractResponse]</code></summary>
 <dl>
 <dd>
 
@@ -175,7 +175,7 @@ client.extract(
 </dl>
 </details>
 
-<details><summary><code>client.<a href="src/pulse/client.py">extract_async</a>(...)</code></summary>
+<details><summary><code>client.<a href="src/pulse/client.py">extract_async</a>(...) -> AsyncHttpResponse[ExtractAsyncResponse]</code></summary>
 <dl>
 <dd>
 
@@ -352,7 +352,7 @@ client.extract_async(
 </details>
 
 ## Jobs
-<details><summary><code>client.jobs.<a href="src/pulse/jobs/client.py">get_job</a>(...)</code></summary>
+<details><summary><code>client.jobs.<a href="src/pulse/jobs/client.py">get_job</a>(...) -> AsyncHttpResponse[JobStatusResponse]</code></summary>
 <dl>
 <dd>
 
@@ -423,7 +423,7 @@ client.jobs.get_job(
 </dl>
 </details>
 
-<details><summary><code>client.jobs.<a href="src/pulse/jobs/client.py">cancel_job</a>(...)</code></summary>
+<details><summary><code>client.jobs.<a href="src/pulse/jobs/client.py">cancel_job</a>(...) -> AsyncHttpResponse[JobCancellationResponse]</code></summary>
 <dl>
 <dd>
 
@@ -495,7 +495,7 @@ client.jobs.cancel_job(
 </details>
 
 ## Webhooks
-<details><summary><code>client.webhooks.<a href="src/pulse/webhooks/client.py">create_webhook_link</a>()</code></summary>
+<details><summary><code>client.webhooks.<a href="src/pulse/webhooks/client.py">create_webhook_link</a>() -> AsyncHttpResponse[CreateWebhookLinkResponse]</code></summary>
 <dl>
 <dd>
 

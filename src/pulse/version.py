@@ -1,3 +1,3 @@
 from importlib import metadata
 
-__version__ = metadata.version("pulse-sdk")
+__version__ = metadata.version("pulse-python-sdk")

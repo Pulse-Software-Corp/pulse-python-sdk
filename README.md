@@ -1,7 +1,7 @@
 # Pulse Python Library
 
 [![fern shield](https://img.shields.io/badge/%F0%9F%8C%BF-Built%20with%20Fern-brightgreen)](https://buildwithfern.com?utm_source=github&utm_medium=github&utm_campaign=readme&utm_source=https%3A%2F%2Fgithub.com%2FPulse-Software-Corp%2Fpulse-python-sdk)
-[![pypi](https://img.shields.io/pypi/v/pulse-sdk)](https://pypi.python.org/pypi/pulse-sdk)
+[![pypi](https://img.shields.io/pypi/v/pulse-python-sdk)](https://pypi.python.org/pypi/pulse-python-sdk)
 
 The Pulse Python library provides convenient access to the Pulse APIs from Python.
 
@@ -22,7 +22,7 @@ The Pulse Python library provides convenient access to the Pulse APIs from Pytho
 ## Installation
 
 ```sh
-pip install pulse-sdk
+pip install pulse-python-sdk
 ```
 
 ## Reference
