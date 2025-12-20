@@ -47,9 +47,9 @@ class RawPulse:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[ExtractResponse]:
         """
-        The primary endpoint for the Pulse API. Parses uploaded documents or remote
-        file URLs and returns rich markdown content with optional structured data
-        extraction based on user-provided schemas and extraction options.
+        Performs a synchronous extraction job against an uploaded document or a
+        remote file URL. The request accepts a variety of configuration options
+        used by the Pulse extraction pipeline.
 
         Parameters
         ----------
@@ -366,9 +366,9 @@ class AsyncRawPulse:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[ExtractResponse]:
         """
-        The primary endpoint for the Pulse API. Parses uploaded documents or remote
-        file URLs and returns rich markdown content with optional structured data
-        extraction based on user-provided schemas and extraction options.
+        Performs a synchronous extraction job against an uploaded document or a
+        remote file URL. The request accepts a variety of configuration options
+        used by the Pulse extraction pipeline.
 
         Parameters
         ----------

@@ -3,7 +3,7 @@ name = "pulse-sdk"
 
 [tool.poetry]
 name = "pulse-sdk"
-version = "0.5.1"
+version = "1.0.1"
 description = ""
 readme = "README.md"
 authors = []
