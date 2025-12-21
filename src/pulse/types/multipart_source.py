@@ -2,7 +2,35 @@
 
 import typing
 
-from .extract_source_multipart_one import ExtractSourceMultipartOne
-from .extract_source_multipart_zero import ExtractSourceMultipartZero
+import pydantic
+import typing_extensions
+from ..core.pydantic_utilities import IS_PYDANTIC_V2
+from ..core.serialization import FieldMetadata
+from ..core.unchecked_base_model import UncheckedBaseModel
 
-MultipartSource = typing.Union[ExtractSourceMultipartZero, ExtractSourceMultipartOne]
+
+class MultipartSource(UncheckedBaseModel):
+    """
+    Document source definition for multipart/form-data requests. Provide exactly one of `file` (direct upload) or `fileUrl` (remote URL).
+    """
+
+    file: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    Document to upload directly. Required unless fileUrl is provided.
+    """
+
+    file_url: typing_extensions.Annotated[typing.Optional[str], FieldMetadata(alias="fileUrl")] = pydantic.Field(
+        default=None
+    )
+    """
+    Public or pre-signed URL that Pulse will download and extract. Required unless file is provided.
+    """
+
+    if IS_PYDANTIC_V2:
+        model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2
+    else:
+
+        class Config:
+            frozen = True
+            smart_union = True
+            extra = pydantic.Extra.allow
