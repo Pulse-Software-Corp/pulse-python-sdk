@@ -2,4 +2,4 @@
 
 import typing
 
-ExtractJsonInputSchema = typing.Union[typing.Dict[str, typing.Any], str]
+ExtractInputSchema = typing.Union[typing.Dict[str, typing.Any], str]

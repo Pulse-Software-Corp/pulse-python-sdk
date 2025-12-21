@@ -2,4 +2,4 @@
 
 import typing
 
-ExtractAsyncInput = typing.Any
+ExtractAsyncRequestSchema = typing.Union[typing.Dict[str, typing.Any], str]

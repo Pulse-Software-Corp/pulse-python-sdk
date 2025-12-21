@@ -39,9 +39,7 @@ from pulse import Pulse
 client = Pulse(
     api_key="YOUR_API_KEY",
 )
-client.extract(
-    file_url="fileUrl",
-)
+client.extract()
 ```
 
 ## Async Client
@@ -59,9 +57,7 @@ client = AsyncPulse(
 
 
 async def main() -> None:
-    await client.extract(
-        file_url="fileUrl",
-    )
+    await client.extract()
 
 
 asyncio.run(main())

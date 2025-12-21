@@ -9,21 +9,23 @@ from ..core.serialization import FieldMetadata
 from ..core.unchecked_base_model import UncheckedBaseModel
 
 
-class ExtractJsonInputStorage(UncheckedBaseModel):
+class ExtractInputStructuredOutput(UncheckedBaseModel):
     """
-    Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created.
-    """
-
-    enabled: typing.Optional[bool] = pydantic.Field(default=None)
-    """
-    Whether to persist extraction artifacts. Set to false for temporary extractions with no storage or database record.
+    Recommended method for schema-guided extraction. Contains the schema and optional prompt in a single object.
     """
 
-    folder_name: typing_extensions.Annotated[typing.Optional[str], FieldMetadata(alias="folderName")] = pydantic.Field(
-        default=None
+    schema_: typing_extensions.Annotated[
+        typing.Optional[typing.Dict[str, typing.Any]], FieldMetadata(alias="schema")
+    ] = pydantic.Field(default=None)
+    """
+    JSON schema describing the structured data to extract.
+    """
+
+    schema_prompt: typing_extensions.Annotated[typing.Optional[str], FieldMetadata(alias="schemaPrompt")] = (
+        pydantic.Field(default=None)
     )
     """
-    Target folder name to save the extraction to. Creates the folder if it doesn't exist.
+    Natural language prompt with additional extraction instructions.
     """
 
     if IS_PYDANTIC_V2:

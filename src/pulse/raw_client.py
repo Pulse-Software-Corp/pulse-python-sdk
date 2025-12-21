@@ -3,20 +3,24 @@
 import typing
 from json.decoder import JSONDecodeError
 
+from . import core
 from .core.api_error import ApiError
 from .core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from .core.http_response import AsyncHttpResponse, HttpResponse
 from .core.request_options import RequestOptions
-from .core.serialization import convert_and_respect_annotation_metadata
 from .core.unchecked_base_model import construct_type
 from .errors.bad_request_error import BadRequestError
 from .errors.too_many_requests_error import TooManyRequestsError
 from .errors.unauthorized_error import UnauthorizedError
+from .types.extract_async_request_experimental_schema import ExtractAsyncRequestExperimentalSchema
+from .types.extract_async_request_schema import ExtractAsyncRequestSchema
+from .types.extract_async_request_storage import ExtractAsyncRequestStorage
+from .types.extract_async_request_structured_output import ExtractAsyncRequestStructuredOutput
 from .types.extract_async_response import ExtractAsyncResponse
-from .types.extract_json_input_experimental_schema import ExtractJsonInputExperimentalSchema
-from .types.extract_json_input_schema import ExtractJsonInputSchema
-from .types.extract_json_input_storage import ExtractJsonInputStorage
-from .types.extract_json_input_structured_output import ExtractJsonInputStructuredOutput
+from .types.extract_request_experimental_schema import ExtractRequestExperimentalSchema
+from .types.extract_request_schema import ExtractRequestSchema
+from .types.extract_request_storage import ExtractRequestStorage
+from .types.extract_request_structured_output import ExtractRequestStructuredOutput
 from .types.extract_response import ExtractResponse
 
 # this is used as the default value for optional parameters
@@ -30,10 +34,11 @@ class RawPulse:
     def extract(
         self,
         *,
-        file_url: str,
-        structured_output: typing.Optional[ExtractJsonInputStructuredOutput] = OMIT,
-        schema: typing.Optional[ExtractJsonInputSchema] = OMIT,
-        experimental_schema: typing.Optional[ExtractJsonInputExperimentalSchema] = OMIT,
+        file: typing.Optional[core.File] = OMIT,
+        file_url: typing.Optional[str] = OMIT,
+        structured_output: typing.Optional[ExtractRequestStructuredOutput] = OMIT,
+        schema: typing.Optional[ExtractRequestSchema] = OMIT,
+        experimental_schema: typing.Optional[ExtractRequestExperimentalSchema] = OMIT,
         schema_prompt: typing.Optional[str] = OMIT,
         custom_prompt: typing.Optional[str] = OMIT,
         chunking: typing.Optional[str] = OMIT,
@@ -43,7 +48,7 @@ class RawPulse:
         figure_description: typing.Optional[bool] = OMIT,
         return_html: typing.Optional[bool] = OMIT,
         thinking: typing.Optional[bool] = OMIT,
-        storage: typing.Optional[ExtractJsonInputStorage] = OMIT,
+        storage: typing.Optional[ExtractRequestStorage] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[ExtractResponse]:
         """
@@ -53,16 +58,19 @@ class RawPulse:
 
         Parameters
         ----------
-        file_url : str
-            Public or pre-signed URL that Pulse will download and extract.
+        file : typing.Optional[core.File]
+            See core.File for more documentation
 
-        structured_output : typing.Optional[ExtractJsonInputStructuredOutput]
+        file_url : typing.Optional[str]
+            Public or pre-signed URL that Pulse will download and extract. Required unless file is provided.
+
+        structured_output : typing.Optional[ExtractRequestStructuredOutput]
             Recommended method for schema-guided extraction. Contains the schema and optional prompt in a single object.
 
-        schema : typing.Optional[ExtractJsonInputSchema]
+        schema : typing.Optional[ExtractRequestSchema]
             (Deprecated) JSON schema describing structured data to extract. Use structuredOutput instead. Accepts either a JSON object or a stringified JSON representation.
 
-        experimental_schema : typing.Optional[ExtractJsonInputExperimentalSchema]
+        experimental_schema : typing.Optional[ExtractRequestExperimentalSchema]
             (Deprecated) Experimental schema definition used for feature flagged behaviour. Accepts either a JSON object or a stringified JSON representation.
 
         schema_prompt : typing.Optional[str]
@@ -92,7 +100,7 @@ class RawPulse:
         thinking : typing.Optional[bool]
             (Deprecated) Enables expanded rationale output for debugging.
 
-        storage : typing.Optional[ExtractJsonInputStorage]
+        storage : typing.Optional[ExtractRequestStorage]
             Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created.
 
         request_options : typing.Optional[RequestOptions]
@@ -106,17 +114,11 @@ class RawPulse:
         _response = self._client_wrapper.httpx_client.request(
             "extract",
             method="POST",
-            json={
+            data={
                 "fileUrl": file_url,
-                "structuredOutput": convert_and_respect_annotation_metadata(
-                    object_=structured_output, annotation=ExtractJsonInputStructuredOutput, direction="write"
-                ),
-                "schema": convert_and_respect_annotation_metadata(
-                    object_=schema, annotation=ExtractJsonInputSchema, direction="write"
-                ),
-                "experimentalSchema": convert_and_respect_annotation_metadata(
-                    object_=experimental_schema, annotation=ExtractJsonInputExperimentalSchema, direction="write"
-                ),
+                "structuredOutput": structured_output,
+                "schema": schema,
+                "experimentalSchema": experimental_schema,
                 "schemaPrompt": schema_prompt,
                 "customPrompt": custom_prompt,
                 "chunking": chunking,
@@ -126,15 +128,14 @@ class RawPulse:
                 "figureDescription": figure_description,
                 "returnHtml": return_html,
                 "thinking": thinking,
-                "storage": convert_and_respect_annotation_metadata(
-                    object_=storage, annotation=ExtractJsonInputStorage, direction="write"
-                ),
+                "storage": storage,
             },
-            headers={
-                "content-type": "application/json",
+            files={
+                **({"file": file} if file is not None else {}),
             },
             request_options=request_options,
             omit=OMIT,
+            force_multipart=True,
         )
         try:
             if 200 <= _response.status_code < 300:
@@ -187,10 +188,11 @@ class RawPulse:
     def extract_async(
         self,
         *,
-        file_url: str,
-        structured_output: typing.Optional[ExtractJsonInputStructuredOutput] = OMIT,
-        schema: typing.Optional[ExtractJsonInputSchema] = OMIT,
-        experimental_schema: typing.Optional[ExtractJsonInputExperimentalSchema] = OMIT,
+        file: typing.Optional[core.File] = OMIT,
+        file_url: typing.Optional[str] = OMIT,
+        structured_output: typing.Optional[ExtractAsyncRequestStructuredOutput] = OMIT,
+        schema: typing.Optional[ExtractAsyncRequestSchema] = OMIT,
+        experimental_schema: typing.Optional[ExtractAsyncRequestExperimentalSchema] = OMIT,
         schema_prompt: typing.Optional[str] = OMIT,
         custom_prompt: typing.Optional[str] = OMIT,
         chunking: typing.Optional[str] = OMIT,
@@ -200,7 +202,7 @@ class RawPulse:
         figure_description: typing.Optional[bool] = OMIT,
         return_html: typing.Optional[bool] = OMIT,
         thinking: typing.Optional[bool] = OMIT,
-        storage: typing.Optional[ExtractJsonInputStorage] = OMIT,
+        storage: typing.Optional[ExtractAsyncRequestStorage] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[ExtractAsyncResponse]:
         """
@@ -210,16 +212,19 @@ class RawPulse:
 
         Parameters
         ----------
-        file_url : str
-            Public or pre-signed URL that Pulse will download and extract.
+        file : typing.Optional[core.File]
+            See core.File for more documentation
 
-        structured_output : typing.Optional[ExtractJsonInputStructuredOutput]
+        file_url : typing.Optional[str]
+            Public or pre-signed URL that Pulse will download and extract. Required unless file is provided.
+
+        structured_output : typing.Optional[ExtractAsyncRequestStructuredOutput]
             Recommended method for schema-guided extraction. Contains the schema and optional prompt in a single object.
 
-        schema : typing.Optional[ExtractJsonInputSchema]
+        schema : typing.Optional[ExtractAsyncRequestSchema]
             (Deprecated) JSON schema describing structured data to extract. Use structuredOutput instead. Accepts either a JSON object or a stringified JSON representation.
 
-        experimental_schema : typing.Optional[ExtractJsonInputExperimentalSchema]
+        experimental_schema : typing.Optional[ExtractAsyncRequestExperimentalSchema]
             (Deprecated) Experimental schema definition used for feature flagged behaviour. Accepts either a JSON object or a stringified JSON representation.
 
         schema_prompt : typing.Optional[str]
@@ -249,7 +254,7 @@ class RawPulse:
         thinking : typing.Optional[bool]
             (Deprecated) Enables expanded rationale output for debugging.
 
-        storage : typing.Optional[ExtractJsonInputStorage]
+        storage : typing.Optional[ExtractAsyncRequestStorage]
             Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created.
 
         request_options : typing.Optional[RequestOptions]
@@ -263,17 +268,11 @@ class RawPulse:
         _response = self._client_wrapper.httpx_client.request(
             "extract_async",
             method="POST",
-            json={
+            data={
                 "fileUrl": file_url,
-                "structuredOutput": convert_and_respect_annotation_metadata(
-                    object_=structured_output, annotation=ExtractJsonInputStructuredOutput, direction="write"
-                ),
-                "schema": convert_and_respect_annotation_metadata(
-                    object_=schema, annotation=ExtractJsonInputSchema, direction="write"
-                ),
-                "experimentalSchema": convert_and_respect_annotation_metadata(
-                    object_=experimental_schema, annotation=ExtractJsonInputExperimentalSchema, direction="write"
-                ),
+                "structuredOutput": structured_output,
+                "schema": schema,
+                "experimentalSchema": experimental_schema,
                 "schemaPrompt": schema_prompt,
                 "customPrompt": custom_prompt,
                 "chunking": chunking,
@@ -283,15 +282,14 @@ class RawPulse:
                 "figureDescription": figure_description,
                 "returnHtml": return_html,
                 "thinking": thinking,
-                "storage": convert_and_respect_annotation_metadata(
-                    object_=storage, annotation=ExtractJsonInputStorage, direction="write"
-                ),
+                "storage": storage,
             },
-            headers={
-                "content-type": "application/json",
+            files={
+                **({"file": file} if file is not None else {}),
             },
             request_options=request_options,
             omit=OMIT,
+            force_multipart=True,
         )
         try:
             if 200 <= _response.status_code < 300:
@@ -349,10 +347,11 @@ class AsyncRawPulse:
     async def extract(
         self,
         *,
-        file_url: str,
-        structured_output: typing.Optional[ExtractJsonInputStructuredOutput] = OMIT,
-        schema: typing.Optional[ExtractJsonInputSchema] = OMIT,
-        experimental_schema: typing.Optional[ExtractJsonInputExperimentalSchema] = OMIT,
+        file: typing.Optional[core.File] = OMIT,
+        file_url: typing.Optional[str] = OMIT,
+        structured_output: typing.Optional[ExtractRequestStructuredOutput] = OMIT,
+        schema: typing.Optional[ExtractRequestSchema] = OMIT,
+        experimental_schema: typing.Optional[ExtractRequestExperimentalSchema] = OMIT,
         schema_prompt: typing.Optional[str] = OMIT,
         custom_prompt: typing.Optional[str] = OMIT,
         chunking: typing.Optional[str] = OMIT,
@@ -362,7 +361,7 @@ class AsyncRawPulse:
         figure_description: typing.Optional[bool] = OMIT,
         return_html: typing.Optional[bool] = OMIT,
         thinking: typing.Optional[bool] = OMIT,
-        storage: typing.Optional[ExtractJsonInputStorage] = OMIT,
+        storage: typing.Optional[ExtractRequestStorage] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[ExtractResponse]:
         """
@@ -372,16 +371,19 @@ class AsyncRawPulse:
 
         Parameters
         ----------
-        file_url : str
-            Public or pre-signed URL that Pulse will download and extract.
+        file : typing.Optional[core.File]
+            See core.File for more documentation
 
-        structured_output : typing.Optional[ExtractJsonInputStructuredOutput]
+        file_url : typing.Optional[str]
+            Public or pre-signed URL that Pulse will download and extract. Required unless file is provided.
+
+        structured_output : typing.Optional[ExtractRequestStructuredOutput]
             Recommended method for schema-guided extraction. Contains the schema and optional prompt in a single object.
 
-        schema : typing.Optional[ExtractJsonInputSchema]
+        schema : typing.Optional[ExtractRequestSchema]
             (Deprecated) JSON schema describing structured data to extract. Use structuredOutput instead. Accepts either a JSON object or a stringified JSON representation.
 
-        experimental_schema : typing.Optional[ExtractJsonInputExperimentalSchema]
+        experimental_schema : typing.Optional[ExtractRequestExperimentalSchema]
             (Deprecated) Experimental schema definition used for feature flagged behaviour. Accepts either a JSON object or a stringified JSON representation.
 
         schema_prompt : typing.Optional[str]
@@ -411,7 +413,7 @@ class AsyncRawPulse:
         thinking : typing.Optional[bool]
             (Deprecated) Enables expanded rationale output for debugging.
 
-        storage : typing.Optional[ExtractJsonInputStorage]
+        storage : typing.Optional[ExtractRequestStorage]
             Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created.
 
         request_options : typing.Optional[RequestOptions]
@@ -425,17 +427,11 @@ class AsyncRawPulse:
         _response = await self._client_wrapper.httpx_client.request(
             "extract",
             method="POST",
-            json={
+            data={
                 "fileUrl": file_url,
-                "structuredOutput": convert_and_respect_annotation_metadata(
-                    object_=structured_output, annotation=ExtractJsonInputStructuredOutput, direction="write"
-                ),
-                "schema": convert_and_respect_annotation_metadata(
-                    object_=schema, annotation=ExtractJsonInputSchema, direction="write"
-                ),
-                "experimentalSchema": convert_and_respect_annotation_metadata(
-                    object_=experimental_schema, annotation=ExtractJsonInputExperimentalSchema, direction="write"
-                ),
+                "structuredOutput": structured_output,
+                "schema": schema,
+                "experimentalSchema": experimental_schema,
                 "schemaPrompt": schema_prompt,
                 "customPrompt": custom_prompt,
                 "chunking": chunking,
@@ -445,15 +441,14 @@ class AsyncRawPulse:
                 "figureDescription": figure_description,
                 "returnHtml": return_html,
                 "thinking": thinking,
-                "storage": convert_and_respect_annotation_metadata(
-                    object_=storage, annotation=ExtractJsonInputStorage, direction="write"
-                ),
+                "storage": storage,
             },
-            headers={
-                "content-type": "application/json",
+            files={
+                **({"file": file} if file is not None else {}),
             },
             request_options=request_options,
             omit=OMIT,
+            force_multipart=True,
         )
         try:
             if 200 <= _response.status_code < 300:
@@ -506,10 +501,11 @@ class AsyncRawPulse:
     async def extract_async(
         self,
         *,
-        file_url: str,
-        structured_output: typing.Optional[ExtractJsonInputStructuredOutput] = OMIT,
-        schema: typing.Optional[ExtractJsonInputSchema] = OMIT,
-        experimental_schema: typing.Optional[ExtractJsonInputExperimentalSchema] = OMIT,
+        file: typing.Optional[core.File] = OMIT,
+        file_url: typing.Optional[str] = OMIT,
+        structured_output: typing.Optional[ExtractAsyncRequestStructuredOutput] = OMIT,
+        schema: typing.Optional[ExtractAsyncRequestSchema] = OMIT,
+        experimental_schema: typing.Optional[ExtractAsyncRequestExperimentalSchema] = OMIT,
         schema_prompt: typing.Optional[str] = OMIT,
         custom_prompt: typing.Optional[str] = OMIT,
         chunking: typing.Optional[str] = OMIT,
@@ -519,7 +515,7 @@ class AsyncRawPulse:
         figure_description: typing.Optional[bool] = OMIT,
         return_html: typing.Optional[bool] = OMIT,
         thinking: typing.Optional[bool] = OMIT,
-        storage: typing.Optional[ExtractJsonInputStorage] = OMIT,
+        storage: typing.Optional[ExtractAsyncRequestStorage] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[ExtractAsyncResponse]:
         """
@@ -529,16 +525,19 @@ class AsyncRawPulse:
 
         Parameters
         ----------
-        file_url : str
-            Public or pre-signed URL that Pulse will download and extract.
+        file : typing.Optional[core.File]
+            See core.File for more documentation
 
-        structured_output : typing.Optional[ExtractJsonInputStructuredOutput]
+        file_url : typing.Optional[str]
+            Public or pre-signed URL that Pulse will download and extract. Required unless file is provided.
+
+        structured_output : typing.Optional[ExtractAsyncRequestStructuredOutput]
             Recommended method for schema-guided extraction. Contains the schema and optional prompt in a single object.
 
-        schema : typing.Optional[ExtractJsonInputSchema]
+        schema : typing.Optional[ExtractAsyncRequestSchema]
             (Deprecated) JSON schema describing structured data to extract. Use structuredOutput instead. Accepts either a JSON object or a stringified JSON representation.
 
-        experimental_schema : typing.Optional[ExtractJsonInputExperimentalSchema]
+        experimental_schema : typing.Optional[ExtractAsyncRequestExperimentalSchema]
             (Deprecated) Experimental schema definition used for feature flagged behaviour. Accepts either a JSON object or a stringified JSON representation.
 
         schema_prompt : typing.Optional[str]
@@ -568,7 +567,7 @@ class AsyncRawPulse:
         thinking : typing.Optional[bool]
             (Deprecated) Enables expanded rationale output for debugging.
 
-        storage : typing.Optional[ExtractJsonInputStorage]
+        storage : typing.Optional[ExtractAsyncRequestStorage]
             Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created.
 
         request_options : typing.Optional[RequestOptions]
@@ -582,17 +581,11 @@ class AsyncRawPulse:
         _response = await self._client_wrapper.httpx_client.request(
             "extract_async",
             method="POST",
-            json={
+            data={
                 "fileUrl": file_url,
-                "structuredOutput": convert_and_respect_annotation_metadata(
-                    object_=structured_output, annotation=ExtractJsonInputStructuredOutput, direction="write"
-                ),
-                "schema": convert_and_respect_annotation_metadata(
-                    object_=schema, annotation=ExtractJsonInputSchema, direction="write"
-                ),
-                "experimentalSchema": convert_and_respect_annotation_metadata(
-                    object_=experimental_schema, annotation=ExtractJsonInputExperimentalSchema, direction="write"
-                ),
+                "structuredOutput": structured_output,
+                "schema": schema,
+                "experimentalSchema": experimental_schema,
                 "schemaPrompt": schema_prompt,
                 "customPrompt": custom_prompt,
                 "chunking": chunking,
@@ -602,15 +595,14 @@ class AsyncRawPulse:
                 "figureDescription": figure_description,
                 "returnHtml": return_html,
                 "thinking": thinking,
-                "storage": convert_and_respect_annotation_metadata(
-                    object_=storage, annotation=ExtractJsonInputStorage, direction="write"
-                ),
+                "storage": storage,
             },
-            headers={
-                "content-type": "application/json",
+            files={
+                **({"file": file} if file is not None else {}),
             },
             request_options=request_options,
             omit=OMIT,
+            force_multipart=True,
         )
         try:
             if 200 <= _response.status_code < 300:

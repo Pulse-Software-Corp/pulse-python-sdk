@@ -9,21 +9,23 @@ from ..core.serialization import FieldMetadata
 from ..core.unchecked_base_model import UncheckedBaseModel
 
 
-class MultipartSource(UncheckedBaseModel):
+class ExtractAsyncRequestStructuredOutput(UncheckedBaseModel):
     """
-    Document source definition for multipart/form-data requests. Provide exactly one of `file` (direct upload) or `fileUrl` (remote URL).
-    """
-
-    file: typing.Optional[str] = pydantic.Field(default=None)
-    """
-    Document to upload directly. Required unless fileUrl is provided.
+    Recommended method for schema-guided extraction. Contains the schema and optional prompt in a single object.
     """
 
-    file_url: typing_extensions.Annotated[typing.Optional[str], FieldMetadata(alias="fileUrl")] = pydantic.Field(
-        default=None
+    schema_: typing_extensions.Annotated[
+        typing.Optional[typing.Dict[str, typing.Any]], FieldMetadata(alias="schema")
+    ] = pydantic.Field(default=None)
+    """
+    JSON schema describing the structured data to extract.
+    """
+
+    schema_prompt: typing_extensions.Annotated[typing.Optional[str], FieldMetadata(alias="schemaPrompt")] = (
+        pydantic.Field(default=None)
     )
     """
-    Public or pre-signed URL that Pulse will download and extract. Required unless file is provided.
+    Natural language prompt with additional extraction instructions.
     """
 
     if IS_PYDANTIC_V2:

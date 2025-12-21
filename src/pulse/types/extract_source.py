@@ -9,14 +9,21 @@ from ..core.serialization import FieldMetadata
 from ..core.unchecked_base_model import UncheckedBaseModel
 
 
-class JsonSource(UncheckedBaseModel):
+class ExtractSource(UncheckedBaseModel):
     """
-    Document source definition for JSON requests.
+    Document source definition for multipart/form-data requests. Provide exactly one of `file` (direct upload) or `fileUrl` (remote URL).
     """
 
-    file_url: typing_extensions.Annotated[str, FieldMetadata(alias="fileUrl")] = pydantic.Field()
+    file: typing.Optional[str] = pydantic.Field(default=None)
     """
-    Public or pre-signed URL that Pulse will download and extract.
+    Document to upload directly. Required unless fileUrl is provided.
+    """
+
+    file_url: typing_extensions.Annotated[typing.Optional[str], FieldMetadata(alias="fileUrl")] = pydantic.Field(
+        default=None
+    )
+    """
+    Public or pre-signed URL that Pulse will download and extract. Required unless file is provided.
     """
 
     if IS_PYDANTIC_V2:

@@ -2,4 +2,4 @@
 
 import typing
 
-ExtractMultipartInputSchema = typing.Union[typing.Dict[str, typing.Any], str]
+ExtractRequestSchema = typing.Union[typing.Dict[str, typing.Any], str]

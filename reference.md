@@ -33,9 +33,7 @@ from pulse import Pulse
 client = Pulse(
     api_key="YOUR_API_KEY",
 )
-client.extract(
-    file_url="fileUrl",
-)
+client.extract()
 
 ```
 </dd>
@@ -51,7 +49,9 @@ client.extract(
 <dl>
 <dd>
 
-**file_url:** `str` — Public or pre-signed URL that Pulse will download and extract.
+**file:** `from __future__ import annotations
+
+typing.Optional[core.File]` — See core.File for more documentation
     
 </dd>
 </dl>
@@ -59,7 +59,7 @@ client.extract(
 <dl>
 <dd>
 
-**structured_output:** `typing.Optional[ExtractJsonInputStructuredOutput]` — Recommended method for schema-guided extraction. Contains the schema and optional prompt in a single object.
+**file_url:** `typing.Optional[str]` — Public or pre-signed URL that Pulse will download and extract. Required unless file is provided.
     
 </dd>
 </dl>
@@ -67,7 +67,7 @@ client.extract(
 <dl>
 <dd>
 
-**schema:** `typing.Optional[ExtractJsonInputSchema]` — (Deprecated) JSON schema describing structured data to extract. Use structuredOutput instead. Accepts either a JSON object or a stringified JSON representation.
+**structured_output:** `typing.Optional[ExtractRequestStructuredOutput]` — Recommended method for schema-guided extraction. Contains the schema and optional prompt in a single object.
     
 </dd>
 </dl>
@@ -75,7 +75,15 @@ client.extract(
 <dl>
 <dd>
 
-**experimental_schema:** `typing.Optional[ExtractJsonInputExperimentalSchema]` — (Deprecated) Experimental schema definition used for feature flagged behaviour. Accepts either a JSON object or a stringified JSON representation.
+**schema:** `typing.Optional[ExtractRequestSchema]` — (Deprecated) JSON schema describing structured data to extract. Use structuredOutput instead. Accepts either a JSON object or a stringified JSON representation.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**experimental_schema:** `typing.Optional[ExtractRequestExperimentalSchema]` — (Deprecated) Experimental schema definition used for feature flagged behaviour. Accepts either a JSON object or a stringified JSON representation.
     
 </dd>
 </dl>
@@ -155,7 +163,7 @@ client.extract(
 <dl>
 <dd>
 
-**storage:** `typing.Optional[ExtractJsonInputStorage]` — Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created.
+**storage:** `typing.Optional[ExtractRequestStorage]` — Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created.
     
 </dd>
 </dl>
@@ -209,9 +217,7 @@ from pulse import Pulse
 client = Pulse(
     api_key="YOUR_API_KEY",
 )
-client.extract_async(
-    file_url="fileUrl",
-)
+client.extract_async()
 
 ```
 </dd>
@@ -227,7 +233,9 @@ client.extract_async(
 <dl>
 <dd>
 
-**file_url:** `str` — Public or pre-signed URL that Pulse will download and extract.
+**file:** `from __future__ import annotations
+
+typing.Optional[core.File]` — See core.File for more documentation
     
 </dd>
 </dl>
@@ -235,7 +243,7 @@ client.extract_async(
 <dl>
 <dd>
 
-**structured_output:** `typing.Optional[ExtractJsonInputStructuredOutput]` — Recommended method for schema-guided extraction. Contains the schema and optional prompt in a single object.
+**file_url:** `typing.Optional[str]` — Public or pre-signed URL that Pulse will download and extract. Required unless file is provided.
     
 </dd>
 </dl>
@@ -243,7 +251,7 @@ client.extract_async(
 <dl>
 <dd>
 
-**schema:** `typing.Optional[ExtractJsonInputSchema]` — (Deprecated) JSON schema describing structured data to extract. Use structuredOutput instead. Accepts either a JSON object or a stringified JSON representation.
+**structured_output:** `typing.Optional[ExtractAsyncRequestStructuredOutput]` — Recommended method for schema-guided extraction. Contains the schema and optional prompt in a single object.
     
 </dd>
 </dl>
@@ -251,7 +259,15 @@ client.extract_async(
 <dl>
 <dd>
 
-**experimental_schema:** `typing.Optional[ExtractJsonInputExperimentalSchema]` — (Deprecated) Experimental schema definition used for feature flagged behaviour. Accepts either a JSON object or a stringified JSON representation.
+**schema:** `typing.Optional[ExtractAsyncRequestSchema]` — (Deprecated) JSON schema describing structured data to extract. Use structuredOutput instead. Accepts either a JSON object or a stringified JSON representation.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**experimental_schema:** `typing.Optional[ExtractAsyncRequestExperimentalSchema]` — (Deprecated) Experimental schema definition used for feature flagged behaviour. Accepts either a JSON object or a stringified JSON representation.
     
 </dd>
 </dl>
@@ -331,7 +347,7 @@ client.extract_async(
 <dl>
 <dd>
 
-**storage:** `typing.Optional[ExtractJsonInputStorage]` — Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created.
+**storage:** `typing.Optional[ExtractAsyncRequestStorage]` — Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created.
     
 </dd>
 </dl>
