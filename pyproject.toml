@@ -4,7 +4,7 @@ dynamic = ["version"]
 
 [tool.poetry]
 name = "pulse-python-sdk"
-version = "0.0.59"
+version = "0.0.60"
 description = ""
 readme = "README.md"
 authors = []
