@@ -32,6 +32,7 @@ from pulse import Pulse
 
 client = Pulse(
     api_key="YOUR_API_KEY",
+    api_key="YOUR_API_KEY",
 )
 client.extract()
 
@@ -215,6 +216,7 @@ clients can poll for completion status.
 from pulse import Pulse
 
 client = Pulse(
+    api_key="YOUR_API_KEY",
     api_key="YOUR_API_KEY",
 )
 client.extract_async()
@@ -400,6 +402,7 @@ from pulse import Pulse
 
 client = Pulse(
     api_key="YOUR_API_KEY",
+    api_key="YOUR_API_KEY",
 )
 client.jobs.get_job(
     job_id="jobId",
@@ -471,6 +474,7 @@ from pulse import Pulse
 
 client = Pulse(
     api_key="YOUR_API_KEY",
+    api_key="YOUR_API_KEY",
 )
 client.jobs.cancel_job(
     job_id="jobId",
@@ -541,6 +545,7 @@ Generates a temporary link to the Svix webhook portal where users can manage the
 from pulse import Pulse
 
 client = Pulse(
+    api_key="YOUR_API_KEY",
     api_key="YOUR_API_KEY",
 )
 client.webhooks.create_webhook_link()

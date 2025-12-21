@@ -38,6 +38,7 @@ from pulse import Pulse
 
 client = Pulse(
     api_key="YOUR_API_KEY",
+    api_key="YOUR_API_KEY",
 )
 client.extract()
 ```
@@ -52,6 +53,7 @@ import asyncio
 from pulse import AsyncPulse
 
 client = AsyncPulse(
+    api_key="YOUR_API_KEY",
     api_key="YOUR_API_KEY",
 )
 

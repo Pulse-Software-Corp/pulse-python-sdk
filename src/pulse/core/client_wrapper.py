@@ -10,11 +10,12 @@ class BaseClientWrapper:
     def __init__(
         self,
         *,
-        api_key: str,
+        api_key: typing.Optional[str] = None,
         headers: typing.Optional[typing.Dict[str, str]] = None,
         base_url: str,
         timeout: typing.Optional[float] = None,
     ):
+        self._api_key = api_key
         self.api_key = api_key
         self._headers = headers
         self._base_url = base_url
@@ -22,12 +23,14 @@ class BaseClientWrapper:
 
     def get_headers(self) -> typing.Dict[str, str]:
         headers: typing.Dict[str, str] = {
-            "User-Agent": "pulse-python-sdk/0.0.55",
+            "User-Agent": "pulse-python-sdk/0.0.56",
             "X-Fern-Language": "Python",
             "X-Fern-SDK-Name": "pulse-python-sdk",
-            "X-Fern-SDK-Version": "0.0.55",
+            "X-Fern-SDK-Version": "0.0.56",
             **(self.get_custom_headers() or {}),
         }
+        if self._api_key is not None:
+            headers["x-api-key"] = self._api_key
         headers["x-api-key"] = self.api_key
         return headers
 
@@ -45,7 +48,7 @@ class SyncClientWrapper(BaseClientWrapper):
     def __init__(
         self,
         *,
-        api_key: str,
+        api_key: typing.Optional[str] = None,
         headers: typing.Optional[typing.Dict[str, str]] = None,
         base_url: str,
         timeout: typing.Optional[float] = None,
@@ -64,7 +67,7 @@ class AsyncClientWrapper(BaseClientWrapper):
     def __init__(
         self,
         *,
-        api_key: str,
+        api_key: typing.Optional[str] = None,
         headers: typing.Optional[typing.Dict[str, str]] = None,
         base_url: str,
         timeout: typing.Optional[float] = None,

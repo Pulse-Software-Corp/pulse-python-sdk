@@ -46,6 +46,7 @@ class Pulse:
 
 
 
+    api_key : typing.Optional[str]
     api_key : str
     headers : typing.Optional[typing.Dict[str, str]]
         Additional headers to send with every request.
@@ -65,6 +66,7 @@ class Pulse:
 
     client = Pulse(
         api_key="YOUR_API_KEY",
+        api_key="YOUR_API_KEY",
     )
     """
 
@@ -73,7 +75,7 @@ class Pulse:
         *,
         base_url: typing.Optional[str] = None,
         environment: PulseEnvironment = PulseEnvironment.DEFAULT,
-        api_key: str,
+        api_key: typing.Optional[str] = None,
         headers: typing.Optional[typing.Dict[str, str]] = None,
         timeout: typing.Optional[float] = None,
         follow_redirects: typing.Optional[bool] = True,
@@ -194,6 +196,7 @@ class Pulse:
 
         client = Pulse(
             api_key="YOUR_API_KEY",
+            api_key="YOUR_API_KEY",
         )
         client.extract()
         """
@@ -303,6 +306,7 @@ class Pulse:
 
         client = Pulse(
             api_key="YOUR_API_KEY",
+            api_key="YOUR_API_KEY",
         )
         client.extract_async()
         """
@@ -361,6 +365,7 @@ class AsyncPulse:
 
 
 
+    api_key : typing.Optional[str]
     api_key : str
     headers : typing.Optional[typing.Dict[str, str]]
         Additional headers to send with every request.
@@ -380,6 +385,7 @@ class AsyncPulse:
 
     client = AsyncPulse(
         api_key="YOUR_API_KEY",
+        api_key="YOUR_API_KEY",
     )
     """
 
@@ -388,7 +394,7 @@ class AsyncPulse:
         *,
         base_url: typing.Optional[str] = None,
         environment: PulseEnvironment = PulseEnvironment.DEFAULT,
-        api_key: str,
+        api_key: typing.Optional[str] = None,
         headers: typing.Optional[typing.Dict[str, str]] = None,
         timeout: typing.Optional[float] = None,
         follow_redirects: typing.Optional[bool] = True,
@@ -511,6 +517,7 @@ class AsyncPulse:
 
         client = AsyncPulse(
             api_key="YOUR_API_KEY",
+            api_key="YOUR_API_KEY",
         )
 
 
@@ -627,6 +634,7 @@ class AsyncPulse:
         from pulse import AsyncPulse
 
         client = AsyncPulse(
+            api_key="YOUR_API_KEY",
             api_key="YOUR_API_KEY",
         )
 
