@@ -30,10 +30,7 @@ extraction based on user-provided schemas and extraction options.
 ```python
 from pulse import Pulse
 
-client = Pulse(
-    api_key="YOUR_API_KEY",
-    api_key="YOUR_API_KEY",
-)
+client = Pulse()
 client.extract()
 
 ```
@@ -215,10 +212,7 @@ clients can poll for completion status.
 ```python
 from pulse import Pulse
 
-client = Pulse(
-    api_key="YOUR_API_KEY",
-    api_key="YOUR_API_KEY",
-)
+client = Pulse()
 client.extract_async()
 
 ```
@@ -400,10 +394,7 @@ Check the status and retrieve results of an asynchronous job
 ```python
 from pulse import Pulse
 
-client = Pulse(
-    api_key="YOUR_API_KEY",
-    api_key="YOUR_API_KEY",
-)
+client = Pulse()
 client.jobs.get_job(
     job_id="jobId",
 )
@@ -472,10 +463,7 @@ or processing. Jobs that have already completed will remain unchanged.
 ```python
 from pulse import Pulse
 
-client = Pulse(
-    api_key="YOUR_API_KEY",
-    api_key="YOUR_API_KEY",
-)
+client = Pulse()
 client.jobs.cancel_job(
     job_id="jobId",
 )
@@ -544,10 +532,7 @@ Generates a temporary link to the Svix webhook portal where users can manage the
 ```python
 from pulse import Pulse
 
-client = Pulse(
-    api_key="YOUR_API_KEY",
-    api_key="YOUR_API_KEY",
-)
+client = Pulse()
 client.webhooks.create_webhook_link()
 
 ```

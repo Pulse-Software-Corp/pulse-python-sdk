@@ -46,10 +46,7 @@ class JobsClient:
         --------
         from pulse import Pulse
 
-        client = Pulse(
-            api_key="YOUR_API_KEY",
-            api_key="YOUR_API_KEY",
-        )
+        client = Pulse()
         client.jobs.get_job(
             job_id="jobId",
         )
@@ -81,10 +78,7 @@ class JobsClient:
         --------
         from pulse import Pulse
 
-        client = Pulse(
-            api_key="YOUR_API_KEY",
-            api_key="YOUR_API_KEY",
-        )
+        client = Pulse()
         client.jobs.cancel_job(
             job_id="jobId",
         )
@@ -134,10 +128,7 @@ class AsyncJobsClient:
 
         from pulse import AsyncPulse
 
-        client = AsyncPulse(
-            api_key="YOUR_API_KEY",
-            api_key="YOUR_API_KEY",
-        )
+        client = AsyncPulse()
 
 
         async def main() -> None:
@@ -177,10 +168,7 @@ class AsyncJobsClient:
 
         from pulse import AsyncPulse
 
-        client = AsyncPulse(
-            api_key="YOUR_API_KEY",
-            api_key="YOUR_API_KEY",
-        )
+        client = AsyncPulse()
 
 
         async def main() -> None:

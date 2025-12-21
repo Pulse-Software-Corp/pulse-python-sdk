@@ -36,10 +36,7 @@ Instantiate and use the client with the following:
 ```python
 from pulse import Pulse
 
-client = Pulse(
-    api_key="YOUR_API_KEY",
-    api_key="YOUR_API_KEY",
-)
+client = Pulse()
 client.extract()
 ```
 
@@ -52,10 +49,7 @@ import asyncio
 
 from pulse import AsyncPulse
 
-client = AsyncPulse(
-    api_key="YOUR_API_KEY",
-    api_key="YOUR_API_KEY",
-)
+client = AsyncPulse()
 
 
 async def main() -> None:

@@ -46,8 +46,6 @@ class Pulse:
 
 
 
-    api_key : typing.Optional[str]
-    api_key : str
     headers : typing.Optional[typing.Dict[str, str]]
         Additional headers to send with every request.
 
@@ -64,10 +62,7 @@ class Pulse:
     --------
     from pulse import Pulse
 
-    client = Pulse(
-        api_key="YOUR_API_KEY",
-        api_key="YOUR_API_KEY",
-    )
+    client = Pulse()
     """
 
     def __init__(
@@ -75,7 +70,6 @@ class Pulse:
         *,
         base_url: typing.Optional[str] = None,
         environment: PulseEnvironment = PulseEnvironment.DEFAULT,
-        api_key: typing.Optional[str] = None,
         headers: typing.Optional[typing.Dict[str, str]] = None,
         timeout: typing.Optional[float] = None,
         follow_redirects: typing.Optional[bool] = True,
@@ -86,7 +80,6 @@ class Pulse:
         )
         self._client_wrapper = SyncClientWrapper(
             base_url=_get_base_url(base_url=base_url, environment=environment),
-            api_key=api_key,
             headers=headers,
             httpx_client=httpx_client
             if httpx_client is not None
@@ -194,10 +187,7 @@ class Pulse:
         --------
         from pulse import Pulse
 
-        client = Pulse(
-            api_key="YOUR_API_KEY",
-            api_key="YOUR_API_KEY",
-        )
+        client = Pulse()
         client.extract()
         """
         _response = self._raw_client.extract(
@@ -304,10 +294,7 @@ class Pulse:
         --------
         from pulse import Pulse
 
-        client = Pulse(
-            api_key="YOUR_API_KEY",
-            api_key="YOUR_API_KEY",
-        )
+        client = Pulse()
         client.extract_async()
         """
         _response = self._raw_client.extract_async(
@@ -365,8 +352,6 @@ class AsyncPulse:
 
 
 
-    api_key : typing.Optional[str]
-    api_key : str
     headers : typing.Optional[typing.Dict[str, str]]
         Additional headers to send with every request.
 
@@ -383,10 +368,7 @@ class AsyncPulse:
     --------
     from pulse import AsyncPulse
 
-    client = AsyncPulse(
-        api_key="YOUR_API_KEY",
-        api_key="YOUR_API_KEY",
-    )
+    client = AsyncPulse()
     """
 
     def __init__(
@@ -394,7 +376,6 @@ class AsyncPulse:
         *,
         base_url: typing.Optional[str] = None,
         environment: PulseEnvironment = PulseEnvironment.DEFAULT,
-        api_key: typing.Optional[str] = None,
         headers: typing.Optional[typing.Dict[str, str]] = None,
         timeout: typing.Optional[float] = None,
         follow_redirects: typing.Optional[bool] = True,
@@ -405,7 +386,6 @@ class AsyncPulse:
         )
         self._client_wrapper = AsyncClientWrapper(
             base_url=_get_base_url(base_url=base_url, environment=environment),
-            api_key=api_key,
             headers=headers,
             httpx_client=httpx_client
             if httpx_client is not None
@@ -515,10 +495,7 @@ class AsyncPulse:
 
         from pulse import AsyncPulse
 
-        client = AsyncPulse(
-            api_key="YOUR_API_KEY",
-            api_key="YOUR_API_KEY",
-        )
+        client = AsyncPulse()
 
 
         async def main() -> None:
@@ -633,10 +610,7 @@ class AsyncPulse:
 
         from pulse import AsyncPulse
 
-        client = AsyncPulse(
-            api_key="YOUR_API_KEY",
-            api_key="YOUR_API_KEY",
-        )
+        client = AsyncPulse()
 
 
         async def main() -> None:

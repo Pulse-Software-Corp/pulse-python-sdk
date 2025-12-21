@@ -43,10 +43,7 @@ class WebhooksClient:
         --------
         from pulse import Pulse
 
-        client = Pulse(
-            api_key="YOUR_API_KEY",
-            api_key="YOUR_API_KEY",
-        )
+        client = Pulse()
         client.webhooks.create_webhook_link()
         """
         _response = self._raw_client.create_webhook_link(request_options=request_options)
@@ -90,10 +87,7 @@ class AsyncWebhooksClient:
 
         from pulse import AsyncPulse
 
-        client = AsyncPulse(
-            api_key="YOUR_API_KEY",
-            api_key="YOUR_API_KEY",
-        )
+        client = AsyncPulse()
 
 
         async def main() -> None:

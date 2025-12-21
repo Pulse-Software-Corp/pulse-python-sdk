@@ -10,28 +10,22 @@ class BaseClientWrapper:
     def __init__(
         self,
         *,
-        api_key: typing.Optional[str] = None,
         headers: typing.Optional[typing.Dict[str, str]] = None,
         base_url: str,
         timeout: typing.Optional[float] = None,
     ):
-        self._api_key = api_key
-        self.api_key = api_key
         self._headers = headers
         self._base_url = base_url
         self._timeout = timeout
 
     def get_headers(self) -> typing.Dict[str, str]:
         headers: typing.Dict[str, str] = {
-            "User-Agent": "pulse-python-sdk/0.0.57",
+            "User-Agent": "pulse-python-sdk/0.0.58",
             "X-Fern-Language": "Python",
             "X-Fern-SDK-Name": "pulse-python-sdk",
-            "X-Fern-SDK-Version": "0.0.57",
+            "X-Fern-SDK-Version": "0.0.58",
             **(self.get_custom_headers() or {}),
         }
-        if self._api_key is not None:
-            headers["x-api-key"] = self._api_key
-        headers["x-api-key"] = self.api_key
         return headers
 
     def get_custom_headers(self) -> typing.Optional[typing.Dict[str, str]]:
@@ -48,13 +42,12 @@ class SyncClientWrapper(BaseClientWrapper):
     def __init__(
         self,
         *,
-        api_key: typing.Optional[str] = None,
         headers: typing.Optional[typing.Dict[str, str]] = None,
         base_url: str,
         timeout: typing.Optional[float] = None,
         httpx_client: httpx.Client,
     ):
-        super().__init__(api_key=api_key, headers=headers, base_url=base_url, timeout=timeout)
+        super().__init__(headers=headers, base_url=base_url, timeout=timeout)
         self.httpx_client = HttpClient(
             httpx_client=httpx_client,
             base_headers=self.get_headers,
@@ -67,14 +60,13 @@ class AsyncClientWrapper(BaseClientWrapper):
     def __init__(
         self,
         *,
-        api_key: typing.Optional[str] = None,
         headers: typing.Optional[typing.Dict[str, str]] = None,
         base_url: str,
         timeout: typing.Optional[float] = None,
         async_token: typing.Optional[typing.Callable[[], typing.Awaitable[str]]] = None,
         httpx_client: httpx.AsyncClient,
     ):
-        super().__init__(api_key=api_key, headers=headers, base_url=base_url, timeout=timeout)
+        super().__init__(headers=headers, base_url=base_url, timeout=timeout)
         self._async_token = async_token
         self.httpx_client = AsyncHttpClient(
             httpx_client=httpx_client,
