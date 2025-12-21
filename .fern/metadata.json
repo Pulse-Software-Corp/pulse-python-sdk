@@ -12,5 +12,5 @@
     },
     "exclude_types_from_init_exports": true
   },
-  "sdkVersion": "0.0.58"
+  "sdkVersion": "0.0.59"
 }

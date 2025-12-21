@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import os
 import typing
 
 import httpx
 from . import core
+from .core.api_error import ApiError
 from .core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from .core.request_options import RequestOptions
 from .environment import PulseEnvironment
@@ -46,6 +48,7 @@ class Pulse:
 
 
 
+    api_key : typing.Optional[str]
     headers : typing.Optional[typing.Dict[str, str]]
         Additional headers to send with every request.
 
@@ -62,7 +65,9 @@ class Pulse:
     --------
     from pulse import Pulse
 
-    client = Pulse()
+    client = Pulse(
+        api_key="YOUR_API_KEY",
+    )
     """
 
     def __init__(
@@ -70,6 +75,7 @@ class Pulse:
         *,
         base_url: typing.Optional[str] = None,
         environment: PulseEnvironment = PulseEnvironment.DEFAULT,
+        api_key: typing.Optional[str] = os.getenv("PULSE_API_KEY"),
         headers: typing.Optional[typing.Dict[str, str]] = None,
         timeout: typing.Optional[float] = None,
         follow_redirects: typing.Optional[bool] = True,
@@ -78,8 +84,11 @@ class Pulse:
         _defaulted_timeout = (
             timeout if timeout is not None else 60 if httpx_client is None else httpx_client.timeout.read
         )
+        if api_key is None:
+            raise ApiError(body="The client must be instantiated be either passing in api_key or setting PULSE_API_KEY")
         self._client_wrapper = SyncClientWrapper(
             base_url=_get_base_url(base_url=base_url, environment=environment),
+            api_key=api_key,
             headers=headers,
             httpx_client=httpx_client
             if httpx_client is not None
@@ -187,7 +196,9 @@ class Pulse:
         --------
         from pulse import Pulse
 
-        client = Pulse()
+        client = Pulse(
+            api_key="YOUR_API_KEY",
+        )
         client.extract()
         """
         _response = self._raw_client.extract(
@@ -294,7 +305,9 @@ class Pulse:
         --------
         from pulse import Pulse
 
-        client = Pulse()
+        client = Pulse(
+            api_key="YOUR_API_KEY",
+        )
         client.extract_async()
         """
         _response = self._raw_client.extract_async(
@@ -352,6 +365,7 @@ class AsyncPulse:
 
 
 
+    api_key : typing.Optional[str]
     headers : typing.Optional[typing.Dict[str, str]]
         Additional headers to send with every request.
 
@@ -368,7 +382,9 @@ class AsyncPulse:
     --------
     from pulse import AsyncPulse
 
-    client = AsyncPulse()
+    client = AsyncPulse(
+        api_key="YOUR_API_KEY",
+    )
     """
 
     def __init__(
@@ -376,6 +392,7 @@ class AsyncPulse:
         *,
         base_url: typing.Optional[str] = None,
         environment: PulseEnvironment = PulseEnvironment.DEFAULT,
+        api_key: typing.Optional[str] = os.getenv("PULSE_API_KEY"),
         headers: typing.Optional[typing.Dict[str, str]] = None,
         timeout: typing.Optional[float] = None,
         follow_redirects: typing.Optional[bool] = True,
@@ -384,8 +401,11 @@ class AsyncPulse:
         _defaulted_timeout = (
             timeout if timeout is not None else 60 if httpx_client is None else httpx_client.timeout.read
         )
+        if api_key is None:
+            raise ApiError(body="The client must be instantiated be either passing in api_key or setting PULSE_API_KEY")
         self._client_wrapper = AsyncClientWrapper(
             base_url=_get_base_url(base_url=base_url, environment=environment),
+            api_key=api_key,
             headers=headers,
             httpx_client=httpx_client
             if httpx_client is not None
@@ -495,7 +515,9 @@ class AsyncPulse:
 
         from pulse import AsyncPulse
 
-        client = AsyncPulse()
+        client = AsyncPulse(
+            api_key="YOUR_API_KEY",
+        )
 
 
         async def main() -> None:
@@ -610,7 +632,9 @@ class AsyncPulse:
 
         from pulse import AsyncPulse
 
-        client = AsyncPulse()
+        client = AsyncPulse(
+            api_key="YOUR_API_KEY",
+        )
 
 
         async def main() -> None:
