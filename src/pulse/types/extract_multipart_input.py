@@ -18,18 +18,6 @@ class ExtractMultipartInput(UncheckedBaseModel):
     Input schema for multipart/form-data requests (file upload or fileUrl).
     """
 
-    file: str = pydantic.Field()
-    """
-    Document to upload directly. Required unless fileUrl is specified.
-    """
-
-    file_url: typing_extensions.Annotated[typing.Optional[str], FieldMetadata(alias="fileUrl")] = pydantic.Field(
-        default=None
-    )
-    """
-    Public or pre-signed URL that Pulse will download and extract.
-    """
-
     structured_output: typing_extensions.Annotated[
         typing.Optional[ExtractMultipartInputStructuredOutput], FieldMetadata(alias="structuredOutput")
     ] = pydantic.Field(default=None)
