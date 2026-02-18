@@ -8,20 +8,28 @@ from .core.api_error import ApiError
 from .core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from .core.http_response import AsyncHttpResponse, HttpResponse
 from .core.request_options import RequestOptions
+from .core.serialization import convert_and_respect_annotation_metadata
 from .core.unchecked_base_model import construct_type
 from .errors.bad_request_error import BadRequestError
+from .errors.internal_server_error import InternalServerError
+from .errors.not_found_error import NotFoundError
 from .errors.too_many_requests_error import TooManyRequestsError
 from .errors.unauthorized_error import UnauthorizedError
+from .types.async_submission_response import AsyncSubmissionResponse
 from .types.extract_async_request_experimental_schema import ExtractAsyncRequestExperimentalSchema
 from .types.extract_async_request_schema import ExtractAsyncRequestSchema
 from .types.extract_async_request_storage import ExtractAsyncRequestStorage
 from .types.extract_async_request_structured_output import ExtractAsyncRequestStructuredOutput
-from .types.extract_async_response import ExtractAsyncResponse
 from .types.extract_request_experimental_schema import ExtractRequestExperimentalSchema
 from .types.extract_request_schema import ExtractRequestSchema
 from .types.extract_request_storage import ExtractRequestStorage
 from .types.extract_request_structured_output import ExtractRequestStructuredOutput
 from .types.extract_response import ExtractResponse
+from .types.schema_config import SchemaConfig
+from .types.schema_response import SchemaResponse
+from .types.split_config import SplitConfig
+from .types.split_response import SplitResponse
+from .types.topic_schema_config import TopicSchemaConfig
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -46,15 +54,25 @@ class RawPulse:
         pages: typing.Optional[str] = OMIT,
         extract_figure: typing.Optional[bool] = OMIT,
         figure_description: typing.Optional[bool] = OMIT,
+        show_images: typing.Optional[bool] = OMIT,
         return_html: typing.Optional[bool] = OMIT,
+        effort: typing.Optional[bool] = OMIT,
         thinking: typing.Optional[bool] = OMIT,
         storage: typing.Optional[ExtractRequestStorage] = OMIT,
+        async_: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[ExtractResponse]:
         """
         The primary endpoint for the Pulse API. Parses uploaded documents or remote
         file URLs and returns rich markdown content with optional structured data
         extraction based on user-provided schemas and extraction options.
+
+        Set `async: true` to return immediately with a job_id for polling via
+        GET /job/{jobId}. Otherwise processes synchronously.
+
+        **Note:** Both sync and async modes return HTTP 200. When `async` is true
+        the response body contains `{ job_id, status }` instead of the full
+        extraction result.
 
         Parameters
         ----------
@@ -65,7 +83,7 @@ class RawPulse:
             Public or pre-signed URL that Pulse will download and extract. Required unless file is provided.
 
         structured_output : typing.Optional[ExtractRequestStructuredOutput]
-            Recommended method for schema-guided extraction. Contains the schema and optional prompt in a single object.
+            **⚠️ DEPRECATED** — Use the `/schema` endpoint after extraction instead. Pass the `extraction_id` from the extract response to `/schema` with your `schema_config`. This parameter still works for backward compatibility but will be removed in a future version.
 
         schema : typing.Optional[ExtractRequestSchema]
             (Deprecated) JSON schema describing structured data to extract. Use structuredOutput instead. Accepts either a JSON object or a stringified JSON representation.
@@ -94,8 +112,14 @@ class RawPulse:
         figure_description : typing.Optional[bool]
             Toggle to generate descriptive captions for extracted figures.
 
+        show_images : typing.Optional[bool]
+            Embed base64-encoded images inline in figure tags in the output. Increases response size.
+
         return_html : typing.Optional[bool]
             Whether to include HTML representation alongside markdown in the response.
+
+        effort : typing.Optional[bool]
+            Enable extended reasoning mode for higher quality extraction on complex documents. Uses a more powerful model at higher latency.
 
         thinking : typing.Optional[bool]
             (Deprecated) Enables expanded rationale output for debugging.
@@ -103,32 +127,40 @@ class RawPulse:
         storage : typing.Optional[ExtractRequestStorage]
             Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created.
 
+        async_ : typing.Optional[bool]
+            If true, returns immediately with a job_id for polling via GET /job/{jobId}. Otherwise processes synchronously.
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
         HttpResponse[ExtractResponse]
-            Synchronous extraction result
+            When `async=false` (default): full extraction result with markdown,
+            bounding boxes, chunks, etc.
+            When `async=true`: job submission acknowledgement with `job_id`.
         """
         _response = self._client_wrapper.httpx_client.request(
             "extract",
             method="POST",
             data={
-                "file_url": file_url,
-                "structured_output": structured_output,
+                "fileUrl": file_url,
+                "structuredOutput": structured_output,
                 "schema": schema,
-                "experimental_schema": experimental_schema,
-                "schema_prompt": schema_prompt,
-                "custom_prompt": custom_prompt,
+                "experimentalSchema": experimental_schema,
+                "schemaPrompt": schema_prompt,
+                "customPrompt": custom_prompt,
                 "chunking": chunking,
-                "chunk_size": chunk_size,
+                "chunkSize": chunk_size,
                 "pages": pages,
-                "extract_figure": extract_figure,
-                "figure_description": figure_description,
-                "return_html": return_html,
+                "extractFigure": extract_figure,
+                "figureDescription": figure_description,
+                "showImages": show_images,
+                "returnHtml": return_html,
+                "effort": effort,
                 "thinking": thinking,
                 "storage": storage,
+                "async": async_,
             },
             files={
                 **({"file": file} if file is not None else {}),
@@ -200,12 +232,17 @@ class RawPulse:
         pages: typing.Optional[str] = OMIT,
         extract_figure: typing.Optional[bool] = OMIT,
         figure_description: typing.Optional[bool] = OMIT,
+        show_images: typing.Optional[bool] = OMIT,
         return_html: typing.Optional[bool] = OMIT,
+        effort: typing.Optional[bool] = OMIT,
         thinking: typing.Optional[bool] = OMIT,
         storage: typing.Optional[ExtractAsyncRequestStorage] = OMIT,
+        async_: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> HttpResponse[ExtractAsyncResponse]:
+    ) -> HttpResponse[AsyncSubmissionResponse]:
         """
+        **Deprecated**: Use `/extract` with `async: true` instead.
+
         Starts an asynchronous extraction job. The request mirrors the
         synchronous options but returns immediately with a job identifier that
         clients can poll for completion status.
@@ -219,7 +256,7 @@ class RawPulse:
             Public or pre-signed URL that Pulse will download and extract. Required unless file is provided.
 
         structured_output : typing.Optional[ExtractAsyncRequestStructuredOutput]
-            Recommended method for schema-guided extraction. Contains the schema and optional prompt in a single object.
+            **⚠️ DEPRECATED** — Use the `/schema` endpoint after extraction instead. Pass the `extraction_id` from the extract response to `/schema` with your `schema_config`. This parameter still works for backward compatibility but will be removed in a future version.
 
         schema : typing.Optional[ExtractAsyncRequestSchema]
             (Deprecated) JSON schema describing structured data to extract. Use structuredOutput instead. Accepts either a JSON object or a stringified JSON representation.
@@ -248,8 +285,14 @@ class RawPulse:
         figure_description : typing.Optional[bool]
             Toggle to generate descriptive captions for extracted figures.
 
+        show_images : typing.Optional[bool]
+            Embed base64-encoded images inline in figure tags in the output. Increases response size.
+
         return_html : typing.Optional[bool]
             Whether to include HTML representation alongside markdown in the response.
+
+        effort : typing.Optional[bool]
+            Enable extended reasoning mode for higher quality extraction on complex documents. Uses a more powerful model at higher latency.
 
         thinking : typing.Optional[bool]
             (Deprecated) Enables expanded rationale output for debugging.
@@ -257,32 +300,38 @@ class RawPulse:
         storage : typing.Optional[ExtractAsyncRequestStorage]
             Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created.
 
+        async_ : typing.Optional[bool]
+            If true, returns immediately with a job_id for polling via GET /job/{jobId}. Otherwise processes synchronously.
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        HttpResponse[ExtractAsyncResponse]
+        HttpResponse[AsyncSubmissionResponse]
             Asynchronous extraction job accepted
         """
         _response = self._client_wrapper.httpx_client.request(
             "extract_async",
             method="POST",
             data={
-                "file_url": file_url,
-                "structured_output": structured_output,
+                "fileUrl": file_url,
+                "structuredOutput": structured_output,
                 "schema": schema,
-                "experimental_schema": experimental_schema,
-                "schema_prompt": schema_prompt,
-                "custom_prompt": custom_prompt,
+                "experimentalSchema": experimental_schema,
+                "schemaPrompt": schema_prompt,
+                "customPrompt": custom_prompt,
                 "chunking": chunking,
-                "chunk_size": chunk_size,
+                "chunkSize": chunk_size,
                 "pages": pages,
-                "extract_figure": extract_figure,
-                "figure_description": figure_description,
-                "return_html": return_html,
+                "extractFigure": extract_figure,
+                "figureDescription": figure_description,
+                "showImages": show_images,
+                "returnHtml": return_html,
+                "effort": effort,
                 "thinking": thinking,
                 "storage": storage,
+                "async": async_,
             },
             files={
                 **({"file": file} if file is not None else {}),
@@ -294,9 +343,9 @@ class RawPulse:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    ExtractAsyncResponse,
+                    AsyncSubmissionResponse,
                     construct_type(
-                        type_=ExtractAsyncResponse,  # type: ignore
+                        type_=AsyncSubmissionResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -339,6 +388,279 @@ class RawPulse:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
+    def split(
+        self,
+        *,
+        extraction_id: str,
+        split_config: typing.Optional[SplitConfig] = OMIT,
+        split_config_id: typing.Optional[str] = OMIT,
+        async_: typing.Optional[bool] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> HttpResponse[SplitResponse]:
+        """
+        Identify which pages of a document contain each topic/section.
+        Takes an existing extraction and a list of topics, then uses AI to
+        identify which PDF pages contain content related to each topic.
+
+        The result is persisted with a `split_id` that can be used with
+        the `/schema` endpoint (split mode) for targeted schema extraction on
+        specific page groups.
+
+        Set `async: true` to return immediately with a job_id for polling.
+
+        Parameters
+        ----------
+        extraction_id : str
+            ID of the saved extraction to split.
+
+        split_config : typing.Optional[SplitConfig]
+            Inline split configuration with topics. Required if split_config_id is not provided.
+
+        split_config_id : typing.Optional[str]
+            Reference to a saved split configuration. Use this instead of providing split_config inline.
+
+        async_ : typing.Optional[bool]
+            If true, returns immediately with a job_id for polling via  GET /job/{jobId}. Otherwise processes synchronously.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        HttpResponse[SplitResponse]
+            Split result with page assignments (when async=false or omitted)
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            "split",
+            method="POST",
+            json={
+                "extraction_id": extraction_id,
+                "split_config": convert_and_respect_annotation_metadata(
+                    object_=split_config, annotation=SplitConfig, direction="write"
+                ),
+                "split_config_id": split_config_id,
+                "async": async_,
+            },
+            headers={
+                "content-type": "application/json",
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    SplitResponse,
+                    construct_type(
+                        type_=SplitResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return HttpResponse(response=_response, data=_data)
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        construct_type(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 401:
+                raise UnauthorizedError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        construct_type(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        construct_type(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 429:
+                raise TooManyRequestsError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        construct_type(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 500:
+                raise InternalServerError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        construct_type(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    def schema(
+        self,
+        *,
+        extraction_id: typing.Optional[str] = OMIT,
+        split_id: typing.Optional[str] = OMIT,
+        schema_config: typing.Optional[SchemaConfig] = OMIT,
+        schema_config_id: typing.Optional[str] = OMIT,
+        split_schema_config: typing.Optional[typing.Dict[str, TopicSchemaConfig]] = OMIT,
+        async_: typing.Optional[bool] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> HttpResponse[SchemaResponse]:
+        """
+        Apply schema extraction to a previously saved extraction. The mode is
+        inferred from the input:
+
+        **Single mode** — Provide `extraction_id` + `schema_config` (or
+        `schema_config_id`) to apply one schema to the entire document.
+
+        **Split mode** — Provide `split_id` + `split_schema_config` to apply
+        different schemas to different page groups from a prior `/split` call.
+        Each topic can have its own schema, prompt, and effort setting.
+
+        Creates a versioned schema record that can be retrieved later.
+        Set `async: true` to return immediately with a job_id for polling.
+
+        Parameters
+        ----------
+        extraction_id : typing.Optional[str]
+            ID of saved extraction to apply the schema to. Use for single-mode schema extraction.
+
+        split_id : typing.Optional[str]
+            ID of saved split (from a prior `/split` call). Use for split-mode schema extraction.
+
+        schema_config : typing.Optional[SchemaConfig]
+            Inline schema configuration for single mode. Required (with extraction_id) if schema_config_id is not provided.
+
+        schema_config_id : typing.Optional[str]
+            Reference to a saved schema configuration for single mode. Use this instead of providing schema_config inline.
+
+        split_schema_config : typing.Optional[typing.Dict[str, TopicSchemaConfig]]
+            Per-topic schema configurations for split mode. Keys must match the topic names from the split. Each topic provides either inline schema or schema_config_id.
+
+        async_ : typing.Optional[bool]
+            If true, returns immediately with a job_id for polling via  GET /job/{jobId}. Otherwise processes synchronously.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        HttpResponse[SchemaResponse]
+            Schema extraction result (when async=false or omitted). Shape depends on the mode used.
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            "schema",
+            method="POST",
+            json={
+                "extraction_id": extraction_id,
+                "split_id": split_id,
+                "schema_config": convert_and_respect_annotation_metadata(
+                    object_=schema_config, annotation=SchemaConfig, direction="write"
+                ),
+                "schema_config_id": schema_config_id,
+                "split_schema_config": convert_and_respect_annotation_metadata(
+                    object_=split_schema_config, annotation=typing.Dict[str, TopicSchemaConfig], direction="write"
+                ),
+                "async": async_,
+            },
+            headers={
+                "content-type": "application/json",
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    SchemaResponse,
+                    construct_type(
+                        type_=SchemaResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return HttpResponse(response=_response, data=_data)
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        construct_type(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 401:
+                raise UnauthorizedError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        construct_type(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        construct_type(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 429:
+                raise TooManyRequestsError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        construct_type(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 500:
+                raise InternalServerError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        construct_type(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
 
 class AsyncRawPulse:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
@@ -359,15 +681,25 @@ class AsyncRawPulse:
         pages: typing.Optional[str] = OMIT,
         extract_figure: typing.Optional[bool] = OMIT,
         figure_description: typing.Optional[bool] = OMIT,
+        show_images: typing.Optional[bool] = OMIT,
         return_html: typing.Optional[bool] = OMIT,
+        effort: typing.Optional[bool] = OMIT,
         thinking: typing.Optional[bool] = OMIT,
         storage: typing.Optional[ExtractRequestStorage] = OMIT,
+        async_: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[ExtractResponse]:
         """
         The primary endpoint for the Pulse API. Parses uploaded documents or remote
         file URLs and returns rich markdown content with optional structured data
         extraction based on user-provided schemas and extraction options.
+
+        Set `async: true` to return immediately with a job_id for polling via
+        GET /job/{jobId}. Otherwise processes synchronously.
+
+        **Note:** Both sync and async modes return HTTP 200. When `async` is true
+        the response body contains `{ job_id, status }` instead of the full
+        extraction result.
 
         Parameters
         ----------
@@ -378,7 +710,7 @@ class AsyncRawPulse:
             Public or pre-signed URL that Pulse will download and extract. Required unless file is provided.
 
         structured_output : typing.Optional[ExtractRequestStructuredOutput]
-            Recommended method for schema-guided extraction. Contains the schema and optional prompt in a single object.
+            **⚠️ DEPRECATED** — Use the `/schema` endpoint after extraction instead. Pass the `extraction_id` from the extract response to `/schema` with your `schema_config`. This parameter still works for backward compatibility but will be removed in a future version.
 
         schema : typing.Optional[ExtractRequestSchema]
             (Deprecated) JSON schema describing structured data to extract. Use structuredOutput instead. Accepts either a JSON object or a stringified JSON representation.
@@ -407,8 +739,14 @@ class AsyncRawPulse:
         figure_description : typing.Optional[bool]
             Toggle to generate descriptive captions for extracted figures.
 
+        show_images : typing.Optional[bool]
+            Embed base64-encoded images inline in figure tags in the output. Increases response size.
+
         return_html : typing.Optional[bool]
             Whether to include HTML representation alongside markdown in the response.
+
+        effort : typing.Optional[bool]
+            Enable extended reasoning mode for higher quality extraction on complex documents. Uses a more powerful model at higher latency.
 
         thinking : typing.Optional[bool]
             (Deprecated) Enables expanded rationale output for debugging.
@@ -416,32 +754,40 @@ class AsyncRawPulse:
         storage : typing.Optional[ExtractRequestStorage]
             Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created.
 
+        async_ : typing.Optional[bool]
+            If true, returns immediately with a job_id for polling via GET /job/{jobId}. Otherwise processes synchronously.
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
         AsyncHttpResponse[ExtractResponse]
-            Synchronous extraction result
+            When `async=false` (default): full extraction result with markdown,
+            bounding boxes, chunks, etc.
+            When `async=true`: job submission acknowledgement with `job_id`.
         """
         _response = await self._client_wrapper.httpx_client.request(
             "extract",
             method="POST",
             data={
-                "file_url": file_url,
-                "structured_output": structured_output,
+                "fileUrl": file_url,
+                "structuredOutput": structured_output,
                 "schema": schema,
-                "experimental_schema": experimental_schema,
-                "schema_prompt": schema_prompt,
-                "custom_prompt": custom_prompt,
+                "experimentalSchema": experimental_schema,
+                "schemaPrompt": schema_prompt,
+                "customPrompt": custom_prompt,
                 "chunking": chunking,
-                "chunk_size": chunk_size,
+                "chunkSize": chunk_size,
                 "pages": pages,
-                "extract_figure": extract_figure,
-                "figure_description": figure_description,
-                "return_html": return_html,
+                "extractFigure": extract_figure,
+                "figureDescription": figure_description,
+                "showImages": show_images,
+                "returnHtml": return_html,
+                "effort": effort,
                 "thinking": thinking,
                 "storage": storage,
+                "async": async_,
             },
             files={
                 **({"file": file} if file is not None else {}),
@@ -513,12 +859,17 @@ class AsyncRawPulse:
         pages: typing.Optional[str] = OMIT,
         extract_figure: typing.Optional[bool] = OMIT,
         figure_description: typing.Optional[bool] = OMIT,
+        show_images: typing.Optional[bool] = OMIT,
         return_html: typing.Optional[bool] = OMIT,
+        effort: typing.Optional[bool] = OMIT,
         thinking: typing.Optional[bool] = OMIT,
         storage: typing.Optional[ExtractAsyncRequestStorage] = OMIT,
+        async_: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncHttpResponse[ExtractAsyncResponse]:
+    ) -> AsyncHttpResponse[AsyncSubmissionResponse]:
         """
+        **Deprecated**: Use `/extract` with `async: true` instead.
+
         Starts an asynchronous extraction job. The request mirrors the
         synchronous options but returns immediately with a job identifier that
         clients can poll for completion status.
@@ -532,7 +883,7 @@ class AsyncRawPulse:
             Public or pre-signed URL that Pulse will download and extract. Required unless file is provided.
 
         structured_output : typing.Optional[ExtractAsyncRequestStructuredOutput]
-            Recommended method for schema-guided extraction. Contains the schema and optional prompt in a single object.
+            **⚠️ DEPRECATED** — Use the `/schema` endpoint after extraction instead. Pass the `extraction_id` from the extract response to `/schema` with your `schema_config`. This parameter still works for backward compatibility but will be removed in a future version.
 
         schema : typing.Optional[ExtractAsyncRequestSchema]
             (Deprecated) JSON schema describing structured data to extract. Use structuredOutput instead. Accepts either a JSON object or a stringified JSON representation.
@@ -561,8 +912,14 @@ class AsyncRawPulse:
         figure_description : typing.Optional[bool]
             Toggle to generate descriptive captions for extracted figures.
 
+        show_images : typing.Optional[bool]
+            Embed base64-encoded images inline in figure tags in the output. Increases response size.
+
         return_html : typing.Optional[bool]
             Whether to include HTML representation alongside markdown in the response.
+
+        effort : typing.Optional[bool]
+            Enable extended reasoning mode for higher quality extraction on complex documents. Uses a more powerful model at higher latency.
 
         thinking : typing.Optional[bool]
             (Deprecated) Enables expanded rationale output for debugging.
@@ -570,12 +927,15 @@ class AsyncRawPulse:
         storage : typing.Optional[ExtractAsyncRequestStorage]
             Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created.
 
+        async_ : typing.Optional[bool]
+            If true, returns immediately with a job_id for polling via GET /job/{jobId}. Otherwise processes synchronously.
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        AsyncHttpResponse[ExtractAsyncResponse]
+        AsyncHttpResponse[AsyncSubmissionResponse]
             Asynchronous extraction job accepted
         """
         _response = await self._client_wrapper.httpx_client.request(
@@ -593,9 +953,12 @@ class AsyncRawPulse:
                 "pages": pages,
                 "extractFigure": extract_figure,
                 "figureDescription": figure_description,
+                "showImages": show_images,
                 "returnHtml": return_html,
+                "effort": effort,
                 "thinking": thinking,
                 "storage": storage,
+                "async": async_,
             },
             files={
                 **({"file": file} if file is not None else {}),
@@ -607,9 +970,9 @@ class AsyncRawPulse:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    ExtractAsyncResponse,
+                    AsyncSubmissionResponse,
                     construct_type(
-                        type_=ExtractAsyncResponse,  # type: ignore
+                        type_=AsyncSubmissionResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -638,6 +1001,279 @@ class AsyncRawPulse:
                 )
             if _response.status_code == 429:
                 raise TooManyRequestsError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        construct_type(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    async def split(
+        self,
+        *,
+        extraction_id: str,
+        split_config: typing.Optional[SplitConfig] = OMIT,
+        split_config_id: typing.Optional[str] = OMIT,
+        async_: typing.Optional[bool] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AsyncHttpResponse[SplitResponse]:
+        """
+        Identify which pages of a document contain each topic/section.
+        Takes an existing extraction and a list of topics, then uses AI to
+        identify which PDF pages contain content related to each topic.
+
+        The result is persisted with a `split_id` that can be used with
+        the `/schema` endpoint (split mode) for targeted schema extraction on
+        specific page groups.
+
+        Set `async: true` to return immediately with a job_id for polling.
+
+        Parameters
+        ----------
+        extraction_id : str
+            ID of the saved extraction to split.
+
+        split_config : typing.Optional[SplitConfig]
+            Inline split configuration with topics. Required if split_config_id is not provided.
+
+        split_config_id : typing.Optional[str]
+            Reference to a saved split configuration. Use this instead of providing split_config inline.
+
+        async_ : typing.Optional[bool]
+            If true, returns immediately with a job_id for polling via  GET /job/{jobId}. Otherwise processes synchronously.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AsyncHttpResponse[SplitResponse]
+            Split result with page assignments (when async=false or omitted)
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            "split",
+            method="POST",
+            json={
+                "extraction_id": extraction_id,
+                "split_config": convert_and_respect_annotation_metadata(
+                    object_=split_config, annotation=SplitConfig, direction="write"
+                ),
+                "split_config_id": split_config_id,
+                "async": async_,
+            },
+            headers={
+                "content-type": "application/json",
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    SplitResponse,
+                    construct_type(
+                        type_=SplitResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return AsyncHttpResponse(response=_response, data=_data)
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        construct_type(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 401:
+                raise UnauthorizedError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        construct_type(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        construct_type(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 429:
+                raise TooManyRequestsError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        construct_type(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 500:
+                raise InternalServerError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        construct_type(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    async def schema(
+        self,
+        *,
+        extraction_id: typing.Optional[str] = OMIT,
+        split_id: typing.Optional[str] = OMIT,
+        schema_config: typing.Optional[SchemaConfig] = OMIT,
+        schema_config_id: typing.Optional[str] = OMIT,
+        split_schema_config: typing.Optional[typing.Dict[str, TopicSchemaConfig]] = OMIT,
+        async_: typing.Optional[bool] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AsyncHttpResponse[SchemaResponse]:
+        """
+        Apply schema extraction to a previously saved extraction. The mode is
+        inferred from the input:
+
+        **Single mode** — Provide `extraction_id` + `schema_config` (or
+        `schema_config_id`) to apply one schema to the entire document.
+
+        **Split mode** — Provide `split_id` + `split_schema_config` to apply
+        different schemas to different page groups from a prior `/split` call.
+        Each topic can have its own schema, prompt, and effort setting.
+
+        Creates a versioned schema record that can be retrieved later.
+        Set `async: true` to return immediately with a job_id for polling.
+
+        Parameters
+        ----------
+        extraction_id : typing.Optional[str]
+            ID of saved extraction to apply the schema to. Use for single-mode schema extraction.
+
+        split_id : typing.Optional[str]
+            ID of saved split (from a prior `/split` call). Use for split-mode schema extraction.
+
+        schema_config : typing.Optional[SchemaConfig]
+            Inline schema configuration for single mode. Required (with extraction_id) if schema_config_id is not provided.
+
+        schema_config_id : typing.Optional[str]
+            Reference to a saved schema configuration for single mode. Use this instead of providing schema_config inline.
+
+        split_schema_config : typing.Optional[typing.Dict[str, TopicSchemaConfig]]
+            Per-topic schema configurations for split mode. Keys must match the topic names from the split. Each topic provides either inline schema or schema_config_id.
+
+        async_ : typing.Optional[bool]
+            If true, returns immediately with a job_id for polling via  GET /job/{jobId}. Otherwise processes synchronously.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AsyncHttpResponse[SchemaResponse]
+            Schema extraction result (when async=false or omitted). Shape depends on the mode used.
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            "schema",
+            method="POST",
+            json={
+                "extraction_id": extraction_id,
+                "split_id": split_id,
+                "schema_config": convert_and_respect_annotation_metadata(
+                    object_=schema_config, annotation=SchemaConfig, direction="write"
+                ),
+                "schema_config_id": schema_config_id,
+                "split_schema_config": convert_and_respect_annotation_metadata(
+                    object_=split_schema_config, annotation=typing.Dict[str, TopicSchemaConfig], direction="write"
+                ),
+                "async": async_,
+            },
+            headers={
+                "content-type": "application/json",
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    SchemaResponse,
+                    construct_type(
+                        type_=SchemaResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return AsyncHttpResponse(response=_response, data=_data)
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        construct_type(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 401:
+                raise UnauthorizedError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        construct_type(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        construct_type(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 429:
+                raise TooManyRequestsError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        construct_type(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 500:
+                raise InternalServerError(
                     headers=dict(_response.headers),
                     body=typing.cast(
                         typing.Any,
