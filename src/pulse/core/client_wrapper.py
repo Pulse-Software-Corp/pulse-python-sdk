@@ -22,10 +22,10 @@ class BaseClientWrapper:
 
     def get_headers(self) -> typing.Dict[str, str]:
         headers: typing.Dict[str, str] = {
-            "User-Agent": "pulse-python-sdk/0.0.63",
+            "User-Agent": "pulse-python-sdk/0.0.64",
             "X-Fern-Language": "Python",
             "X-Fern-SDK-Name": "pulse-python-sdk",
-            "X-Fern-SDK-Version": "0.0.63",
+            "X-Fern-SDK-Version": "0.0.64",
             **(self.get_custom_headers() or {}),
         }
         headers["x-api-key"] = self.api_key
