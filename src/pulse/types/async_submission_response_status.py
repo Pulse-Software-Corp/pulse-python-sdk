@@ -2,6 +2,6 @@
 
 import typing
 
-ExtractAsyncSubmissionResponseStatus = typing.Union[
+AsyncSubmissionResponseStatus = typing.Union[
     typing.Literal["pending", "processing", "completed", "failed", "canceled"], typing.Any
 ]

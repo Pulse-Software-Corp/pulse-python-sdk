@@ -34,7 +34,7 @@ class ExtractInput(UncheckedBaseModel):
         typing.Optional[ExtractInputStructuredOutput], FieldMetadata(alias="structuredOutput")
     ] = pydantic.Field(default=None)
     """
-    Recommended method for schema-guided extraction. Contains the schema and optional prompt in a single object.
+    **⚠️ DEPRECATED** — Use the `/schema` endpoint after extraction instead. Pass the `extraction_id` from the extract response to `/schema` with your `schema_config`. This parameter still works for backward compatibility but will be removed in a future version.
     """
 
     schema_: typing_extensions.Annotated[typing.Optional[ExtractInputSchema], FieldMetadata(alias="schema")] = (
@@ -96,11 +96,23 @@ class ExtractInput(UncheckedBaseModel):
     Toggle to generate descriptive captions for extracted figures.
     """
 
+    show_images: typing_extensions.Annotated[typing.Optional[bool], FieldMetadata(alias="showImages")] = pydantic.Field(
+        default=None
+    )
+    """
+    Embed base64-encoded images inline in figure tags in the output. Increases response size.
+    """
+
     return_html: typing_extensions.Annotated[typing.Optional[bool], FieldMetadata(alias="returnHtml")] = pydantic.Field(
         default=None
     )
     """
     Whether to include HTML representation alongside markdown in the response.
+    """
+
+    effort: typing.Optional[bool] = pydantic.Field(default=None)
+    """
+    Enable extended reasoning mode for higher quality extraction on complex documents. Uses a more powerful model at higher latency.
     """
 
     thinking: typing.Optional[bool] = pydantic.Field(default=None)
@@ -111,6 +123,13 @@ class ExtractInput(UncheckedBaseModel):
     storage: typing.Optional[ExtractInputStorage] = pydantic.Field(default=None)
     """
     Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created.
+    """
+
+    async_: typing_extensions.Annotated[typing.Optional[bool], FieldMetadata(alias="async")] = pydantic.Field(
+        default=None
+    )
+    """
+    If true, returns immediately with a job_id for polling via GET /job/{jobId}. Otherwise processes synchronously.
     """
 
     if IS_PYDANTIC_V2:

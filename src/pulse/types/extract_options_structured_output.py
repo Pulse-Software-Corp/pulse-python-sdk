@@ -11,7 +11,7 @@ from ..core.unchecked_base_model import UncheckedBaseModel
 
 class ExtractOptionsStructuredOutput(UncheckedBaseModel):
     """
-    Recommended method for schema-guided extraction. Contains the schema and optional prompt in a single object.
+    **⚠️ DEPRECATED** — Use the `/schema` endpoint after extraction instead. Pass the `extraction_id` from the extract response to `/schema` with your `schema_config`. This parameter still works for backward compatibility but will be removed in a future version.
     """
 
     schema_: typing_extensions.Annotated[

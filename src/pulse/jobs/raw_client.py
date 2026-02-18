@@ -27,12 +27,12 @@ class RawJobsClient:
     ) -> HttpResponse[JobStatusResponse]:
         """
         Check the status and retrieve results of an asynchronous job
-        (e.g., submitted via `/extract_async`).
+        (submitted via any endpoint with `async: true`).
 
         Parameters
         ----------
         job_id : str
-            Identifier returned from an async job submission (e.g., `/extract_async`).
+            Identifier returned from an async job submission.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -127,7 +127,7 @@ class RawJobsClient:
         Parameters
         ----------
         job_id : str
-            Identifier returned from an async job submission (e.g., `/extract_async`).
+            Identifier returned from an async job submission.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -222,12 +222,12 @@ class AsyncRawJobsClient:
     ) -> AsyncHttpResponse[JobStatusResponse]:
         """
         Check the status and retrieve results of an asynchronous job
-        (e.g., submitted via `/extract_async`).
+        (submitted via any endpoint with `async: true`).
 
         Parameters
         ----------
         job_id : str
-            Identifier returned from an async job submission (e.g., `/extract_async`).
+            Identifier returned from an async job submission.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -322,7 +322,7 @@ class AsyncRawJobsClient:
         Parameters
         ----------
         job_id : str
-            Identifier returned from an async job submission (e.g., `/extract_async`).
+            Identifier returned from an async job submission.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.

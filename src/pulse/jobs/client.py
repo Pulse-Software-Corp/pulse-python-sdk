@@ -27,12 +27,12 @@ class JobsClient:
     def get_job(self, job_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> JobStatusResponse:
         """
         Check the status and retrieve results of an asynchronous job
-        (e.g., submitted via `/extract_async`).
+        (submitted via any endpoint with `async: true`).
 
         Parameters
         ----------
         job_id : str
-            Identifier returned from an async job submission (e.g., `/extract_async`).
+            Identifier returned from an async job submission.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -66,7 +66,7 @@ class JobsClient:
         Parameters
         ----------
         job_id : str
-            Identifier returned from an async job submission (e.g., `/extract_async`).
+            Identifier returned from an async job submission.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -111,12 +111,12 @@ class AsyncJobsClient:
     ) -> JobStatusResponse:
         """
         Check the status and retrieve results of an asynchronous job
-        (e.g., submitted via `/extract_async`).
+        (submitted via any endpoint with `async: true`).
 
         Parameters
         ----------
         job_id : str
-            Identifier returned from an async job submission (e.g., `/extract_async`).
+            Identifier returned from an async job submission.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -158,7 +158,7 @@ class AsyncJobsClient:
         Parameters
         ----------
         job_id : str
-            Identifier returned from an async job submission (e.g., `/extract_async`).
+            Identifier returned from an async job submission.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.

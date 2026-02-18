@@ -12,16 +12,21 @@ from .core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from .core.request_options import RequestOptions
 from .environment import PulseEnvironment
 from .raw_client import AsyncRawPulse, RawPulse
+from .types.async_submission_response import AsyncSubmissionResponse
 from .types.extract_async_request_experimental_schema import ExtractAsyncRequestExperimentalSchema
 from .types.extract_async_request_schema import ExtractAsyncRequestSchema
 from .types.extract_async_request_storage import ExtractAsyncRequestStorage
 from .types.extract_async_request_structured_output import ExtractAsyncRequestStructuredOutput
-from .types.extract_async_response import ExtractAsyncResponse
 from .types.extract_request_experimental_schema import ExtractRequestExperimentalSchema
 from .types.extract_request_schema import ExtractRequestSchema
 from .types.extract_request_storage import ExtractRequestStorage
 from .types.extract_request_structured_output import ExtractRequestStructuredOutput
 from .types.extract_response import ExtractResponse
+from .types.schema_config import SchemaConfig
+from .types.schema_response import SchemaResponse
+from .types.split_config import SplitConfig
+from .types.split_response import SplitResponse
+from .types.topic_schema_config import TopicSchemaConfig
 
 if typing.TYPE_CHECKING:
     from .jobs.client import AsyncJobsClient, JobsClient
@@ -127,15 +132,25 @@ class Pulse:
         pages: typing.Optional[str] = OMIT,
         extract_figure: typing.Optional[bool] = OMIT,
         figure_description: typing.Optional[bool] = OMIT,
+        show_images: typing.Optional[bool] = OMIT,
         return_html: typing.Optional[bool] = OMIT,
+        effort: typing.Optional[bool] = OMIT,
         thinking: typing.Optional[bool] = OMIT,
         storage: typing.Optional[ExtractRequestStorage] = OMIT,
+        async_: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ExtractResponse:
         """
         The primary endpoint for the Pulse API. Parses uploaded documents or remote
         file URLs and returns rich markdown content with optional structured data
         extraction based on user-provided schemas and extraction options.
+
+        Set `async: true` to return immediately with a job_id for polling via
+        GET /job/{jobId}. Otherwise processes synchronously.
+
+        **Note:** Both sync and async modes return HTTP 200. When `async` is true
+        the response body contains `{ job_id, status }` instead of the full
+        extraction result.
 
         Parameters
         ----------
@@ -146,7 +161,7 @@ class Pulse:
             Public or pre-signed URL that Pulse will download and extract. Required unless file is provided.
 
         structured_output : typing.Optional[ExtractRequestStructuredOutput]
-            Recommended method for schema-guided extraction. Contains the schema and optional prompt in a single object.
+            **⚠️ DEPRECATED** — Use the `/schema` endpoint after extraction instead. Pass the `extraction_id` from the extract response to `/schema` with your `schema_config`. This parameter still works for backward compatibility but will be removed in a future version.
 
         schema : typing.Optional[ExtractRequestSchema]
             (Deprecated) JSON schema describing structured data to extract. Use structuredOutput instead. Accepts either a JSON object or a stringified JSON representation.
@@ -175,8 +190,14 @@ class Pulse:
         figure_description : typing.Optional[bool]
             Toggle to generate descriptive captions for extracted figures.
 
+        show_images : typing.Optional[bool]
+            Embed base64-encoded images inline in figure tags in the output. Increases response size.
+
         return_html : typing.Optional[bool]
             Whether to include HTML representation alongside markdown in the response.
+
+        effort : typing.Optional[bool]
+            Enable extended reasoning mode for higher quality extraction on complex documents. Uses a more powerful model at higher latency.
 
         thinking : typing.Optional[bool]
             (Deprecated) Enables expanded rationale output for debugging.
@@ -184,13 +205,18 @@ class Pulse:
         storage : typing.Optional[ExtractRequestStorage]
             Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created.
 
+        async_ : typing.Optional[bool]
+            If true, returns immediately with a job_id for polling via GET /job/{jobId}. Otherwise processes synchronously.
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
         ExtractResponse
-            Synchronous extraction result
+            When `async=false` (default): full extraction result with markdown,
+            bounding boxes, chunks, etc.
+            When `async=true`: job submission acknowledgement with `job_id`.
 
         Examples
         --------
@@ -214,9 +240,12 @@ class Pulse:
             pages=pages,
             extract_figure=extract_figure,
             figure_description=figure_description,
+            show_images=show_images,
             return_html=return_html,
+            effort=effort,
             thinking=thinking,
             storage=storage,
+            async_=async_,
             request_options=request_options,
         )
         return _response.data
@@ -236,12 +265,17 @@ class Pulse:
         pages: typing.Optional[str] = OMIT,
         extract_figure: typing.Optional[bool] = OMIT,
         figure_description: typing.Optional[bool] = OMIT,
+        show_images: typing.Optional[bool] = OMIT,
         return_html: typing.Optional[bool] = OMIT,
+        effort: typing.Optional[bool] = OMIT,
         thinking: typing.Optional[bool] = OMIT,
         storage: typing.Optional[ExtractAsyncRequestStorage] = OMIT,
+        async_: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ExtractAsyncResponse:
+    ) -> AsyncSubmissionResponse:
         """
+        **Deprecated**: Use `/extract` with `async: true` instead.
+
         Starts an asynchronous extraction job. The request mirrors the
         synchronous options but returns immediately with a job identifier that
         clients can poll for completion status.
@@ -255,7 +289,7 @@ class Pulse:
             Public or pre-signed URL that Pulse will download and extract. Required unless file is provided.
 
         structured_output : typing.Optional[ExtractAsyncRequestStructuredOutput]
-            Recommended method for schema-guided extraction. Contains the schema and optional prompt in a single object.
+            **⚠️ DEPRECATED** — Use the `/schema` endpoint after extraction instead. Pass the `extraction_id` from the extract response to `/schema` with your `schema_config`. This parameter still works for backward compatibility but will be removed in a future version.
 
         schema : typing.Optional[ExtractAsyncRequestSchema]
             (Deprecated) JSON schema describing structured data to extract. Use structuredOutput instead. Accepts either a JSON object or a stringified JSON representation.
@@ -284,8 +318,14 @@ class Pulse:
         figure_description : typing.Optional[bool]
             Toggle to generate descriptive captions for extracted figures.
 
+        show_images : typing.Optional[bool]
+            Embed base64-encoded images inline in figure tags in the output. Increases response size.
+
         return_html : typing.Optional[bool]
             Whether to include HTML representation alongside markdown in the response.
+
+        effort : typing.Optional[bool]
+            Enable extended reasoning mode for higher quality extraction on complex documents. Uses a more powerful model at higher latency.
 
         thinking : typing.Optional[bool]
             (Deprecated) Enables expanded rationale output for debugging.
@@ -293,12 +333,15 @@ class Pulse:
         storage : typing.Optional[ExtractAsyncRequestStorage]
             Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created.
 
+        async_ : typing.Optional[bool]
+            If true, returns immediately with a job_id for polling via GET /job/{jobId}. Otherwise processes synchronously.
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        ExtractAsyncResponse
+        AsyncSubmissionResponse
             Asynchronous extraction job accepted
 
         Examples
@@ -323,9 +366,147 @@ class Pulse:
             pages=pages,
             extract_figure=extract_figure,
             figure_description=figure_description,
+            show_images=show_images,
             return_html=return_html,
+            effort=effort,
             thinking=thinking,
             storage=storage,
+            async_=async_,
+            request_options=request_options,
+        )
+        return _response.data
+
+    def split(
+        self,
+        *,
+        extraction_id: str,
+        split_config: typing.Optional[SplitConfig] = OMIT,
+        split_config_id: typing.Optional[str] = OMIT,
+        async_: typing.Optional[bool] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> SplitResponse:
+        """
+        Identify which pages of a document contain each topic/section.
+        Takes an existing extraction and a list of topics, then uses AI to
+        identify which PDF pages contain content related to each topic.
+
+        The result is persisted with a `split_id` that can be used with
+        the `/schema` endpoint (split mode) for targeted schema extraction on
+        specific page groups.
+
+        Set `async: true` to return immediately with a job_id for polling.
+
+        Parameters
+        ----------
+        extraction_id : str
+            ID of the saved extraction to split.
+
+        split_config : typing.Optional[SplitConfig]
+            Inline split configuration with topics. Required if split_config_id is not provided.
+
+        split_config_id : typing.Optional[str]
+            Reference to a saved split configuration. Use this instead of providing split_config inline.
+
+        async_ : typing.Optional[bool]
+            If true, returns immediately with a job_id for polling via  GET /job/{jobId}. Otherwise processes synchronously.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        SplitResponse
+            Split result with page assignments (when async=false or omitted)
+
+        Examples
+        --------
+        from pulse import Pulse
+
+        client = Pulse(
+            api_key="YOUR_API_KEY",
+        )
+        client.split(
+            extraction_id="extraction_id",
+        )
+        """
+        _response = self._raw_client.split(
+            extraction_id=extraction_id,
+            split_config=split_config,
+            split_config_id=split_config_id,
+            async_=async_,
+            request_options=request_options,
+        )
+        return _response.data
+
+    def schema(
+        self,
+        *,
+        extraction_id: typing.Optional[str] = OMIT,
+        split_id: typing.Optional[str] = OMIT,
+        schema_config: typing.Optional[SchemaConfig] = OMIT,
+        schema_config_id: typing.Optional[str] = OMIT,
+        split_schema_config: typing.Optional[typing.Dict[str, TopicSchemaConfig]] = OMIT,
+        async_: typing.Optional[bool] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> SchemaResponse:
+        """
+        Apply schema extraction to a previously saved extraction. The mode is
+        inferred from the input:
+
+        **Single mode** — Provide `extraction_id` + `schema_config` (or
+        `schema_config_id`) to apply one schema to the entire document.
+
+        **Split mode** — Provide `split_id` + `split_schema_config` to apply
+        different schemas to different page groups from a prior `/split` call.
+        Each topic can have its own schema, prompt, and effort setting.
+
+        Creates a versioned schema record that can be retrieved later.
+        Set `async: true` to return immediately with a job_id for polling.
+
+        Parameters
+        ----------
+        extraction_id : typing.Optional[str]
+            ID of saved extraction to apply the schema to. Use for single-mode schema extraction.
+
+        split_id : typing.Optional[str]
+            ID of saved split (from a prior `/split` call). Use for split-mode schema extraction.
+
+        schema_config : typing.Optional[SchemaConfig]
+            Inline schema configuration for single mode. Required (with extraction_id) if schema_config_id is not provided.
+
+        schema_config_id : typing.Optional[str]
+            Reference to a saved schema configuration for single mode. Use this instead of providing schema_config inline.
+
+        split_schema_config : typing.Optional[typing.Dict[str, TopicSchemaConfig]]
+            Per-topic schema configurations for split mode. Keys must match the topic names from the split. Each topic provides either inline schema or schema_config_id.
+
+        async_ : typing.Optional[bool]
+            If true, returns immediately with a job_id for polling via  GET /job/{jobId}. Otherwise processes synchronously.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        SchemaResponse
+            Schema extraction result (when async=false or omitted). Shape depends on the mode used.
+
+        Examples
+        --------
+        from pulse import Pulse
+
+        client = Pulse(
+            api_key="YOUR_API_KEY",
+        )
+        client.schema()
+        """
+        _response = self._raw_client.schema(
+            extraction_id=extraction_id,
+            split_id=split_id,
+            schema_config=schema_config,
+            schema_config_id=schema_config_id,
+            split_schema_config=split_schema_config,
+            async_=async_,
             request_options=request_options,
         )
         return _response.data
@@ -444,15 +625,25 @@ class AsyncPulse:
         pages: typing.Optional[str] = OMIT,
         extract_figure: typing.Optional[bool] = OMIT,
         figure_description: typing.Optional[bool] = OMIT,
+        show_images: typing.Optional[bool] = OMIT,
         return_html: typing.Optional[bool] = OMIT,
+        effort: typing.Optional[bool] = OMIT,
         thinking: typing.Optional[bool] = OMIT,
         storage: typing.Optional[ExtractRequestStorage] = OMIT,
+        async_: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ExtractResponse:
         """
         The primary endpoint for the Pulse API. Parses uploaded documents or remote
         file URLs and returns rich markdown content with optional structured data
         extraction based on user-provided schemas and extraction options.
+
+        Set `async: true` to return immediately with a job_id for polling via
+        GET /job/{jobId}. Otherwise processes synchronously.
+
+        **Note:** Both sync and async modes return HTTP 200. When `async` is true
+        the response body contains `{ job_id, status }` instead of the full
+        extraction result.
 
         Parameters
         ----------
@@ -463,7 +654,7 @@ class AsyncPulse:
             Public or pre-signed URL that Pulse will download and extract. Required unless file is provided.
 
         structured_output : typing.Optional[ExtractRequestStructuredOutput]
-            Recommended method for schema-guided extraction. Contains the schema and optional prompt in a single object.
+            **⚠️ DEPRECATED** — Use the `/schema` endpoint after extraction instead. Pass the `extraction_id` from the extract response to `/schema` with your `schema_config`. This parameter still works for backward compatibility but will be removed in a future version.
 
         schema : typing.Optional[ExtractRequestSchema]
             (Deprecated) JSON schema describing structured data to extract. Use structuredOutput instead. Accepts either a JSON object or a stringified JSON representation.
@@ -492,8 +683,14 @@ class AsyncPulse:
         figure_description : typing.Optional[bool]
             Toggle to generate descriptive captions for extracted figures.
 
+        show_images : typing.Optional[bool]
+            Embed base64-encoded images inline in figure tags in the output. Increases response size.
+
         return_html : typing.Optional[bool]
             Whether to include HTML representation alongside markdown in the response.
+
+        effort : typing.Optional[bool]
+            Enable extended reasoning mode for higher quality extraction on complex documents. Uses a more powerful model at higher latency.
 
         thinking : typing.Optional[bool]
             (Deprecated) Enables expanded rationale output for debugging.
@@ -501,13 +698,18 @@ class AsyncPulse:
         storage : typing.Optional[ExtractRequestStorage]
             Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created.
 
+        async_ : typing.Optional[bool]
+            If true, returns immediately with a job_id for polling via GET /job/{jobId}. Otherwise processes synchronously.
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
         ExtractResponse
-            Synchronous extraction result
+            When `async=false` (default): full extraction result with markdown,
+            bounding boxes, chunks, etc.
+            When `async=true`: job submission acknowledgement with `job_id`.
 
         Examples
         --------
@@ -539,9 +741,12 @@ class AsyncPulse:
             pages=pages,
             extract_figure=extract_figure,
             figure_description=figure_description,
+            show_images=show_images,
             return_html=return_html,
+            effort=effort,
             thinking=thinking,
             storage=storage,
+            async_=async_,
             request_options=request_options,
         )
         return _response.data
@@ -561,12 +766,17 @@ class AsyncPulse:
         pages: typing.Optional[str] = OMIT,
         extract_figure: typing.Optional[bool] = OMIT,
         figure_description: typing.Optional[bool] = OMIT,
+        show_images: typing.Optional[bool] = OMIT,
         return_html: typing.Optional[bool] = OMIT,
+        effort: typing.Optional[bool] = OMIT,
         thinking: typing.Optional[bool] = OMIT,
         storage: typing.Optional[ExtractAsyncRequestStorage] = OMIT,
+        async_: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ExtractAsyncResponse:
+    ) -> AsyncSubmissionResponse:
         """
+        **Deprecated**: Use `/extract` with `async: true` instead.
+
         Starts an asynchronous extraction job. The request mirrors the
         synchronous options but returns immediately with a job identifier that
         clients can poll for completion status.
@@ -580,7 +790,7 @@ class AsyncPulse:
             Public or pre-signed URL that Pulse will download and extract. Required unless file is provided.
 
         structured_output : typing.Optional[ExtractAsyncRequestStructuredOutput]
-            Recommended method for schema-guided extraction. Contains the schema and optional prompt in a single object.
+            **⚠️ DEPRECATED** — Use the `/schema` endpoint after extraction instead. Pass the `extraction_id` from the extract response to `/schema` with your `schema_config`. This parameter still works for backward compatibility but will be removed in a future version.
 
         schema : typing.Optional[ExtractAsyncRequestSchema]
             (Deprecated) JSON schema describing structured data to extract. Use structuredOutput instead. Accepts either a JSON object or a stringified JSON representation.
@@ -609,8 +819,14 @@ class AsyncPulse:
         figure_description : typing.Optional[bool]
             Toggle to generate descriptive captions for extracted figures.
 
+        show_images : typing.Optional[bool]
+            Embed base64-encoded images inline in figure tags in the output. Increases response size.
+
         return_html : typing.Optional[bool]
             Whether to include HTML representation alongside markdown in the response.
+
+        effort : typing.Optional[bool]
+            Enable extended reasoning mode for higher quality extraction on complex documents. Uses a more powerful model at higher latency.
 
         thinking : typing.Optional[bool]
             (Deprecated) Enables expanded rationale output for debugging.
@@ -618,12 +834,15 @@ class AsyncPulse:
         storage : typing.Optional[ExtractAsyncRequestStorage]
             Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created.
 
+        async_ : typing.Optional[bool]
+            If true, returns immediately with a job_id for polling via GET /job/{jobId}. Otherwise processes synchronously.
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        ExtractAsyncResponse
+        AsyncSubmissionResponse
             Asynchronous extraction job accepted
 
         Examples
@@ -656,9 +875,163 @@ class AsyncPulse:
             pages=pages,
             extract_figure=extract_figure,
             figure_description=figure_description,
+            show_images=show_images,
             return_html=return_html,
+            effort=effort,
             thinking=thinking,
             storage=storage,
+            async_=async_,
+            request_options=request_options,
+        )
+        return _response.data
+
+    async def split(
+        self,
+        *,
+        extraction_id: str,
+        split_config: typing.Optional[SplitConfig] = OMIT,
+        split_config_id: typing.Optional[str] = OMIT,
+        async_: typing.Optional[bool] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> SplitResponse:
+        """
+        Identify which pages of a document contain each topic/section.
+        Takes an existing extraction and a list of topics, then uses AI to
+        identify which PDF pages contain content related to each topic.
+
+        The result is persisted with a `split_id` that can be used with
+        the `/schema` endpoint (split mode) for targeted schema extraction on
+        specific page groups.
+
+        Set `async: true` to return immediately with a job_id for polling.
+
+        Parameters
+        ----------
+        extraction_id : str
+            ID of the saved extraction to split.
+
+        split_config : typing.Optional[SplitConfig]
+            Inline split configuration with topics. Required if split_config_id is not provided.
+
+        split_config_id : typing.Optional[str]
+            Reference to a saved split configuration. Use this instead of providing split_config inline.
+
+        async_ : typing.Optional[bool]
+            If true, returns immediately with a job_id for polling via  GET /job/{jobId}. Otherwise processes synchronously.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        SplitResponse
+            Split result with page assignments (when async=false or omitted)
+
+        Examples
+        --------
+        import asyncio
+
+        from pulse import AsyncPulse
+
+        client = AsyncPulse(
+            api_key="YOUR_API_KEY",
+        )
+
+
+        async def main() -> None:
+            await client.split(
+                extraction_id="extraction_id",
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.split(
+            extraction_id=extraction_id,
+            split_config=split_config,
+            split_config_id=split_config_id,
+            async_=async_,
+            request_options=request_options,
+        )
+        return _response.data
+
+    async def schema(
+        self,
+        *,
+        extraction_id: typing.Optional[str] = OMIT,
+        split_id: typing.Optional[str] = OMIT,
+        schema_config: typing.Optional[SchemaConfig] = OMIT,
+        schema_config_id: typing.Optional[str] = OMIT,
+        split_schema_config: typing.Optional[typing.Dict[str, TopicSchemaConfig]] = OMIT,
+        async_: typing.Optional[bool] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> SchemaResponse:
+        """
+        Apply schema extraction to a previously saved extraction. The mode is
+        inferred from the input:
+
+        **Single mode** — Provide `extraction_id` + `schema_config` (or
+        `schema_config_id`) to apply one schema to the entire document.
+
+        **Split mode** — Provide `split_id` + `split_schema_config` to apply
+        different schemas to different page groups from a prior `/split` call.
+        Each topic can have its own schema, prompt, and effort setting.
+
+        Creates a versioned schema record that can be retrieved later.
+        Set `async: true` to return immediately with a job_id for polling.
+
+        Parameters
+        ----------
+        extraction_id : typing.Optional[str]
+            ID of saved extraction to apply the schema to. Use for single-mode schema extraction.
+
+        split_id : typing.Optional[str]
+            ID of saved split (from a prior `/split` call). Use for split-mode schema extraction.
+
+        schema_config : typing.Optional[SchemaConfig]
+            Inline schema configuration for single mode. Required (with extraction_id) if schema_config_id is not provided.
+
+        schema_config_id : typing.Optional[str]
+            Reference to a saved schema configuration for single mode. Use this instead of providing schema_config inline.
+
+        split_schema_config : typing.Optional[typing.Dict[str, TopicSchemaConfig]]
+            Per-topic schema configurations for split mode. Keys must match the topic names from the split. Each topic provides either inline schema or schema_config_id.
+
+        async_ : typing.Optional[bool]
+            If true, returns immediately with a job_id for polling via  GET /job/{jobId}. Otherwise processes synchronously.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        SchemaResponse
+            Schema extraction result (when async=false or omitted). Shape depends on the mode used.
+
+        Examples
+        --------
+        import asyncio
+
+        from pulse import AsyncPulse
+
+        client = AsyncPulse(
+            api_key="YOUR_API_KEY",
+        )
+
+
+        async def main() -> None:
+            await client.schema()
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.schema(
+            extraction_id=extraction_id,
+            split_id=split_id,
+            schema_config=schema_config,
+            schema_config_id=schema_config_id,
+            split_schema_config=split_schema_config,
+            async_=async_,
             request_options=request_options,
         )
         return _response.data

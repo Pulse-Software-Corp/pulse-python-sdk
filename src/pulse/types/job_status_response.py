@@ -11,12 +11,12 @@ from .job_status import JobStatus
 
 class JobStatusResponse(UncheckedBaseModel):
     """
-    Current status and metadata for an asynchronous extraction job.
+    Current status and metadata for an asynchronous job.
     """
 
     job_id: str = pydantic.Field()
     """
-    Identifier assigned to the asynchronous extraction job.
+    Identifier assigned to the asynchronous job.
     """
 
     status: JobStatus
@@ -32,7 +32,7 @@ class JobStatusResponse(UncheckedBaseModel):
 
     result: typing.Optional[typing.Dict[str, typing.Any]] = pydantic.Field(default=None)
     """
-    Structured payload that contains extraction output when the job is completed.
+    Structured payload that contains output when the job is completed.
     """
 
     error: typing.Optional[str] = pydantic.Field(default=None)

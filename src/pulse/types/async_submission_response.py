@@ -8,29 +8,34 @@ import typing_extensions
 from ..core.pydantic_utilities import IS_PYDANTIC_V2
 from ..core.serialization import FieldMetadata
 from ..core.unchecked_base_model import UncheckedBaseModel
-from .extract_async_submission_response_status import ExtractAsyncSubmissionResponseStatus
+from .async_submission_response_status import AsyncSubmissionResponseStatus
 
 
-class ExtractAsyncResponse(UncheckedBaseModel):
+class AsyncSubmissionResponse(UncheckedBaseModel):
     """
-    Metadata describing the enqueued asynchronous extraction job.
+    Acknowledgement returned when a request is submitted for asynchronous processing. Poll `GET /job/{job_id}` to check status and retrieve results.
     """
 
     job_id: str = pydantic.Field()
     """
-    Identifier assigned to the asynchronous extraction job.
+    Identifier assigned to the asynchronous job.
     """
 
-    status: ExtractAsyncSubmissionResponseStatus = pydantic.Field()
+    status: AsyncSubmissionResponseStatus = pydantic.Field()
     """
-    Initial status reported by the extractor.
+    Initial status reported by the server.
+    """
+
+    message: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    Human-readable description of the accepted job.
     """
 
     queued_at: typing_extensions.Annotated[typing.Optional[dt.datetime], FieldMetadata(alias="queuedAt")] = (
         pydantic.Field(default=None)
     )
     """
-    Timestamp indicating when the job was accepted.
+    **Deprecated** — Timestamp indicating when the job was accepted. Retained for backward compatibility. Use `GET /job/{jobId}` for timing details.
     """
 
     if IS_PYDANTIC_V2:

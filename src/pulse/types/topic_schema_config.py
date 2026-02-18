@@ -9,23 +9,32 @@ from ..core.serialization import FieldMetadata
 from ..core.unchecked_base_model import UncheckedBaseModel
 
 
-class ExtractInputStructuredOutput(UncheckedBaseModel):
+class TopicSchemaConfig(UncheckedBaseModel):
     """
-    **⚠️ DEPRECATED** — Use the `/schema` endpoint after extraction instead. Pass the `extraction_id` from the extract response to `/schema` with your `schema_config`. This parameter still works for backward compatibility but will be removed in a future version.
+    Per-topic schema configuration.
+    Provide EITHER inline schema fields OR schema_config_id reference.
     """
 
     schema_: typing_extensions.Annotated[
         typing.Optional[typing.Dict[str, typing.Any]], FieldMetadata(alias="schema")
     ] = pydantic.Field(default=None)
     """
-    JSON schema describing the structured data to extract.
+    JSON Schema for this topic.
     """
 
-    schema_prompt: typing_extensions.Annotated[typing.Optional[str], FieldMetadata(alias="schemaPrompt")] = (
-        pydantic.Field(default=None)
-    )
+    schema_prompt: typing.Optional[str] = pydantic.Field(default=None)
     """
-    Natural language prompt with additional extraction instructions.
+    Additional instructions for this topic.
+    """
+
+    effort: typing.Optional[bool] = pydantic.Field(default=None)
+    """
+    Enable extended reasoning.
+    """
+
+    schema_config_id: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    Reference to a saved schema configuration for this topic.
     """
 
     if IS_PYDANTIC_V2:

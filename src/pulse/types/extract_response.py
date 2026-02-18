@@ -3,38 +3,100 @@
 import typing
 
 import pydantic
+import typing_extensions
 from ..core.pydantic_utilities import IS_PYDANTIC_V2
+from ..core.serialization import FieldMetadata
 from ..core.unchecked_base_model import UncheckedBaseModel
+from .extract_response_chunks import ExtractResponseChunks
+from .extract_response_plan_info import ExtractResponsePlanInfo
+from .structured_output_result import StructuredOutputResult
 
 
 class ExtractResponse(UncheckedBaseModel):
     """
-    High-level structure returned by the synchronous extract API.
+    Full extraction result returned by the synchronous `/extract` endpoint. Contains the extracted markdown (or HTML), optional structured data, chunked content, bounding boxes, and storage metadata.
     """
 
-    content: typing.Optional[str] = pydantic.Field(default=None)
+    markdown: typing.Optional[str] = pydantic.Field(default=None)
     """
-    Primary markdown content extracted from the document.
+    Primary markdown content extracted from the document. Present when `returnHtml` is false or omitted.
     """
 
     html: typing.Optional[str] = pydantic.Field(default=None)
     """
-    Optional HTML representation when returnHtml is true.
+    HTML representation of the extracted content. Present when `returnHtml` is true.
+    """
+
+    structured_output: typing.Optional[StructuredOutputResult] = pydantic.Field(default=None)
+    """
+    Structured data extracted using the provided schema. Only present when a schema was included in the request (via `structuredOutput` or legacy `schema` field).
+    """
+
+    chunks: typing.Optional[ExtractResponseChunks] = pydantic.Field(default=None)
+    """
+    Document content split into chunks using the requested strategies. Only present when `chunking` was specified in the request.
+    """
+
+    bounding_boxes: typing.Optional[typing.Dict[str, typing.Any]] = pydantic.Field(default=None)
+    """
+    Positional bounding-box data for text, titles, headers, footers, images, and tables. Used by the frontend for annotation overlays.
+    """
+
+    extraction_id: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    Persisted extraction ID. Present when storage is enabled (default). Use this ID with `/split` and `/schema` endpoints.
+    """
+
+    extraction_url: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    URL to view the extraction on the Pulse platform. Present when storage is enabled.
+    """
+
+    page_count: typing.Optional[int] = pydantic.Field(default=None)
+    """
+    Number of pages processed.
+    """
+
+    input_schema: typing.Optional[typing.Dict[str, typing.Any]] = pydantic.Field(default=None)
+    """
+    Echo of the schema that was applied. Present when a schema was included in the request.
+    """
+
+    plan_info: typing_extensions.Annotated[
+        typing.Optional[ExtractResponsePlanInfo], FieldMetadata(alias="plan-info")
+    ] = pydantic.Field(default=None)
+    """
+    Billing tier and usage information.
+    """
+
+    schema_error: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    Error message if schema processing failed. The extraction still succeeds but structured data may be missing.
+    """
+
+    schema_processing_time_seconds: typing.Optional[float] = pydantic.Field(default=None)
+    """
+    Time spent on schema processing, in seconds.
+    """
+
+    content: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    **Deprecated** — Alias for `markdown`. Included for backward compatibility with older SDK versions. Prefer `markdown`.
     """
 
     job_id: typing.Optional[str] = pydantic.Field(default=None)
     """
-    Identifier assigned to the extraction job.
+    **Deprecated** — Identifier assigned to the extraction job. Retained for backward compatibility.
     """
 
     warnings: typing.Optional[typing.List[str]] = pydantic.Field(default=None)
     """
-    Non-fatal warnings generated during extraction.
+    **Deprecated** — Non-fatal warnings generated during extraction. Retained for backward compatibility.
     """
 
     metadata: typing.Optional[typing.Dict[str, typing.Any]] = pydantic.Field(default=None)
     """
-    Additional metadata supplied by the backend.
+    **Deprecated** — Additional metadata supplied by the backend. Retained for backward compatibility.
     """
 
     if IS_PYDANTIC_V2:

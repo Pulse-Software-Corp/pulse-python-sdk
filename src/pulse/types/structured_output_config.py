@@ -9,23 +9,26 @@ from ..core.serialization import FieldMetadata
 from ..core.unchecked_base_model import UncheckedBaseModel
 
 
-class ExtractInputStructuredOutput(UncheckedBaseModel):
+class StructuredOutputConfig(UncheckedBaseModel):
     """
-    **⚠️ DEPRECATED** — Use the `/schema` endpoint after extraction instead. Pass the `extraction_id` from the extract response to `/schema` with your `schema_config`. This parameter still works for backward compatibility but will be removed in a future version.
+    Configuration for schema-guided extraction.
     """
 
-    schema_: typing_extensions.Annotated[
-        typing.Optional[typing.Dict[str, typing.Any]], FieldMetadata(alias="schema")
-    ] = pydantic.Field(default=None)
+    schema_: typing_extensions.Annotated[typing.Dict[str, typing.Any], FieldMetadata(alias="schema")] = pydantic.Field()
     """
-    JSON schema describing the structured data to extract.
+    JSON Schema defining the structured data to extract.
     """
 
     schema_prompt: typing_extensions.Annotated[typing.Optional[str], FieldMetadata(alias="schemaPrompt")] = (
         pydantic.Field(default=None)
     )
     """
-    Natural language prompt with additional extraction instructions.
+    Natural language instructions for extraction.
+    """
+
+    effort: typing.Optional[bool] = pydantic.Field(default=None)
+    """
+    Use higher quality model for better results. When true, uses a more capable model at the cost of higher latency.
     """
 
     if IS_PYDANTIC_V2:

@@ -1,5 +1,5 @@
 # Reference
-<details><summary><code>client.<a href="src/pulse/client.py">extract</a>(...) -> AsyncHttpResponse[ExtractResponse]</code></summary>
+<details><summary><code>client.<a href="src/pulse/client.py">extract</a>(...) -&gt; AsyncHttpResponse[ExtractResponse]</code></summary>
 <dl>
 <dd>
 
@@ -14,6 +14,13 @@
 The primary endpoint for the Pulse API. Parses uploaded documents or remote
 file URLs and returns rich markdown content with optional structured data
 extraction based on user-provided schemas and extraction options.
+
+Set `async: true` to return immediately with a job_id for polling via
+GET /job/{jobId}. Otherwise processes synchronously.
+
+**Note:** Both sync and async modes return HTTP 200. When `async` is true
+the response body contains `{ job_id, status }` instead of the full
+extraction result.
 </dd>
 </dl>
 </dd>
@@ -67,7 +74,7 @@ typing.Optional[core.File]` — See core.File for more documentation
 <dl>
 <dd>
 
-**structured_output:** `typing.Optional[ExtractRequestStructuredOutput]` — Recommended method for schema-guided extraction. Contains the schema and optional prompt in a single object.
+**structured_output:** `typing.Optional[ExtractRequestStructuredOutput]` — **⚠️ DEPRECATED** — Use the `/schema` endpoint after extraction instead. Pass the `extraction_id` from the extract response to `/schema` with your `schema_config`. This parameter still works for backward compatibility but will be removed in a future version.
     
 </dd>
 </dl>
@@ -147,7 +154,23 @@ typing.Optional[core.File]` — See core.File for more documentation
 <dl>
 <dd>
 
+**show_images:** `typing.Optional[bool]` — Embed base64-encoded images inline in figure tags in the output. Increases response size.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
 **return_html:** `typing.Optional[bool]` — Whether to include HTML representation alongside markdown in the response.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**effort:** `typing.Optional[bool]` — Enable extended reasoning mode for higher quality extraction on complex documents. Uses a more powerful model at higher latency.
     
 </dd>
 </dl>
@@ -171,6 +194,14 @@ typing.Optional[core.File]` — See core.File for more documentation
 <dl>
 <dd>
 
+**async_:** `typing.Optional[bool]` — If true, returns immediately with a job_id for polling via GET /job/{jobId}. Otherwise processes synchronously.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -183,7 +214,7 @@ typing.Optional[core.File]` — See core.File for more documentation
 </dl>
 </details>
 
-<details><summary><code>client.<a href="src/pulse/client.py">extract_async</a>(...) -> AsyncHttpResponse[ExtractAsyncResponse]</code></summary>
+<details><summary><code>client.<a href="src/pulse/client.py">extract_async</a>(...) -&gt; AsyncHttpResponse[AsyncSubmissionResponse]</code></summary>
 <dl>
 <dd>
 
@@ -194,6 +225,8 @@ typing.Optional[core.File]` — See core.File for more documentation
 
 <dl>
 <dd>
+
+**Deprecated**: Use `/extract` with `async: true` instead.
 
 Starts an asynchronous extraction job. The request mirrors the
 synchronous options but returns immediately with a job identifier that
@@ -251,7 +284,7 @@ typing.Optional[core.File]` — See core.File for more documentation
 <dl>
 <dd>
 
-**structured_output:** `typing.Optional[ExtractAsyncRequestStructuredOutput]` — Recommended method for schema-guided extraction. Contains the schema and optional prompt in a single object.
+**structured_output:** `typing.Optional[ExtractAsyncRequestStructuredOutput]` — **⚠️ DEPRECATED** — Use the `/schema` endpoint after extraction instead. Pass the `extraction_id` from the extract response to `/schema` with your `schema_config`. This parameter still works for backward compatibility but will be removed in a future version.
     
 </dd>
 </dl>
@@ -331,7 +364,23 @@ typing.Optional[core.File]` — See core.File for more documentation
 <dl>
 <dd>
 
+**show_images:** `typing.Optional[bool]` — Embed base64-encoded images inline in figure tags in the output. Increases response size.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
 **return_html:** `typing.Optional[bool]` — Whether to include HTML representation alongside markdown in the response.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**effort:** `typing.Optional[bool]` — Enable extended reasoning mode for higher quality extraction on complex documents. Uses a more powerful model at higher latency.
     
 </dd>
 </dl>
@@ -355,6 +404,235 @@ typing.Optional[core.File]` — See core.File for more documentation
 <dl>
 <dd>
 
+**async_:** `typing.Optional[bool]` — If true, returns immediately with a job_id for polling via GET /job/{jobId}. Otherwise processes synchronously.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.<a href="src/pulse/client.py">split</a>(...) -&gt; AsyncHttpResponse[SplitResponse]</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Identify which pages of a document contain each topic/section.
+Takes an existing extraction and a list of topics, then uses AI to
+identify which PDF pages contain content related to each topic.
+
+The result is persisted with a `split_id` that can be used with
+the `/schema` endpoint (split mode) for targeted schema extraction on
+specific page groups.
+
+Set `async: true` to return immediately with a job_id for polling.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from pulse import Pulse
+
+client = Pulse(
+    api_key="YOUR_API_KEY",
+)
+client.split(
+    extraction_id="extraction_id",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**extraction_id:** `str` — ID of the saved extraction to split.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**split_config:** `typing.Optional[SplitConfig]` — Inline split configuration with topics. Required if split_config_id is not provided.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**split_config_id:** `typing.Optional[str]` — Reference to a saved split configuration. Use this instead of providing split_config inline.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**async_:** `typing.Optional[bool]` — If true, returns immediately with a job_id for polling via  GET /job/{jobId}. Otherwise processes synchronously.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.<a href="src/pulse/client.py">schema</a>(...) -&gt; AsyncHttpResponse[SchemaResponse]</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Apply schema extraction to a previously saved extraction. The mode is
+inferred from the input:
+
+**Single mode** — Provide `extraction_id` + `schema_config` (or
+`schema_config_id`) to apply one schema to the entire document.
+
+**Split mode** — Provide `split_id` + `split_schema_config` to apply
+different schemas to different page groups from a prior `/split` call.
+Each topic can have its own schema, prompt, and effort setting.
+
+Creates a versioned schema record that can be retrieved later.
+Set `async: true` to return immediately with a job_id for polling.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from pulse import Pulse
+
+client = Pulse(
+    api_key="YOUR_API_KEY",
+)
+client.schema()
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**extraction_id:** `typing.Optional[str]` — ID of saved extraction to apply the schema to. Use for single-mode schema extraction.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**split_id:** `typing.Optional[str]` — ID of saved split (from a prior `/split` call). Use for split-mode schema extraction.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**schema_config:** `typing.Optional[SchemaConfig]` — Inline schema configuration for single mode. Required (with extraction_id) if schema_config_id is not provided.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**schema_config_id:** `typing.Optional[str]` — Reference to a saved schema configuration for single mode. Use this instead of providing schema_config inline.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**split_schema_config:** `typing.Optional[typing.Dict[str, TopicSchemaConfig]]` — Per-topic schema configurations for split mode. Keys must match the topic names from the split. Each topic provides either inline schema or schema_config_id.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**async_:** `typing.Optional[bool]` — If true, returns immediately with a job_id for polling via  GET /job/{jobId}. Otherwise processes synchronously.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -368,7 +646,7 @@ typing.Optional[core.File]` — See core.File for more documentation
 </details>
 
 ## Jobs
-<details><summary><code>client.jobs.<a href="src/pulse/jobs/client.py">get_job</a>(...) -> AsyncHttpResponse[JobStatusResponse]</code></summary>
+<details><summary><code>client.jobs.<a href="src/pulse/jobs/client.py">get_job</a>(...) -&gt; AsyncHttpResponse[JobStatusResponse]</code></summary>
 <dl>
 <dd>
 
@@ -381,7 +659,7 @@ typing.Optional[core.File]` — See core.File for more documentation
 <dd>
 
 Check the status and retrieve results of an asynchronous job
-(e.g., submitted via `/extract_async`).
+(submitted via any endpoint with `async: true`).
 </dd>
 </dl>
 </dd>
@@ -419,7 +697,7 @@ client.jobs.get_job(
 <dl>
 <dd>
 
-**job_id:** `str` — Identifier returned from an async job submission (e.g., `/extract_async`).
+**job_id:** `str` — Identifier returned from an async job submission.
     
 </dd>
 </dl>
@@ -439,7 +717,7 @@ client.jobs.get_job(
 </dl>
 </details>
 
-<details><summary><code>client.jobs.<a href="src/pulse/jobs/client.py">cancel_job</a>(...) -> AsyncHttpResponse[JobCancellationResponse]</code></summary>
+<details><summary><code>client.jobs.<a href="src/pulse/jobs/client.py">cancel_job</a>(...) -&gt; AsyncHttpResponse[JobCancellationResponse]</code></summary>
 <dl>
 <dd>
 
@@ -490,7 +768,7 @@ client.jobs.cancel_job(
 <dl>
 <dd>
 
-**job_id:** `str` — Identifier returned from an async job submission (e.g., `/extract_async`).
+**job_id:** `str` — Identifier returned from an async job submission.
     
 </dd>
 </dl>
@@ -511,7 +789,7 @@ client.jobs.cancel_job(
 </details>
 
 ## Webhooks
-<details><summary><code>client.webhooks.<a href="src/pulse/webhooks/client.py">create_webhook_link</a>() -> AsyncHttpResponse[CreateWebhookLinkResponse]</code></summary>
+<details><summary><code>client.webhooks.<a href="src/pulse/webhooks/client.py">create_webhook_link</a>() -&gt; AsyncHttpResponse[CreateWebhookLinkResponse]</code></summary>
 <dl>
 <dd>
 
