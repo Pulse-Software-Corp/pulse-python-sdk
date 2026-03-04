@@ -3,9 +3,7 @@
 import typing
 
 import pydantic
-import typing_extensions
 from ..core.pydantic_utilities import IS_PYDANTIC_V2
-from ..core.serialization import FieldMetadata
 from ..core.unchecked_base_model import UncheckedBaseModel
 from .extract_response_chunks import ExtractResponseChunks
 from .extract_response_extensions import ExtractResponseExtensions
@@ -66,13 +64,6 @@ class ExtractResponse(UncheckedBaseModel):
     chunks: typing.Optional[ExtractResponseChunks] = pydantic.Field(default=None)
     """
     **Deprecated** — Use `extensions.chunking` instead. Document content split into chunks. Present when the legacy `chunking` input was used.
-    """
-
-    plan_info: typing_extensions.Annotated[
-        typing.Optional[ExtractResponsePlanInfo], FieldMetadata(alias="plan-info")
-    ] = pydantic.Field(default=None)
-    """
-    **Deprecated** — Use `plan_info` (underscore) instead. Present when only legacy input parameters are used.
     """
 
     structured_output: typing.Optional[StructuredOutputResult] = pydantic.Field(default=None)
