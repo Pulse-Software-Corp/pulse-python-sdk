@@ -26,6 +26,13 @@ class ExtractInputStorage(UncheckedBaseModel):
     Target folder name to save the extraction to. Creates the folder if it doesn't exist.
     """
 
+    folder_id: typing_extensions.Annotated[typing.Optional[str], FieldMetadata(alias="folderId")] = pydantic.Field(
+        default=None
+    )
+    """
+    Target folder ID to save the extraction to. Takes precedence over folderName if both are provided.
+    """
+
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2
     else:

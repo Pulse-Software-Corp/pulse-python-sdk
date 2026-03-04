@@ -16,11 +16,13 @@ from .errors.not_found_error import NotFoundError
 from .errors.too_many_requests_error import TooManyRequestsError
 from .errors.unauthorized_error import UnauthorizedError
 from .types.async_submission_response import AsyncSubmissionResponse
-from .types.extract_async_request_experimental_schema import ExtractAsyncRequestExperimentalSchema
+from .types.extract_async_request_extensions import ExtractAsyncRequestExtensions
+from .types.extract_async_request_figure_processing import ExtractAsyncRequestFigureProcessing
 from .types.extract_async_request_schema import ExtractAsyncRequestSchema
 from .types.extract_async_request_storage import ExtractAsyncRequestStorage
 from .types.extract_async_request_structured_output import ExtractAsyncRequestStructuredOutput
-from .types.extract_request_experimental_schema import ExtractRequestExperimentalSchema
+from .types.extract_request_extensions import ExtractRequestExtensions
+from .types.extract_request_figure_processing import ExtractRequestFigureProcessing
 from .types.extract_request_schema import ExtractRequestSchema
 from .types.extract_request_storage import ExtractRequestStorage
 from .types.extract_request_structured_output import ExtractRequestStructuredOutput
@@ -44,22 +46,22 @@ class RawPulse:
         *,
         file: typing.Optional[core.File] = OMIT,
         file_url: typing.Optional[str] = OMIT,
+        pages: typing.Optional[str] = OMIT,
+        figure_processing: typing.Optional[ExtractRequestFigureProcessing] = OMIT,
+        extensions: typing.Optional[ExtractRequestExtensions] = OMIT,
+        storage: typing.Optional[ExtractRequestStorage] = OMIT,
+        async_: typing.Optional[bool] = OMIT,
         structured_output: typing.Optional[ExtractRequestStructuredOutput] = OMIT,
         schema: typing.Optional[ExtractRequestSchema] = OMIT,
-        experimental_schema: typing.Optional[ExtractRequestExperimentalSchema] = OMIT,
         schema_prompt: typing.Optional[str] = OMIT,
         custom_prompt: typing.Optional[str] = OMIT,
         chunking: typing.Optional[str] = OMIT,
         chunk_size: typing.Optional[int] = OMIT,
-        pages: typing.Optional[str] = OMIT,
         extract_figure: typing.Optional[bool] = OMIT,
         figure_description: typing.Optional[bool] = OMIT,
         show_images: typing.Optional[bool] = OMIT,
         return_html: typing.Optional[bool] = OMIT,
-        effort: typing.Optional[bool] = OMIT,
         thinking: typing.Optional[bool] = OMIT,
-        storage: typing.Optional[ExtractRequestStorage] = OMIT,
-        async_: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[ExtractResponse]:
         """
@@ -70,10 +72,6 @@ class RawPulse:
         Set `async: true` to return immediately with a job_id for polling via
         GET /job/{jobId}. Otherwise processes synchronously.
 
-        **Note:** Both sync and async modes return HTTP 200. When `async` is true
-        the response body contains `{ job_id, status }` instead of the full
-        extraction result.
-
         Parameters
         ----------
         file : typing.Optional[core.File]
@@ -82,47 +80,14 @@ class RawPulse:
         file_url : typing.Optional[str]
             Public or pre-signed URL that Pulse will download and extract. Required unless file is provided.
 
-        structured_output : typing.Optional[ExtractRequestStructuredOutput]
-            **⚠️ DEPRECATED** — Use the `/schema` endpoint after extraction instead. Pass the `extraction_id` from the extract response to `/schema` with your `schema_config`. This parameter still works for backward compatibility but will be removed in a future version.
-
-        schema : typing.Optional[ExtractRequestSchema]
-            (Deprecated) JSON schema describing structured data to extract. Use structuredOutput instead. Accepts either a JSON object or a stringified JSON representation.
-
-        experimental_schema : typing.Optional[ExtractRequestExperimentalSchema]
-            (Deprecated) Experimental schema definition used for feature flagged behaviour. Accepts either a JSON object or a stringified JSON representation.
-
-        schema_prompt : typing.Optional[str]
-            (Deprecated) Natural language prompt for schema-guided extraction. Use structuredOutput.schemaPrompt instead.
-
-        custom_prompt : typing.Optional[str]
-            (Deprecated) Custom instructions that augment the default extraction behaviour.
-
-        chunking : typing.Optional[str]
-            Comma-separated list of chunking strategies to apply (for example `semantic,header,page,recursive`).
-
-        chunk_size : typing.Optional[int]
-            Override for maximum characters per chunk when chunking is enabled.
-
         pages : typing.Optional[str]
             Page range filter supporting segments such as `1-2` or mixed ranges like `1-2,5`.
 
-        extract_figure : typing.Optional[bool]
-            Toggle to enable figure extraction in results.
+        figure_processing : typing.Optional[ExtractRequestFigureProcessing]
+            Settings that control how figures in the document are processed. These affect the markdown output directly (e.g. figure descriptions, chart-to-table conversion, image embedding) and do not produce additional output fields in the response.
 
-        figure_description : typing.Optional[bool]
-            Toggle to generate descriptive captions for extracted figures.
-
-        show_images : typing.Optional[bool]
-            Embed base64-encoded images inline in figure tags in the output. Increases response size.
-
-        return_html : typing.Optional[bool]
-            Whether to include HTML representation alongside markdown in the response.
-
-        effort : typing.Optional[bool]
-            Enable extended reasoning mode for higher quality extraction on complex documents. Uses a more powerful model at higher latency.
-
-        thinking : typing.Optional[bool]
-            (Deprecated) Enables expanded rationale output for debugging.
+        extensions : typing.Optional[ExtractRequestExtensions]
+            Settings that enable additional processing passes or alternate output formats. Each enabled extension produces a corresponding output field under `response.extensions.*`.
 
         storage : typing.Optional[ExtractRequestStorage]
             Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created.
@@ -130,37 +95,68 @@ class RawPulse:
         async_ : typing.Optional[bool]
             If true, returns immediately with a job_id for polling via GET /job/{jobId}. Otherwise processes synchronously.
 
+        structured_output : typing.Optional[ExtractRequestStructuredOutput]
+            **⚠️ DEPRECATED** — Use the `/schema` endpoint after extraction instead. Pass the `extraction_id` from the extract response to `/schema` with your `schema_config`. This parameter still works for backward compatibility but will be removed in a future version.
+
+        schema : typing.Optional[ExtractRequestSchema]
+            (Deprecated) JSON schema describing structured data to extract. Use structuredOutput instead. Accepts either a JSON object or a stringified JSON representation.
+
+        schema_prompt : typing.Optional[str]
+            (Deprecated) Natural language prompt for schema-guided extraction. Use structuredOutput.schemaPrompt instead.
+
+        custom_prompt : typing.Optional[str]
+            (Deprecated) Custom instructions that augment the default extraction behaviour. Use `figureProcessing` or `extensions` instead.
+
+        chunking : typing.Optional[str]
+            **⚠️ DEPRECATED** — Use `extensions.chunking.chunkTypes` instead. Comma-separated list of chunking strategies to apply (for example `semantic,header,page,recursive`). Still accepted for backward compatibility.
+
+        chunk_size : typing.Optional[int]
+            **⚠️ DEPRECATED** — Use `extensions.chunking.chunkSize` instead. Override for maximum characters per chunk when chunking is enabled.
+
+        extract_figure : typing.Optional[bool]
+            **⚠️ DEPRECATED** — Toggle to enable figure extraction in results.
+
+        figure_description : typing.Optional[bool]
+            **⚠️ DEPRECATED** — Use `figureProcessing.description` instead. Toggle to generate descriptive captions for extracted figures.
+
+        show_images : typing.Optional[bool]
+            **⚠️ DEPRECATED** — Use `figureProcessing.showImages` instead. Embed base64-encoded images inline in figure tags in the output. Increases response size.
+
+        return_html : typing.Optional[bool]
+            **⚠️ DEPRECATED** — Use `extensions.altOutputs.returnHtml` instead. Whether to include HTML representation alongside markdown in the response.
+
+        thinking : typing.Optional[bool]
+            (Deprecated) Enables expanded rationale output for debugging.
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
         HttpResponse[ExtractResponse]
-            When `async=false` (default): full extraction result with markdown,
-            bounding boxes, chunks, etc.
-            When `async=true`: job submission acknowledgement with `job_id`.
+            Full extraction result with markdown, bounding boxes, chunks, etc. Returned when `async=false` (default).
         """
         _response = self._client_wrapper.httpx_client.request(
             "extract",
             method="POST",
             data={
                 "fileUrl": file_url,
+                "pages": pages,
+                "figureProcessing": figure_processing,
+                "extensions": extensions,
+                "storage": storage,
+                "async": async_,
                 "structuredOutput": structured_output,
                 "schema": schema,
-                "experimentalSchema": experimental_schema,
                 "schemaPrompt": schema_prompt,
                 "customPrompt": custom_prompt,
                 "chunking": chunking,
                 "chunkSize": chunk_size,
-                "pages": pages,
                 "extractFigure": extract_figure,
                 "figureDescription": figure_description,
                 "showImages": show_images,
                 "returnHtml": return_html,
-                "effort": effort,
                 "thinking": thinking,
-                "storage": storage,
-                "async": async_,
             },
             files={
                 **({"file": file} if file is not None else {}),
@@ -222,22 +218,22 @@ class RawPulse:
         *,
         file: typing.Optional[core.File] = OMIT,
         file_url: typing.Optional[str] = OMIT,
+        pages: typing.Optional[str] = OMIT,
+        figure_processing: typing.Optional[ExtractAsyncRequestFigureProcessing] = OMIT,
+        extensions: typing.Optional[ExtractAsyncRequestExtensions] = OMIT,
+        storage: typing.Optional[ExtractAsyncRequestStorage] = OMIT,
+        async_: typing.Optional[bool] = OMIT,
         structured_output: typing.Optional[ExtractAsyncRequestStructuredOutput] = OMIT,
         schema: typing.Optional[ExtractAsyncRequestSchema] = OMIT,
-        experimental_schema: typing.Optional[ExtractAsyncRequestExperimentalSchema] = OMIT,
         schema_prompt: typing.Optional[str] = OMIT,
         custom_prompt: typing.Optional[str] = OMIT,
         chunking: typing.Optional[str] = OMIT,
         chunk_size: typing.Optional[int] = OMIT,
-        pages: typing.Optional[str] = OMIT,
         extract_figure: typing.Optional[bool] = OMIT,
         figure_description: typing.Optional[bool] = OMIT,
         show_images: typing.Optional[bool] = OMIT,
         return_html: typing.Optional[bool] = OMIT,
-        effort: typing.Optional[bool] = OMIT,
         thinking: typing.Optional[bool] = OMIT,
-        storage: typing.Optional[ExtractAsyncRequestStorage] = OMIT,
-        async_: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[AsyncSubmissionResponse]:
         """
@@ -255,53 +251,53 @@ class RawPulse:
         file_url : typing.Optional[str]
             Public or pre-signed URL that Pulse will download and extract. Required unless file is provided.
 
-        structured_output : typing.Optional[ExtractAsyncRequestStructuredOutput]
-            **⚠️ DEPRECATED** — Use the `/schema` endpoint after extraction instead. Pass the `extraction_id` from the extract response to `/schema` with your `schema_config`. This parameter still works for backward compatibility but will be removed in a future version.
-
-        schema : typing.Optional[ExtractAsyncRequestSchema]
-            (Deprecated) JSON schema describing structured data to extract. Use structuredOutput instead. Accepts either a JSON object or a stringified JSON representation.
-
-        experimental_schema : typing.Optional[ExtractAsyncRequestExperimentalSchema]
-            (Deprecated) Experimental schema definition used for feature flagged behaviour. Accepts either a JSON object or a stringified JSON representation.
-
-        schema_prompt : typing.Optional[str]
-            (Deprecated) Natural language prompt for schema-guided extraction. Use structuredOutput.schemaPrompt instead.
-
-        custom_prompt : typing.Optional[str]
-            (Deprecated) Custom instructions that augment the default extraction behaviour.
-
-        chunking : typing.Optional[str]
-            Comma-separated list of chunking strategies to apply (for example `semantic,header,page,recursive`).
-
-        chunk_size : typing.Optional[int]
-            Override for maximum characters per chunk when chunking is enabled.
-
         pages : typing.Optional[str]
             Page range filter supporting segments such as `1-2` or mixed ranges like `1-2,5`.
 
-        extract_figure : typing.Optional[bool]
-            Toggle to enable figure extraction in results.
+        figure_processing : typing.Optional[ExtractAsyncRequestFigureProcessing]
+            Settings that control how figures in the document are processed. These affect the markdown output directly (e.g. figure descriptions, chart-to-table conversion, image embedding) and do not produce additional output fields in the response.
 
-        figure_description : typing.Optional[bool]
-            Toggle to generate descriptive captions for extracted figures.
-
-        show_images : typing.Optional[bool]
-            Embed base64-encoded images inline in figure tags in the output. Increases response size.
-
-        return_html : typing.Optional[bool]
-            Whether to include HTML representation alongside markdown in the response.
-
-        effort : typing.Optional[bool]
-            Enable extended reasoning mode for higher quality extraction on complex documents. Uses a more powerful model at higher latency.
-
-        thinking : typing.Optional[bool]
-            (Deprecated) Enables expanded rationale output for debugging.
+        extensions : typing.Optional[ExtractAsyncRequestExtensions]
+            Settings that enable additional processing passes or alternate output formats. Each enabled extension produces a corresponding output field under `response.extensions.*`.
 
         storage : typing.Optional[ExtractAsyncRequestStorage]
             Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created.
 
         async_ : typing.Optional[bool]
             If true, returns immediately with a job_id for polling via GET /job/{jobId}. Otherwise processes synchronously.
+
+        structured_output : typing.Optional[ExtractAsyncRequestStructuredOutput]
+            **⚠️ DEPRECATED** — Use the `/schema` endpoint after extraction instead. Pass the `extraction_id` from the extract response to `/schema` with your `schema_config`. This parameter still works for backward compatibility but will be removed in a future version.
+
+        schema : typing.Optional[ExtractAsyncRequestSchema]
+            (Deprecated) JSON schema describing structured data to extract. Use structuredOutput instead. Accepts either a JSON object or a stringified JSON representation.
+
+        schema_prompt : typing.Optional[str]
+            (Deprecated) Natural language prompt for schema-guided extraction. Use structuredOutput.schemaPrompt instead.
+
+        custom_prompt : typing.Optional[str]
+            (Deprecated) Custom instructions that augment the default extraction behaviour. Use `figureProcessing` or `extensions` instead.
+
+        chunking : typing.Optional[str]
+            **⚠️ DEPRECATED** — Use `extensions.chunking.chunkTypes` instead. Comma-separated list of chunking strategies to apply (for example `semantic,header,page,recursive`). Still accepted for backward compatibility.
+
+        chunk_size : typing.Optional[int]
+            **⚠️ DEPRECATED** — Use `extensions.chunking.chunkSize` instead. Override for maximum characters per chunk when chunking is enabled.
+
+        extract_figure : typing.Optional[bool]
+            **⚠️ DEPRECATED** — Toggle to enable figure extraction in results.
+
+        figure_description : typing.Optional[bool]
+            **⚠️ DEPRECATED** — Use `figureProcessing.description` instead. Toggle to generate descriptive captions for extracted figures.
+
+        show_images : typing.Optional[bool]
+            **⚠️ DEPRECATED** — Use `figureProcessing.showImages` instead. Embed base64-encoded images inline in figure tags in the output. Increases response size.
+
+        return_html : typing.Optional[bool]
+            **⚠️ DEPRECATED** — Use `extensions.altOutputs.returnHtml` instead. Whether to include HTML representation alongside markdown in the response.
+
+        thinking : typing.Optional[bool]
+            (Deprecated) Enables expanded rationale output for debugging.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -316,22 +312,22 @@ class RawPulse:
             method="POST",
             data={
                 "fileUrl": file_url,
+                "pages": pages,
+                "figureProcessing": figure_processing,
+                "extensions": extensions,
+                "storage": storage,
+                "async": async_,
                 "structuredOutput": structured_output,
                 "schema": schema,
-                "experimentalSchema": experimental_schema,
                 "schemaPrompt": schema_prompt,
                 "customPrompt": custom_prompt,
                 "chunking": chunking,
                 "chunkSize": chunk_size,
-                "pages": pages,
                 "extractFigure": extract_figure,
                 "figureDescription": figure_description,
                 "showImages": show_images,
                 "returnHtml": return_html,
-                "effort": effort,
                 "thinking": thinking,
-                "storage": storage,
-                "async": async_,
             },
             files={
                 **({"file": file} if file is not None else {}),
@@ -671,22 +667,22 @@ class AsyncRawPulse:
         *,
         file: typing.Optional[core.File] = OMIT,
         file_url: typing.Optional[str] = OMIT,
+        pages: typing.Optional[str] = OMIT,
+        figure_processing: typing.Optional[ExtractRequestFigureProcessing] = OMIT,
+        extensions: typing.Optional[ExtractRequestExtensions] = OMIT,
+        storage: typing.Optional[ExtractRequestStorage] = OMIT,
+        async_: typing.Optional[bool] = OMIT,
         structured_output: typing.Optional[ExtractRequestStructuredOutput] = OMIT,
         schema: typing.Optional[ExtractRequestSchema] = OMIT,
-        experimental_schema: typing.Optional[ExtractRequestExperimentalSchema] = OMIT,
         schema_prompt: typing.Optional[str] = OMIT,
         custom_prompt: typing.Optional[str] = OMIT,
         chunking: typing.Optional[str] = OMIT,
         chunk_size: typing.Optional[int] = OMIT,
-        pages: typing.Optional[str] = OMIT,
         extract_figure: typing.Optional[bool] = OMIT,
         figure_description: typing.Optional[bool] = OMIT,
         show_images: typing.Optional[bool] = OMIT,
         return_html: typing.Optional[bool] = OMIT,
-        effort: typing.Optional[bool] = OMIT,
         thinking: typing.Optional[bool] = OMIT,
-        storage: typing.Optional[ExtractRequestStorage] = OMIT,
-        async_: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[ExtractResponse]:
         """
@@ -697,10 +693,6 @@ class AsyncRawPulse:
         Set `async: true` to return immediately with a job_id for polling via
         GET /job/{jobId}. Otherwise processes synchronously.
 
-        **Note:** Both sync and async modes return HTTP 200. When `async` is true
-        the response body contains `{ job_id, status }` instead of the full
-        extraction result.
-
         Parameters
         ----------
         file : typing.Optional[core.File]
@@ -709,47 +701,14 @@ class AsyncRawPulse:
         file_url : typing.Optional[str]
             Public or pre-signed URL that Pulse will download and extract. Required unless file is provided.
 
-        structured_output : typing.Optional[ExtractRequestStructuredOutput]
-            **⚠️ DEPRECATED** — Use the `/schema` endpoint after extraction instead. Pass the `extraction_id` from the extract response to `/schema` with your `schema_config`. This parameter still works for backward compatibility but will be removed in a future version.
-
-        schema : typing.Optional[ExtractRequestSchema]
-            (Deprecated) JSON schema describing structured data to extract. Use structuredOutput instead. Accepts either a JSON object or a stringified JSON representation.
-
-        experimental_schema : typing.Optional[ExtractRequestExperimentalSchema]
-            (Deprecated) Experimental schema definition used for feature flagged behaviour. Accepts either a JSON object or a stringified JSON representation.
-
-        schema_prompt : typing.Optional[str]
-            (Deprecated) Natural language prompt for schema-guided extraction. Use structuredOutput.schemaPrompt instead.
-
-        custom_prompt : typing.Optional[str]
-            (Deprecated) Custom instructions that augment the default extraction behaviour.
-
-        chunking : typing.Optional[str]
-            Comma-separated list of chunking strategies to apply (for example `semantic,header,page,recursive`).
-
-        chunk_size : typing.Optional[int]
-            Override for maximum characters per chunk when chunking is enabled.
-
         pages : typing.Optional[str]
             Page range filter supporting segments such as `1-2` or mixed ranges like `1-2,5`.
 
-        extract_figure : typing.Optional[bool]
-            Toggle to enable figure extraction in results.
+        figure_processing : typing.Optional[ExtractRequestFigureProcessing]
+            Settings that control how figures in the document are processed. These affect the markdown output directly (e.g. figure descriptions, chart-to-table conversion, image embedding) and do not produce additional output fields in the response.
 
-        figure_description : typing.Optional[bool]
-            Toggle to generate descriptive captions for extracted figures.
-
-        show_images : typing.Optional[bool]
-            Embed base64-encoded images inline in figure tags in the output. Increases response size.
-
-        return_html : typing.Optional[bool]
-            Whether to include HTML representation alongside markdown in the response.
-
-        effort : typing.Optional[bool]
-            Enable extended reasoning mode for higher quality extraction on complex documents. Uses a more powerful model at higher latency.
-
-        thinking : typing.Optional[bool]
-            (Deprecated) Enables expanded rationale output for debugging.
+        extensions : typing.Optional[ExtractRequestExtensions]
+            Settings that enable additional processing passes or alternate output formats. Each enabled extension produces a corresponding output field under `response.extensions.*`.
 
         storage : typing.Optional[ExtractRequestStorage]
             Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created.
@@ -757,37 +716,68 @@ class AsyncRawPulse:
         async_ : typing.Optional[bool]
             If true, returns immediately with a job_id for polling via GET /job/{jobId}. Otherwise processes synchronously.
 
+        structured_output : typing.Optional[ExtractRequestStructuredOutput]
+            **⚠️ DEPRECATED** — Use the `/schema` endpoint after extraction instead. Pass the `extraction_id` from the extract response to `/schema` with your `schema_config`. This parameter still works for backward compatibility but will be removed in a future version.
+
+        schema : typing.Optional[ExtractRequestSchema]
+            (Deprecated) JSON schema describing structured data to extract. Use structuredOutput instead. Accepts either a JSON object or a stringified JSON representation.
+
+        schema_prompt : typing.Optional[str]
+            (Deprecated) Natural language prompt for schema-guided extraction. Use structuredOutput.schemaPrompt instead.
+
+        custom_prompt : typing.Optional[str]
+            (Deprecated) Custom instructions that augment the default extraction behaviour. Use `figureProcessing` or `extensions` instead.
+
+        chunking : typing.Optional[str]
+            **⚠️ DEPRECATED** — Use `extensions.chunking.chunkTypes` instead. Comma-separated list of chunking strategies to apply (for example `semantic,header,page,recursive`). Still accepted for backward compatibility.
+
+        chunk_size : typing.Optional[int]
+            **⚠️ DEPRECATED** — Use `extensions.chunking.chunkSize` instead. Override for maximum characters per chunk when chunking is enabled.
+
+        extract_figure : typing.Optional[bool]
+            **⚠️ DEPRECATED** — Toggle to enable figure extraction in results.
+
+        figure_description : typing.Optional[bool]
+            **⚠️ DEPRECATED** — Use `figureProcessing.description` instead. Toggle to generate descriptive captions for extracted figures.
+
+        show_images : typing.Optional[bool]
+            **⚠️ DEPRECATED** — Use `figureProcessing.showImages` instead. Embed base64-encoded images inline in figure tags in the output. Increases response size.
+
+        return_html : typing.Optional[bool]
+            **⚠️ DEPRECATED** — Use `extensions.altOutputs.returnHtml` instead. Whether to include HTML representation alongside markdown in the response.
+
+        thinking : typing.Optional[bool]
+            (Deprecated) Enables expanded rationale output for debugging.
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
         AsyncHttpResponse[ExtractResponse]
-            When `async=false` (default): full extraction result with markdown,
-            bounding boxes, chunks, etc.
-            When `async=true`: job submission acknowledgement with `job_id`.
+            Full extraction result with markdown, bounding boxes, chunks, etc. Returned when `async=false` (default).
         """
         _response = await self._client_wrapper.httpx_client.request(
             "extract",
             method="POST",
             data={
                 "fileUrl": file_url,
+                "pages": pages,
+                "figureProcessing": figure_processing,
+                "extensions": extensions,
+                "storage": storage,
+                "async": async_,
                 "structuredOutput": structured_output,
                 "schema": schema,
-                "experimentalSchema": experimental_schema,
                 "schemaPrompt": schema_prompt,
                 "customPrompt": custom_prompt,
                 "chunking": chunking,
                 "chunkSize": chunk_size,
-                "pages": pages,
                 "extractFigure": extract_figure,
                 "figureDescription": figure_description,
                 "showImages": show_images,
                 "returnHtml": return_html,
-                "effort": effort,
                 "thinking": thinking,
-                "storage": storage,
-                "async": async_,
             },
             files={
                 **({"file": file} if file is not None else {}),
@@ -849,22 +839,22 @@ class AsyncRawPulse:
         *,
         file: typing.Optional[core.File] = OMIT,
         file_url: typing.Optional[str] = OMIT,
+        pages: typing.Optional[str] = OMIT,
+        figure_processing: typing.Optional[ExtractAsyncRequestFigureProcessing] = OMIT,
+        extensions: typing.Optional[ExtractAsyncRequestExtensions] = OMIT,
+        storage: typing.Optional[ExtractAsyncRequestStorage] = OMIT,
+        async_: typing.Optional[bool] = OMIT,
         structured_output: typing.Optional[ExtractAsyncRequestStructuredOutput] = OMIT,
         schema: typing.Optional[ExtractAsyncRequestSchema] = OMIT,
-        experimental_schema: typing.Optional[ExtractAsyncRequestExperimentalSchema] = OMIT,
         schema_prompt: typing.Optional[str] = OMIT,
         custom_prompt: typing.Optional[str] = OMIT,
         chunking: typing.Optional[str] = OMIT,
         chunk_size: typing.Optional[int] = OMIT,
-        pages: typing.Optional[str] = OMIT,
         extract_figure: typing.Optional[bool] = OMIT,
         figure_description: typing.Optional[bool] = OMIT,
         show_images: typing.Optional[bool] = OMIT,
         return_html: typing.Optional[bool] = OMIT,
-        effort: typing.Optional[bool] = OMIT,
         thinking: typing.Optional[bool] = OMIT,
-        storage: typing.Optional[ExtractAsyncRequestStorage] = OMIT,
-        async_: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[AsyncSubmissionResponse]:
         """
@@ -882,53 +872,53 @@ class AsyncRawPulse:
         file_url : typing.Optional[str]
             Public or pre-signed URL that Pulse will download and extract. Required unless file is provided.
 
-        structured_output : typing.Optional[ExtractAsyncRequestStructuredOutput]
-            **⚠️ DEPRECATED** — Use the `/schema` endpoint after extraction instead. Pass the `extraction_id` from the extract response to `/schema` with your `schema_config`. This parameter still works for backward compatibility but will be removed in a future version.
-
-        schema : typing.Optional[ExtractAsyncRequestSchema]
-            (Deprecated) JSON schema describing structured data to extract. Use structuredOutput instead. Accepts either a JSON object or a stringified JSON representation.
-
-        experimental_schema : typing.Optional[ExtractAsyncRequestExperimentalSchema]
-            (Deprecated) Experimental schema definition used for feature flagged behaviour. Accepts either a JSON object or a stringified JSON representation.
-
-        schema_prompt : typing.Optional[str]
-            (Deprecated) Natural language prompt for schema-guided extraction. Use structuredOutput.schemaPrompt instead.
-
-        custom_prompt : typing.Optional[str]
-            (Deprecated) Custom instructions that augment the default extraction behaviour.
-
-        chunking : typing.Optional[str]
-            Comma-separated list of chunking strategies to apply (for example `semantic,header,page,recursive`).
-
-        chunk_size : typing.Optional[int]
-            Override for maximum characters per chunk when chunking is enabled.
-
         pages : typing.Optional[str]
             Page range filter supporting segments such as `1-2` or mixed ranges like `1-2,5`.
 
-        extract_figure : typing.Optional[bool]
-            Toggle to enable figure extraction in results.
+        figure_processing : typing.Optional[ExtractAsyncRequestFigureProcessing]
+            Settings that control how figures in the document are processed. These affect the markdown output directly (e.g. figure descriptions, chart-to-table conversion, image embedding) and do not produce additional output fields in the response.
 
-        figure_description : typing.Optional[bool]
-            Toggle to generate descriptive captions for extracted figures.
-
-        show_images : typing.Optional[bool]
-            Embed base64-encoded images inline in figure tags in the output. Increases response size.
-
-        return_html : typing.Optional[bool]
-            Whether to include HTML representation alongside markdown in the response.
-
-        effort : typing.Optional[bool]
-            Enable extended reasoning mode for higher quality extraction on complex documents. Uses a more powerful model at higher latency.
-
-        thinking : typing.Optional[bool]
-            (Deprecated) Enables expanded rationale output for debugging.
+        extensions : typing.Optional[ExtractAsyncRequestExtensions]
+            Settings that enable additional processing passes or alternate output formats. Each enabled extension produces a corresponding output field under `response.extensions.*`.
 
         storage : typing.Optional[ExtractAsyncRequestStorage]
             Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created.
 
         async_ : typing.Optional[bool]
             If true, returns immediately with a job_id for polling via GET /job/{jobId}. Otherwise processes synchronously.
+
+        structured_output : typing.Optional[ExtractAsyncRequestStructuredOutput]
+            **⚠️ DEPRECATED** — Use the `/schema` endpoint after extraction instead. Pass the `extraction_id` from the extract response to `/schema` with your `schema_config`. This parameter still works for backward compatibility but will be removed in a future version.
+
+        schema : typing.Optional[ExtractAsyncRequestSchema]
+            (Deprecated) JSON schema describing structured data to extract. Use structuredOutput instead. Accepts either a JSON object or a stringified JSON representation.
+
+        schema_prompt : typing.Optional[str]
+            (Deprecated) Natural language prompt for schema-guided extraction. Use structuredOutput.schemaPrompt instead.
+
+        custom_prompt : typing.Optional[str]
+            (Deprecated) Custom instructions that augment the default extraction behaviour. Use `figureProcessing` or `extensions` instead.
+
+        chunking : typing.Optional[str]
+            **⚠️ DEPRECATED** — Use `extensions.chunking.chunkTypes` instead. Comma-separated list of chunking strategies to apply (for example `semantic,header,page,recursive`). Still accepted for backward compatibility.
+
+        chunk_size : typing.Optional[int]
+            **⚠️ DEPRECATED** — Use `extensions.chunking.chunkSize` instead. Override for maximum characters per chunk when chunking is enabled.
+
+        extract_figure : typing.Optional[bool]
+            **⚠️ DEPRECATED** — Toggle to enable figure extraction in results.
+
+        figure_description : typing.Optional[bool]
+            **⚠️ DEPRECATED** — Use `figureProcessing.description` instead. Toggle to generate descriptive captions for extracted figures.
+
+        show_images : typing.Optional[bool]
+            **⚠️ DEPRECATED** — Use `figureProcessing.showImages` instead. Embed base64-encoded images inline in figure tags in the output. Increases response size.
+
+        return_html : typing.Optional[bool]
+            **⚠️ DEPRECATED** — Use `extensions.altOutputs.returnHtml` instead. Whether to include HTML representation alongside markdown in the response.
+
+        thinking : typing.Optional[bool]
+            (Deprecated) Enables expanded rationale output for debugging.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -943,22 +933,22 @@ class AsyncRawPulse:
             method="POST",
             data={
                 "fileUrl": file_url,
+                "pages": pages,
+                "figureProcessing": figure_processing,
+                "extensions": extensions,
+                "storage": storage,
+                "async": async_,
                 "structuredOutput": structured_output,
                 "schema": schema,
-                "experimentalSchema": experimental_schema,
                 "schemaPrompt": schema_prompt,
                 "customPrompt": custom_prompt,
                 "chunking": chunking,
                 "chunkSize": chunk_size,
-                "pages": pages,
                 "extractFigure": extract_figure,
                 "figureDescription": figure_description,
                 "showImages": show_images,
                 "returnHtml": return_html,
-                "effort": effort,
                 "thinking": thinking,
-                "storage": storage,
-                "async": async_,
             },
             files={
                 **({"file": file} if file is not None else {}),

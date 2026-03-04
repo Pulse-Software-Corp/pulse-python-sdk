@@ -8,33 +8,24 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2
 from ..core.serialization import FieldMetadata
 from ..core.unchecked_base_model import UncheckedBaseModel
 from .extract_response_chunks import ExtractResponseChunks
+from .extract_response_extensions import ExtractResponseExtensions
 from .extract_response_plan_info import ExtractResponsePlanInfo
 from .structured_output_result import StructuredOutputResult
 
 
 class ExtractResponse(UncheckedBaseModel):
     """
-    Full extraction result returned by the synchronous `/extract` endpoint. Contains the extracted markdown (or HTML), optional structured data, chunked content, bounding boxes, and storage metadata.
+    Full extraction result returned by the synchronous `/extract` endpoint. Contains the extracted markdown, optional extensions output, bounding boxes, and storage metadata.
     """
 
     markdown: typing.Optional[str] = pydantic.Field(default=None)
     """
-    Primary markdown content extracted from the document. Present when `returnHtml` is false or omitted.
+    Primary markdown content extracted from the document. Always present in the new format.
     """
 
-    html: typing.Optional[str] = pydantic.Field(default=None)
+    extensions: typing.Optional[ExtractResponseExtensions] = pydantic.Field(default=None)
     """
-    HTML representation of the extracted content. Present when `returnHtml` is true.
-    """
-
-    structured_output: typing.Optional[StructuredOutputResult] = pydantic.Field(default=None)
-    """
-    Structured data extracted using the provided schema. Only present when a schema was included in the request (via `structuredOutput` or legacy `schema` field).
-    """
-
-    chunks: typing.Optional[ExtractResponseChunks] = pydantic.Field(default=None)
-    """
-    Document content split into chunks using the requested strategies. Only present when `chunking` was specified in the request.
+    Output from enabled extensions. Each key corresponds to an extension that was enabled in the request under `extensions.*`. Only keys for enabled extensions are present.
     """
 
     bounding_boxes: typing.Optional[typing.Dict[str, typing.Any]] = pydantic.Field(default=None)
@@ -57,26 +48,46 @@ class ExtractResponse(UncheckedBaseModel):
     Number of pages processed.
     """
 
-    input_schema: typing.Optional[typing.Dict[str, typing.Any]] = pydantic.Field(default=None)
+    plan_info: typing.Optional[ExtractResponsePlanInfo] = pydantic.Field(default=None)
     """
-    Echo of the schema that was applied. Present when a schema was included in the request.
+    Billing tier and usage information.
+    """
+
+    warnings: typing.Optional[typing.List[str]] = pydantic.Field(default=None)
+    """
+    Non-fatal warnings generated during extraction. Includes deprecation notices when legacy input parameters are used, as well as processing warnings (e.g. word-level bounding box limitations).
+    """
+
+    html: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    **Deprecated** — Use `extensions.altOutputs.html` instead. HTML representation of the extracted content. Present when the legacy `returnHtml` input was used.
+    """
+
+    chunks: typing.Optional[ExtractResponseChunks] = pydantic.Field(default=None)
+    """
+    **Deprecated** — Use `extensions.chunking` instead. Document content split into chunks. Present when the legacy `chunking` input was used.
     """
 
     plan_info: typing_extensions.Annotated[
         typing.Optional[ExtractResponsePlanInfo], FieldMetadata(alias="plan-info")
     ] = pydantic.Field(default=None)
     """
-    Billing tier and usage information.
+    **Deprecated** — Use `plan_info` (underscore) instead. Present when only legacy input parameters are used.
+    """
+
+    structured_output: typing.Optional[StructuredOutputResult] = pydantic.Field(default=None)
+    """
+    **Deprecated** — Only present when the deprecated `structuredOutput` input parameter was used. Use the `/schema` endpoint after extraction instead.
+    """
+
+    input_schema: typing.Optional[typing.Dict[str, typing.Any]] = pydantic.Field(default=None)
+    """
+    **Deprecated** — Echo of the schema that was applied. Only present when the deprecated `structuredOutput` input parameter was used.
     """
 
     schema_error: typing.Optional[str] = pydantic.Field(default=None)
     """
-    Error message if schema processing failed. The extraction still succeeds but structured data may be missing.
-    """
-
-    schema_processing_time_seconds: typing.Optional[float] = pydantic.Field(default=None)
-    """
-    Time spent on schema processing, in seconds.
+    **Deprecated** — Error message if schema processing failed via the deprecated `structuredOutput` input parameter.
     """
 
     content: typing.Optional[str] = pydantic.Field(default=None)
@@ -87,11 +98,6 @@ class ExtractResponse(UncheckedBaseModel):
     job_id: typing.Optional[str] = pydantic.Field(default=None)
     """
     **Deprecated** — Identifier assigned to the extraction job. Retained for backward compatibility.
-    """
-
-    warnings: typing.Optional[typing.List[str]] = pydantic.Field(default=None)
-    """
-    **Deprecated** — Non-fatal warnings generated during extraction. Retained for backward compatibility.
     """
 
     metadata: typing.Optional[typing.Dict[str, typing.Any]] = pydantic.Field(default=None)

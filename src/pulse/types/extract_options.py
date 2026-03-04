@@ -7,7 +7,8 @@ import typing_extensions
 from ..core.pydantic_utilities import IS_PYDANTIC_V2
 from ..core.serialization import FieldMetadata
 from ..core.unchecked_base_model import UncheckedBaseModel
-from .extract_options_experimental_schema import ExtractOptionsExperimentalSchema
+from .extract_options_extensions import ExtractOptionsExtensions
+from .extract_options_figure_processing import ExtractOptionsFigureProcessing
 from .extract_options_schema import ExtractOptionsSchema
 from .extract_options_storage import ExtractOptionsStorage
 from .extract_options_structured_output import ExtractOptionsStructuredOutput
@@ -16,6 +17,35 @@ from .extract_options_structured_output import ExtractOptionsStructuredOutput
 class ExtractOptions(UncheckedBaseModel):
     """
     Common extraction options shared by synchronous and asynchronous endpoints.
+    """
+
+    pages: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    Page range filter supporting segments such as `1-2` or mixed ranges like `1-2,5`.
+    """
+
+    figure_processing: typing_extensions.Annotated[
+        typing.Optional[ExtractOptionsFigureProcessing], FieldMetadata(alias="figureProcessing")
+    ] = pydantic.Field(default=None)
+    """
+    Settings that control how figures in the document are processed. These affect the markdown output directly (e.g. figure descriptions, chart-to-table conversion, image embedding) and do not produce additional output fields in the response.
+    """
+
+    extensions: typing.Optional[ExtractOptionsExtensions] = pydantic.Field(default=None)
+    """
+    Settings that enable additional processing passes or alternate output formats. Each enabled extension produces a corresponding output field under `response.extensions.*`.
+    """
+
+    storage: typing.Optional[ExtractOptionsStorage] = pydantic.Field(default=None)
+    """
+    Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created.
+    """
+
+    async_: typing_extensions.Annotated[typing.Optional[bool], FieldMetadata(alias="async")] = pydantic.Field(
+        default=None
+    )
+    """
+    If true, returns immediately with a job_id for polling via GET /job/{jobId}. Otherwise processes synchronously.
     """
 
     structured_output: typing_extensions.Annotated[
@@ -32,13 +62,6 @@ class ExtractOptions(UncheckedBaseModel):
     (Deprecated) JSON schema describing structured data to extract. Use structuredOutput instead. Accepts either a JSON object or a stringified JSON representation.
     """
 
-    experimental_schema: typing_extensions.Annotated[
-        typing.Optional[ExtractOptionsExperimentalSchema], FieldMetadata(alias="experimentalSchema")
-    ] = pydantic.Field(default=None)
-    """
-    (Deprecated) Experimental schema definition used for feature flagged behaviour. Accepts either a JSON object or a stringified JSON representation.
-    """
-
     schema_prompt: typing_extensions.Annotated[typing.Optional[str], FieldMetadata(alias="schemaPrompt")] = (
         pydantic.Field(default=None)
     )
@@ -50,74 +73,52 @@ class ExtractOptions(UncheckedBaseModel):
         pydantic.Field(default=None)
     )
     """
-    (Deprecated) Custom instructions that augment the default extraction behaviour.
+    (Deprecated) Custom instructions that augment the default extraction behaviour. Use `figureProcessing` or `extensions` instead.
     """
 
     chunking: typing.Optional[str] = pydantic.Field(default=None)
     """
-    Comma-separated list of chunking strategies to apply (for example `semantic,header,page,recursive`).
+    **⚠️ DEPRECATED** — Use `extensions.chunking.chunkTypes` instead. Comma-separated list of chunking strategies to apply (for example `semantic,header,page,recursive`). Still accepted for backward compatibility.
     """
 
     chunk_size: typing_extensions.Annotated[typing.Optional[int], FieldMetadata(alias="chunkSize")] = pydantic.Field(
         default=None
     )
     """
-    Override for maximum characters per chunk when chunking is enabled.
-    """
-
-    pages: typing.Optional[str] = pydantic.Field(default=None)
-    """
-    Page range filter supporting segments such as `1-2` or mixed ranges like `1-2,5`.
+    **⚠️ DEPRECATED** — Use `extensions.chunking.chunkSize` instead. Override for maximum characters per chunk when chunking is enabled.
     """
 
     extract_figure: typing_extensions.Annotated[typing.Optional[bool], FieldMetadata(alias="extractFigure")] = (
         pydantic.Field(default=None)
     )
     """
-    Toggle to enable figure extraction in results.
+    **⚠️ DEPRECATED** — Toggle to enable figure extraction in results.
     """
 
     figure_description: typing_extensions.Annotated[typing.Optional[bool], FieldMetadata(alias="figureDescription")] = (
         pydantic.Field(default=None)
     )
     """
-    Toggle to generate descriptive captions for extracted figures.
+    **⚠️ DEPRECATED** — Use `figureProcessing.description` instead. Toggle to generate descriptive captions for extracted figures.
     """
 
     show_images: typing_extensions.Annotated[typing.Optional[bool], FieldMetadata(alias="showImages")] = pydantic.Field(
         default=None
     )
     """
-    Embed base64-encoded images inline in figure tags in the output. Increases response size.
+    **⚠️ DEPRECATED** — Use `figureProcessing.showImages` instead. Embed base64-encoded images inline in figure tags in the output. Increases response size.
     """
 
     return_html: typing_extensions.Annotated[typing.Optional[bool], FieldMetadata(alias="returnHtml")] = pydantic.Field(
         default=None
     )
     """
-    Whether to include HTML representation alongside markdown in the response.
-    """
-
-    effort: typing.Optional[bool] = pydantic.Field(default=None)
-    """
-    Enable extended reasoning mode for higher quality extraction on complex documents. Uses a more powerful model at higher latency.
+    **⚠️ DEPRECATED** — Use `extensions.altOutputs.returnHtml` instead. Whether to include HTML representation alongside markdown in the response.
     """
 
     thinking: typing.Optional[bool] = pydantic.Field(default=None)
     """
     (Deprecated) Enables expanded rationale output for debugging.
-    """
-
-    storage: typing.Optional[ExtractOptionsStorage] = pydantic.Field(default=None)
-    """
-    Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created.
-    """
-
-    async_: typing_extensions.Annotated[typing.Optional[bool], FieldMetadata(alias="async")] = pydantic.Field(
-        default=None
-    )
-    """
-    If true, returns immediately with a job_id for polling via GET /job/{jobId}. Otherwise processes synchronously.
     """
 
     if IS_PYDANTIC_V2:

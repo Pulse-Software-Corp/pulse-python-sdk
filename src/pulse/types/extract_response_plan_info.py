@@ -9,23 +9,12 @@ from ..core.unchecked_base_model import UncheckedBaseModel
 
 class ExtractResponsePlanInfo(UncheckedBaseModel):
     """
-    Billing tier and usage information.
+    **Deprecated** — Use `plan_info` (underscore) instead. Present when only legacy input parameters are used.
     """
 
-    tier: typing.Optional[str] = pydantic.Field(default=None)
-    """
-    Current plan tier name.
-    """
-
-    pages_used: typing.Optional[int] = pydantic.Field(default=None)
-    """
-    Cumulative pages used after this extraction.
-    """
-
-    note: typing.Optional[str] = pydantic.Field(default=None)
-    """
-    Human-readable plan note.
-    """
+    tier: typing.Optional[str] = None
+    pages_used: typing.Optional[int] = None
+    note: typing.Optional[str] = None
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

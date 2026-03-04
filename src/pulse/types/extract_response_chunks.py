@@ -9,28 +9,13 @@ from ..core.unchecked_base_model import UncheckedBaseModel
 
 class ExtractResponseChunks(UncheckedBaseModel):
     """
-    Document content split into chunks using the requested strategies. Only present when `chunking` was specified in the request.
+    **Deprecated** — Use `extensions.chunking` instead. Document content split into chunks. Present when the legacy `chunking` input was used.
     """
 
-    semantic: typing.Optional[typing.List[str]] = pydantic.Field(default=None)
-    """
-    Semantically-segmented chunks.
-    """
-
-    header: typing.Optional[typing.List[str]] = pydantic.Field(default=None)
-    """
-    Chunks split by document headers/headings.
-    """
-
-    page: typing.Optional[typing.List[str]] = pydantic.Field(default=None)
-    """
-    One chunk per page.
-    """
-
-    recursive: typing.Optional[typing.List[str]] = pydantic.Field(default=None)
-    """
-    Recursively-split chunks respecting size limits.
-    """
+    semantic: typing.Optional[typing.List[str]] = None
+    header: typing.Optional[typing.List[str]] = None
+    page: typing.Optional[typing.List[str]] = None
+    recursive: typing.Optional[typing.List[str]] = None
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

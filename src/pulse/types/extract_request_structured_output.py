@@ -28,6 +28,11 @@ class ExtractRequestStructuredOutput(UncheckedBaseModel):
     Natural language prompt with additional extraction instructions.
     """
 
+    effort: typing.Optional[bool] = pydantic.Field(default=None)
+    """
+    Use higher quality model for better results. When true, uses a more capable model at the cost of higher latency.
+    """
+
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2
     else:

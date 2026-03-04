@@ -17,10 +17,6 @@ extraction based on user-provided schemas and extraction options.
 
 Set `async: true` to return immediately with a job_id for polling via
 GET /job/{jobId}. Otherwise processes synchronously.
-
-**Note:** Both sync and async modes return HTTP 200. When `async` is true
-the response body contains `{ job_id, status }` instead of the full
-extraction result.
 </dd>
 </dl>
 </dd>
@@ -74,62 +70,6 @@ typing.Optional[core.File]` — See core.File for more documentation
 <dl>
 <dd>
 
-**structured_output:** `typing.Optional[ExtractRequestStructuredOutput]` — **⚠️ DEPRECATED** — Use the `/schema` endpoint after extraction instead. Pass the `extraction_id` from the extract response to `/schema` with your `schema_config`. This parameter still works for backward compatibility but will be removed in a future version.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**schema:** `typing.Optional[ExtractRequestSchema]` — (Deprecated) JSON schema describing structured data to extract. Use structuredOutput instead. Accepts either a JSON object or a stringified JSON representation.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**experimental_schema:** `typing.Optional[ExtractRequestExperimentalSchema]` — (Deprecated) Experimental schema definition used for feature flagged behaviour. Accepts either a JSON object or a stringified JSON representation.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**schema_prompt:** `typing.Optional[str]` — (Deprecated) Natural language prompt for schema-guided extraction. Use structuredOutput.schemaPrompt instead.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**custom_prompt:** `typing.Optional[str]` — (Deprecated) Custom instructions that augment the default extraction behaviour.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**chunking:** `typing.Optional[str]` — Comma-separated list of chunking strategies to apply (for example `semantic,header,page,recursive`).
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**chunk_size:** `typing.Optional[int]` — Override for maximum characters per chunk when chunking is enabled.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **pages:** `typing.Optional[str]` — Page range filter supporting segments such as `1-2` or mixed ranges like `1-2,5`.
     
 </dd>
@@ -138,7 +78,7 @@ typing.Optional[core.File]` — See core.File for more documentation
 <dl>
 <dd>
 
-**extract_figure:** `typing.Optional[bool]` — Toggle to enable figure extraction in results.
+**figure_processing:** `typing.Optional[ExtractRequestFigureProcessing]` — Settings that control how figures in the document are processed. These affect the markdown output directly (e.g. figure descriptions, chart-to-table conversion, image embedding) and do not produce additional output fields in the response.
     
 </dd>
 </dl>
@@ -146,39 +86,7 @@ typing.Optional[core.File]` — See core.File for more documentation
 <dl>
 <dd>
 
-**figure_description:** `typing.Optional[bool]` — Toggle to generate descriptive captions for extracted figures.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**show_images:** `typing.Optional[bool]` — Embed base64-encoded images inline in figure tags in the output. Increases response size.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**return_html:** `typing.Optional[bool]` — Whether to include HTML representation alongside markdown in the response.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**effort:** `typing.Optional[bool]` — Enable extended reasoning mode for higher quality extraction on complex documents. Uses a more powerful model at higher latency.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**thinking:** `typing.Optional[bool]` — (Deprecated) Enables expanded rationale output for debugging.
+**extensions:** `typing.Optional[ExtractRequestExtensions]` — Settings that enable additional processing passes or alternate output formats. Each enabled extension produces a corresponding output field under `response.extensions.*`.
     
 </dd>
 </dl>
@@ -195,6 +103,94 @@ typing.Optional[core.File]` — See core.File for more documentation
 <dd>
 
 **async_:** `typing.Optional[bool]` — If true, returns immediately with a job_id for polling via GET /job/{jobId}. Otherwise processes synchronously.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**structured_output:** `typing.Optional[ExtractRequestStructuredOutput]` — **⚠️ DEPRECATED** — Use the `/schema` endpoint after extraction instead. Pass the `extraction_id` from the extract response to `/schema` with your `schema_config`. This parameter still works for backward compatibility but will be removed in a future version.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**schema:** `typing.Optional[ExtractRequestSchema]` — (Deprecated) JSON schema describing structured data to extract. Use structuredOutput instead. Accepts either a JSON object or a stringified JSON representation.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**schema_prompt:** `typing.Optional[str]` — (Deprecated) Natural language prompt for schema-guided extraction. Use structuredOutput.schemaPrompt instead.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**custom_prompt:** `typing.Optional[str]` — (Deprecated) Custom instructions that augment the default extraction behaviour. Use `figureProcessing` or `extensions` instead.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**chunking:** `typing.Optional[str]` — **⚠️ DEPRECATED** — Use `extensions.chunking.chunkTypes` instead. Comma-separated list of chunking strategies to apply (for example `semantic,header,page,recursive`). Still accepted for backward compatibility.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**chunk_size:** `typing.Optional[int]` — **⚠️ DEPRECATED** — Use `extensions.chunking.chunkSize` instead. Override for maximum characters per chunk when chunking is enabled.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**extract_figure:** `typing.Optional[bool]` — **⚠️ DEPRECATED** — Toggle to enable figure extraction in results.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**figure_description:** `typing.Optional[bool]` — **⚠️ DEPRECATED** — Use `figureProcessing.description` instead. Toggle to generate descriptive captions for extracted figures.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**show_images:** `typing.Optional[bool]` — **⚠️ DEPRECATED** — Use `figureProcessing.showImages` instead. Embed base64-encoded images inline in figure tags in the output. Increases response size.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**return_html:** `typing.Optional[bool]` — **⚠️ DEPRECATED** — Use `extensions.altOutputs.returnHtml` instead. Whether to include HTML representation alongside markdown in the response.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**thinking:** `typing.Optional[bool]` — (Deprecated) Enables expanded rationale output for debugging.
     
 </dd>
 </dl>
@@ -284,62 +280,6 @@ typing.Optional[core.File]` — See core.File for more documentation
 <dl>
 <dd>
 
-**structured_output:** `typing.Optional[ExtractAsyncRequestStructuredOutput]` — **⚠️ DEPRECATED** — Use the `/schema` endpoint after extraction instead. Pass the `extraction_id` from the extract response to `/schema` with your `schema_config`. This parameter still works for backward compatibility but will be removed in a future version.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**schema:** `typing.Optional[ExtractAsyncRequestSchema]` — (Deprecated) JSON schema describing structured data to extract. Use structuredOutput instead. Accepts either a JSON object or a stringified JSON representation.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**experimental_schema:** `typing.Optional[ExtractAsyncRequestExperimentalSchema]` — (Deprecated) Experimental schema definition used for feature flagged behaviour. Accepts either a JSON object or a stringified JSON representation.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**schema_prompt:** `typing.Optional[str]` — (Deprecated) Natural language prompt for schema-guided extraction. Use structuredOutput.schemaPrompt instead.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**custom_prompt:** `typing.Optional[str]` — (Deprecated) Custom instructions that augment the default extraction behaviour.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**chunking:** `typing.Optional[str]` — Comma-separated list of chunking strategies to apply (for example `semantic,header,page,recursive`).
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**chunk_size:** `typing.Optional[int]` — Override for maximum characters per chunk when chunking is enabled.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **pages:** `typing.Optional[str]` — Page range filter supporting segments such as `1-2` or mixed ranges like `1-2,5`.
     
 </dd>
@@ -348,7 +288,7 @@ typing.Optional[core.File]` — See core.File for more documentation
 <dl>
 <dd>
 
-**extract_figure:** `typing.Optional[bool]` — Toggle to enable figure extraction in results.
+**figure_processing:** `typing.Optional[ExtractAsyncRequestFigureProcessing]` — Settings that control how figures in the document are processed. These affect the markdown output directly (e.g. figure descriptions, chart-to-table conversion, image embedding) and do not produce additional output fields in the response.
     
 </dd>
 </dl>
@@ -356,39 +296,7 @@ typing.Optional[core.File]` — See core.File for more documentation
 <dl>
 <dd>
 
-**figure_description:** `typing.Optional[bool]` — Toggle to generate descriptive captions for extracted figures.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**show_images:** `typing.Optional[bool]` — Embed base64-encoded images inline in figure tags in the output. Increases response size.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**return_html:** `typing.Optional[bool]` — Whether to include HTML representation alongside markdown in the response.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**effort:** `typing.Optional[bool]` — Enable extended reasoning mode for higher quality extraction on complex documents. Uses a more powerful model at higher latency.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**thinking:** `typing.Optional[bool]` — (Deprecated) Enables expanded rationale output for debugging.
+**extensions:** `typing.Optional[ExtractAsyncRequestExtensions]` — Settings that enable additional processing passes or alternate output formats. Each enabled extension produces a corresponding output field under `response.extensions.*`.
     
 </dd>
 </dl>
@@ -405,6 +313,94 @@ typing.Optional[core.File]` — See core.File for more documentation
 <dd>
 
 **async_:** `typing.Optional[bool]` — If true, returns immediately with a job_id for polling via GET /job/{jobId}. Otherwise processes synchronously.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**structured_output:** `typing.Optional[ExtractAsyncRequestStructuredOutput]` — **⚠️ DEPRECATED** — Use the `/schema` endpoint after extraction instead. Pass the `extraction_id` from the extract response to `/schema` with your `schema_config`. This parameter still works for backward compatibility but will be removed in a future version.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**schema:** `typing.Optional[ExtractAsyncRequestSchema]` — (Deprecated) JSON schema describing structured data to extract. Use structuredOutput instead. Accepts either a JSON object or a stringified JSON representation.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**schema_prompt:** `typing.Optional[str]` — (Deprecated) Natural language prompt for schema-guided extraction. Use structuredOutput.schemaPrompt instead.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**custom_prompt:** `typing.Optional[str]` — (Deprecated) Custom instructions that augment the default extraction behaviour. Use `figureProcessing` or `extensions` instead.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**chunking:** `typing.Optional[str]` — **⚠️ DEPRECATED** — Use `extensions.chunking.chunkTypes` instead. Comma-separated list of chunking strategies to apply (for example `semantic,header,page,recursive`). Still accepted for backward compatibility.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**chunk_size:** `typing.Optional[int]` — **⚠️ DEPRECATED** — Use `extensions.chunking.chunkSize` instead. Override for maximum characters per chunk when chunking is enabled.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**extract_figure:** `typing.Optional[bool]` — **⚠️ DEPRECATED** — Toggle to enable figure extraction in results.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**figure_description:** `typing.Optional[bool]` — **⚠️ DEPRECATED** — Use `figureProcessing.description` instead. Toggle to generate descriptive captions for extracted figures.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**show_images:** `typing.Optional[bool]` — **⚠️ DEPRECATED** — Use `figureProcessing.showImages` instead. Embed base64-encoded images inline in figure tags in the output. Increases response size.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**return_html:** `typing.Optional[bool]` — **⚠️ DEPRECATED** — Use `extensions.altOutputs.returnHtml` instead. Whether to include HTML representation alongside markdown in the response.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**thinking:** `typing.Optional[bool]` — (Deprecated) Enables expanded rationale output for debugging.
     
 </dd>
 </dl>
