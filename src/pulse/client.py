@@ -28,6 +28,8 @@ from .types.schema_config import SchemaConfig
 from .types.schema_response import SchemaResponse
 from .types.split_config import SplitConfig
 from .types.split_response import SplitResponse
+from .types.tables_config import TablesConfig
+from .types.tables_response import TablesResponse
 from .types.topic_schema_config import TopicSchemaConfig
 
 if typing.TYPE_CHECKING:
@@ -504,6 +506,59 @@ class Pulse:
             split_schema_config=split_schema_config,
             async_=async_,
             request_options=request_options,
+        )
+        return _response.data
+
+    def tables(
+        self,
+        *,
+        extraction_id: str,
+        tables_config: typing.Optional[TablesConfig] = OMIT,
+        async_: typing.Optional[bool] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> TablesResponse:
+        """
+        Extract tables from a previously completed extraction. Processes the
+        extraction's document content and returns structured table data.
+
+        Requires the `tables_endpoint` feature flag to be enabled for your
+        organization.
+
+        Set `async: true` to return immediately with a `tables_id` for
+        polling via `GET /job/{tables_id}`.
+
+        Parameters
+        ----------
+        extraction_id : str
+            ID of a completed extraction to extract tables from.
+
+        tables_config : typing.Optional[TablesConfig]
+            Table extraction configuration. If omitted, defaults are used (`merge: false`, `table_format: "html"`).
+
+        async_ : typing.Optional[bool]
+            When true, returns immediately with a job ID. Poll `GET /job/{tables_id}` for the result.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        TablesResponse
+            Table extraction result (when async=false or omitted).
+
+        Examples
+        --------
+        from pulse import Pulse
+
+        client = Pulse(
+            api_key="YOUR_API_KEY",
+        )
+        client.tables(
+            extraction_id="extraction_id",
+        )
+        """
+        _response = self._raw_client.tables(
+            extraction_id=extraction_id, tables_config=tables_config, async_=async_, request_options=request_options
         )
         return _response.data
 
@@ -1023,6 +1078,67 @@ class AsyncPulse:
             split_schema_config=split_schema_config,
             async_=async_,
             request_options=request_options,
+        )
+        return _response.data
+
+    async def tables(
+        self,
+        *,
+        extraction_id: str,
+        tables_config: typing.Optional[TablesConfig] = OMIT,
+        async_: typing.Optional[bool] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> TablesResponse:
+        """
+        Extract tables from a previously completed extraction. Processes the
+        extraction's document content and returns structured table data.
+
+        Requires the `tables_endpoint` feature flag to be enabled for your
+        organization.
+
+        Set `async: true` to return immediately with a `tables_id` for
+        polling via `GET /job/{tables_id}`.
+
+        Parameters
+        ----------
+        extraction_id : str
+            ID of a completed extraction to extract tables from.
+
+        tables_config : typing.Optional[TablesConfig]
+            Table extraction configuration. If omitted, defaults are used (`merge: false`, `table_format: "html"`).
+
+        async_ : typing.Optional[bool]
+            When true, returns immediately with a job ID. Poll `GET /job/{tables_id}` for the result.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        TablesResponse
+            Table extraction result (when async=false or omitted).
+
+        Examples
+        --------
+        import asyncio
+
+        from pulse import AsyncPulse
+
+        client = AsyncPulse(
+            api_key="YOUR_API_KEY",
+        )
+
+
+        async def main() -> None:
+            await client.tables(
+                extraction_id="extraction_id",
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.tables(
+            extraction_id=extraction_id, tables_config=tables_config, async_=async_, request_options=request_options
         )
         return _response.data
 

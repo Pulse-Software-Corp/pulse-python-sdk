@@ -641,6 +641,99 @@ client.schema()
 </dl>
 </details>
 
+<details><summary><code>client.<a href="src/pulse/client.py">tables</a>(...) -&gt; AsyncHttpResponse[TablesResponse]</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Extract tables from a previously completed extraction. Processes the
+extraction's document content and returns structured table data.
+
+Requires the `tables_endpoint` feature flag to be enabled for your
+organization.
+
+Set `async: true` to return immediately with a `tables_id` for
+polling via `GET /job/{tables_id}`.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from pulse import Pulse
+
+client = Pulse(
+    api_key="YOUR_API_KEY",
+)
+client.tables(
+    extraction_id="extraction_id",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**extraction_id:** `str` — ID of a completed extraction to extract tables from.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**tables_config:** `typing.Optional[TablesConfig]` — Table extraction configuration. If omitted, defaults are used (`merge: false`, `table_format: "html"`).
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**async_:** `typing.Optional[bool]` — When true, returns immediately with a job ID. Poll `GET /job/{tables_id}` for the result.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
 ## Jobs
 <details><summary><code>client.jobs.<a href="src/pulse/jobs/client.py">get_job</a>(...) -&gt; AsyncHttpResponse[JobStatusResponse]</code></summary>
 <dl>

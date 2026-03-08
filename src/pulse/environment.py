@@ -4,4 +4,4 @@ import enum
 
 
 class PulseEnvironment(enum.Enum):
-    DEFAULT = "https://dev.api.runpulse.com"
+    DEFAULT = "https://api.runpulse.com"

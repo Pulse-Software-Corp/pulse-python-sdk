@@ -11,6 +11,7 @@ from .core.request_options import RequestOptions
 from .core.serialization import convert_and_respect_annotation_metadata
 from .core.unchecked_base_model import construct_type
 from .errors.bad_request_error import BadRequestError
+from .errors.forbidden_error import ForbiddenError
 from .errors.internal_server_error import InternalServerError
 from .errors.not_found_error import NotFoundError
 from .errors.too_many_requests_error import TooManyRequestsError
@@ -31,6 +32,8 @@ from .types.schema_config import SchemaConfig
 from .types.schema_response import SchemaResponse
 from .types.split_config import SplitConfig
 from .types.split_response import SplitResponse
+from .types.tables_config import TablesConfig
+from .types.tables_response import TablesResponse
 from .types.topic_schema_config import TopicSchemaConfig
 
 # this is used as the default value for optional parameters
@@ -657,6 +660,140 @@ class RawPulse:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
+    def tables(
+        self,
+        *,
+        extraction_id: str,
+        tables_config: typing.Optional[TablesConfig] = OMIT,
+        async_: typing.Optional[bool] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> HttpResponse[TablesResponse]:
+        """
+        Extract tables from a previously completed extraction. Processes the
+        extraction's document content and returns structured table data.
+
+        Requires the `tables_endpoint` feature flag to be enabled for your
+        organization.
+
+        Set `async: true` to return immediately with a `tables_id` for
+        polling via `GET /job/{tables_id}`.
+
+        Parameters
+        ----------
+        extraction_id : str
+            ID of a completed extraction to extract tables from.
+
+        tables_config : typing.Optional[TablesConfig]
+            Table extraction configuration. If omitted, defaults are used (`merge: false`, `table_format: "html"`).
+
+        async_ : typing.Optional[bool]
+            When true, returns immediately with a job ID. Poll `GET /job/{tables_id}` for the result.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        HttpResponse[TablesResponse]
+            Table extraction result (when async=false or omitted).
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            "tables",
+            method="POST",
+            json={
+                "extraction_id": extraction_id,
+                "tables_config": convert_and_respect_annotation_metadata(
+                    object_=tables_config, annotation=TablesConfig, direction="write"
+                ),
+                "async": async_,
+            },
+            headers={
+                "content-type": "application/json",
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    TablesResponse,
+                    construct_type(
+                        type_=TablesResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return HttpResponse(response=_response, data=_data)
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        construct_type(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 401:
+                raise UnauthorizedError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        construct_type(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        construct_type(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        construct_type(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 429:
+                raise TooManyRequestsError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        construct_type(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 500:
+                raise InternalServerError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        construct_type(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
 
 class AsyncRawPulse:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
@@ -1231,6 +1368,140 @@ class AsyncRawPulse:
                 )
             if _response.status_code == 401:
                 raise UnauthorizedError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        construct_type(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        construct_type(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 429:
+                raise TooManyRequestsError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        construct_type(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 500:
+                raise InternalServerError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        construct_type(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    async def tables(
+        self,
+        *,
+        extraction_id: str,
+        tables_config: typing.Optional[TablesConfig] = OMIT,
+        async_: typing.Optional[bool] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AsyncHttpResponse[TablesResponse]:
+        """
+        Extract tables from a previously completed extraction. Processes the
+        extraction's document content and returns structured table data.
+
+        Requires the `tables_endpoint` feature flag to be enabled for your
+        organization.
+
+        Set `async: true` to return immediately with a `tables_id` for
+        polling via `GET /job/{tables_id}`.
+
+        Parameters
+        ----------
+        extraction_id : str
+            ID of a completed extraction to extract tables from.
+
+        tables_config : typing.Optional[TablesConfig]
+            Table extraction configuration. If omitted, defaults are used (`merge: false`, `table_format: "html"`).
+
+        async_ : typing.Optional[bool]
+            When true, returns immediately with a job ID. Poll `GET /job/{tables_id}` for the result.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AsyncHttpResponse[TablesResponse]
+            Table extraction result (when async=false or omitted).
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            "tables",
+            method="POST",
+            json={
+                "extraction_id": extraction_id,
+                "tables_config": convert_and_respect_annotation_metadata(
+                    object_=tables_config, annotation=TablesConfig, direction="write"
+                ),
+                "async": async_,
+            },
+            headers={
+                "content-type": "application/json",
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    TablesResponse,
+                    construct_type(
+                        type_=TablesResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return AsyncHttpResponse(response=_response, data=_data)
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        construct_type(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 401:
+                raise UnauthorizedError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        construct_type(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
                     headers=dict(_response.headers),
                     body=typing.cast(
                         typing.Any,
