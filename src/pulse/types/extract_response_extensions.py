@@ -9,6 +9,7 @@ from ..core.serialization import FieldMetadata
 from ..core.unchecked_base_model import UncheckedBaseModel
 from .extract_response_extensions_alt_outputs import ExtractResponseExtensionsAltOutputs
 from .extract_response_extensions_chunking import ExtractResponseExtensionsChunking
+from .extract_response_extensions_footnote_references_item import ExtractResponseExtensionsFootnoteReferencesItem
 
 
 class ExtractResponseExtensions(UncheckedBaseModel):
@@ -29,10 +30,11 @@ class ExtractResponseExtensions(UncheckedBaseModel):
     """
 
     footnote_references: typing_extensions.Annotated[
-        typing.Optional[typing.Dict[str, typing.Any]], FieldMetadata(alias="footnoteReferences")
+        typing.Optional[typing.List[ExtractResponseExtensionsFootnoteReferencesItem]],
+        FieldMetadata(alias="footnoteReferences"),
     ] = pydantic.Field(default=None)
     """
-    Footnote linking result/metadata. Present when `extensions.footnoteReferences` was enabled.
+    List of detected footnotes with their in-text references. Present when `extensions.footnoteReferences` was enabled. Each item links a footnote paragraph to the body-text paragraphs that reference it, using bounding-box text IDs.
     """
 
     alt_outputs: typing_extensions.Annotated[
