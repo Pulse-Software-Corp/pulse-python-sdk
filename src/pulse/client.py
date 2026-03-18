@@ -460,6 +460,7 @@ class Pulse:
         self,
         *,
         extraction_id: typing.Optional[str] = OMIT,
+        extraction_ids: typing.Optional[typing.Sequence[str]] = OMIT,
         split_id: typing.Optional[str] = OMIT,
         schema_config: typing.Optional[SchemaConfig] = OMIT,
         schema_config_id: typing.Optional[str] = OMIT,
@@ -474,9 +475,19 @@ class Pulse:
         **Single mode** — Provide `extraction_id` + `schema_config` (or
         `schema_config_id`) to apply one schema to the entire document.
 
+        **Multi-extraction mode** — Provide a batch extract ID as `extraction_id`
+        (auto-detected) or an explicit `extraction_ids` list. The content from all
+        extractions is combined and the schema is applied to the composite. Citations
+        use `extraction_id-bb_id` format to disambiguate across source documents.
+
         **Split mode** — Provide `split_id` + `split_schema_config` to apply
         different schemas to different page groups from a prior `/split` call.
         Each topic can have its own schema, prompt, and effort setting.
+
+        **Excel template mode** — Provide `excel_template` (base64 .xlsx) in
+        `schema_config` instead of `input_schema`. The schema is auto-generated
+        from the template's column headers, and a filled copy is returned as
+        `excel_output_url`.
 
         Creates a versioned schema record that can be retrieved later.
         Set `async: true` to return immediately with a job_id for polling.
@@ -488,7 +499,10 @@ class Pulse:
         Parameters
         ----------
         extraction_id : typing.Optional[str]
-            ID of saved extraction to apply the schema to. Use for single-mode schema extraction.
+            ID of a saved extraction OR a batch extract job. When a batch extract ID is provided, the system auto-detects it and combines all completed child extractions into a single schema application.
+
+        extraction_ids : typing.Optional[typing.Sequence[str]]
+            Explicit list of extraction IDs to combine. The markdown and bounding boxes from all extractions are merged and the schema is applied to the composite content. Citations use `extraction_id-bb_id` format to disambiguate across source documents.
 
         split_id : typing.Optional[str]
             ID of saved split (from a prior `/split` call). Use for split-mode schema extraction.
@@ -524,6 +538,7 @@ class Pulse:
         """
         _response = self._raw_client.schema(
             extraction_id=extraction_id,
+            extraction_ids=extraction_ids,
             split_id=split_id,
             schema_config=schema_config,
             schema_config_id=schema_config_id,
@@ -532,6 +547,42 @@ class Pulse:
             request_options=request_options,
         )
         return _response.data
+
+    def download_schema_excel(
+        self, schema_id: str, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> typing.Iterator[bytes]:
+        """
+        Download the filled Excel template produced by a schema extraction that
+        used `excel_template` in its `schema_config`. Requires the same API key
+        authentication as other endpoints. The caller must belong to the org
+        that owns the underlying extraction.
+
+        Parameters
+        ----------
+        schema_id : str
+            The schema ID returned from a prior `POST /schema` call.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration. You can pass in configuration such as `chunk_size`, and more to customize the request and response.
+
+        Returns
+        -------
+        typing.Iterator[bytes]
+            Filled Excel file
+
+        Examples
+        --------
+        from pulse import Pulse
+
+        client = Pulse(
+            api_key="YOUR_API_KEY",
+        )
+        client.download_schema_excel(
+            schema_id="schemaId",
+        )
+        """
+        with self._raw_client.download_schema_excel(schema_id, request_options=request_options) as r:
+            yield from r.data
 
     def tables(
         self,
@@ -1057,6 +1108,7 @@ class AsyncPulse:
         self,
         *,
         extraction_id: typing.Optional[str] = OMIT,
+        extraction_ids: typing.Optional[typing.Sequence[str]] = OMIT,
         split_id: typing.Optional[str] = OMIT,
         schema_config: typing.Optional[SchemaConfig] = OMIT,
         schema_config_id: typing.Optional[str] = OMIT,
@@ -1071,9 +1123,19 @@ class AsyncPulse:
         **Single mode** — Provide `extraction_id` + `schema_config` (or
         `schema_config_id`) to apply one schema to the entire document.
 
+        **Multi-extraction mode** — Provide a batch extract ID as `extraction_id`
+        (auto-detected) or an explicit `extraction_ids` list. The content from all
+        extractions is combined and the schema is applied to the composite. Citations
+        use `extraction_id-bb_id` format to disambiguate across source documents.
+
         **Split mode** — Provide `split_id` + `split_schema_config` to apply
         different schemas to different page groups from a prior `/split` call.
         Each topic can have its own schema, prompt, and effort setting.
+
+        **Excel template mode** — Provide `excel_template` (base64 .xlsx) in
+        `schema_config` instead of `input_schema`. The schema is auto-generated
+        from the template's column headers, and a filled copy is returned as
+        `excel_output_url`.
 
         Creates a versioned schema record that can be retrieved later.
         Set `async: true` to return immediately with a job_id for polling.
@@ -1085,7 +1147,10 @@ class AsyncPulse:
         Parameters
         ----------
         extraction_id : typing.Optional[str]
-            ID of saved extraction to apply the schema to. Use for single-mode schema extraction.
+            ID of a saved extraction OR a batch extract job. When a batch extract ID is provided, the system auto-detects it and combines all completed child extractions into a single schema application.
+
+        extraction_ids : typing.Optional[typing.Sequence[str]]
+            Explicit list of extraction IDs to combine. The markdown and bounding boxes from all extractions are merged and the schema is applied to the composite content. Citations use `extraction_id-bb_id` format to disambiguate across source documents.
 
         split_id : typing.Optional[str]
             ID of saved split (from a prior `/split` call). Use for split-mode schema extraction.
@@ -1129,6 +1194,7 @@ class AsyncPulse:
         """
         _response = await self._raw_client.schema(
             extraction_id=extraction_id,
+            extraction_ids=extraction_ids,
             split_id=split_id,
             schema_config=schema_config,
             schema_config_id=schema_config_id,
@@ -1137,6 +1203,51 @@ class AsyncPulse:
             request_options=request_options,
         )
         return _response.data
+
+    async def download_schema_excel(
+        self, schema_id: str, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> typing.AsyncIterator[bytes]:
+        """
+        Download the filled Excel template produced by a schema extraction that
+        used `excel_template` in its `schema_config`. Requires the same API key
+        authentication as other endpoints. The caller must belong to the org
+        that owns the underlying extraction.
+
+        Parameters
+        ----------
+        schema_id : str
+            The schema ID returned from a prior `POST /schema` call.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration. You can pass in configuration such as `chunk_size`, and more to customize the request and response.
+
+        Returns
+        -------
+        typing.AsyncIterator[bytes]
+            Filled Excel file
+
+        Examples
+        --------
+        import asyncio
+
+        from pulse import AsyncPulse
+
+        client = AsyncPulse(
+            api_key="YOUR_API_KEY",
+        )
+
+
+        async def main() -> None:
+            await client.download_schema_excel(
+                schema_id="schemaId",
+            )
+
+
+        asyncio.run(main())
+        """
+        async with self._raw_client.download_schema_excel(schema_id, request_options=request_options) as r:
+            async for _chunk in r.data:
+                yield _chunk
 
     async def tables(
         self,

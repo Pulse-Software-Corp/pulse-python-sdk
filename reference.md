@@ -562,9 +562,19 @@ inferred from the input:
 **Single mode** — Provide `extraction_id` + `schema_config` (or
 `schema_config_id`) to apply one schema to the entire document.
 
+**Multi-extraction mode** — Provide a batch extract ID as `extraction_id`
+(auto-detected) or an explicit `extraction_ids` list. The content from all
+extractions is combined and the schema is applied to the composite. Citations
+use `extraction_id-bb_id` format to disambiguate across source documents.
+
 **Split mode** — Provide `split_id` + `split_schema_config` to apply
 different schemas to different page groups from a prior `/split` call.
 Each topic can have its own schema, prompt, and effort setting.
+
+**Excel template mode** — Provide `excel_template` (base64 .xlsx) in
+`schema_config` instead of `input_schema`. The schema is auto-generated
+from the template's column headers, and a filled copy is returned as
+`excel_output_url`.
 
 Creates a versioned schema record that can be retrieved later.
 Set `async: true` to return immediately with a job_id for polling.
@@ -607,7 +617,15 @@ client.schema()
 <dl>
 <dd>
 
-**extraction_id:** `typing.Optional[str]` — ID of saved extraction to apply the schema to. Use for single-mode schema extraction.
+**extraction_id:** `typing.Optional[str]` — ID of a saved extraction OR a batch extract job. When a batch extract ID is provided, the system auto-detects it and combines all completed child extractions into a single schema application.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**extraction_ids:** `typing.Optional[typing.Sequence[str]]` — Explicit list of extraction IDs to combine. The markdown and bounding boxes from all extractions are merged and the schema is applied to the composite content. Citations use `extraction_id-bb_id` format to disambiguate across source documents.
     
 </dd>
 </dl>
@@ -656,6 +674,79 @@ client.schema()
 <dd>
 
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.<a href="src/pulse/client.py">download_schema_excel</a>(...) -&gt; typing.AsyncIterator[AsyncHttpResponse[typing.AsyncIterator[bytes]]]</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Download the filled Excel template produced by a schema extraction that
+used `excel_template` in its `schema_config`. Requires the same API key
+authentication as other endpoints. The caller must belong to the org
+that owns the underlying extraction.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from pulse import Pulse
+
+client = Pulse(
+    api_key="YOUR_API_KEY",
+)
+client.download_schema_excel(
+    schema_id="schemaId",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**schema_id:** `str` — The schema ID returned from a prior `POST /schema` call.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration. You can pass in configuration such as `chunk_size`, and more to customize the request and response.
     
 </dd>
 </dl>

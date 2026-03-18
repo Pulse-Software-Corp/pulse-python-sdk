@@ -28,6 +28,16 @@ class SingleSchemaResponse(UncheckedBaseModel):
     Extracted values and citations.
     """
 
+    extraction_ids: typing.Optional[typing.List[str]] = pydantic.Field(default=None)
+    """
+    Present when multiple extractions were combined (via batch extract auto-detection or explicit `extraction_ids` input). Lists all source extraction IDs that contributed to the result.
+    """
+
+    excel_output_url: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    API path to download the filled Excel template (e.g. `/schema/{schema_id}/excel`). Requires the same API key authentication. Only present when `excel_template` was provided in the request.
+    """
+
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2
     else:
