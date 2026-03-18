@@ -15,11 +15,13 @@ from .raw_client import AsyncRawPulse, RawPulse
 from .types.async_submission_response import AsyncSubmissionResponse
 from .types.extract_async_request_extensions import ExtractAsyncRequestExtensions
 from .types.extract_async_request_figure_processing import ExtractAsyncRequestFigureProcessing
+from .types.extract_async_request_model import ExtractAsyncRequestModel
 from .types.extract_async_request_schema import ExtractAsyncRequestSchema
 from .types.extract_async_request_storage import ExtractAsyncRequestStorage
 from .types.extract_async_request_structured_output import ExtractAsyncRequestStructuredOutput
 from .types.extract_request_extensions import ExtractRequestExtensions
 from .types.extract_request_figure_processing import ExtractRequestFigureProcessing
+from .types.extract_request_model import ExtractRequestModel
 from .types.extract_request_schema import ExtractRequestSchema
 from .types.extract_request_storage import ExtractRequestStorage
 from .types.extract_request_structured_output import ExtractRequestStructuredOutput
@@ -33,6 +35,7 @@ from .types.tables_response import TablesResponse
 from .types.topic_schema_config import TopicSchemaConfig
 
 if typing.TYPE_CHECKING:
+    from .batch.client import AsyncBatchClient, BatchClient
     from .jobs.client import AsyncJobsClient, JobsClient
     from .webhooks.client import AsyncWebhooksClient, WebhooksClient
 # this is used as the default value for optional parameters
@@ -107,6 +110,7 @@ class Pulse:
             timeout=_defaulted_timeout,
         )
         self._raw_client = RawPulse(client_wrapper=self._client_wrapper)
+        self._batch: typing.Optional[BatchClient] = None
         self._jobs: typing.Optional[JobsClient] = None
         self._webhooks: typing.Optional[WebhooksClient] = None
 
@@ -126,6 +130,7 @@ class Pulse:
         *,
         file: typing.Optional[core.File] = OMIT,
         file_url: typing.Optional[str] = OMIT,
+        model: typing.Optional[ExtractRequestModel] = OMIT,
         pages: typing.Optional[str] = OMIT,
         figure_processing: typing.Optional[ExtractRequestFigureProcessing] = OMIT,
         extensions: typing.Optional[ExtractRequestExtensions] = OMIT,
@@ -152,6 +157,9 @@ class Pulse:
         Set `async: true` to return immediately with a job_id for polling via
         GET /job/{jobId}. Otherwise processes synchronously.
 
+        To process many files at once, see [Batch Extract](api:POST/batch/extract)
+        or the [Batch Processing guide](/batch).
+
         Parameters
         ----------
         file : typing.Optional[core.File]
@@ -159,6 +167,9 @@ class Pulse:
 
         file_url : typing.Optional[str]
             Public or pre-signed URL that Pulse will download and extract. Required unless file is provided.
+
+        model : typing.Optional[ExtractRequestModel]
+            Extraction model to use. When set to `enterprise-preview`, routes the request through Pulse's self-hosted VPC extraction model instead of the default cloud-based service. If omitted or set to any other value, the default model is used.
 
         pages : typing.Optional[str]
             Page range filter supporting segments such as `1-2` or mixed ranges like `1-2,5`.
@@ -228,6 +239,7 @@ class Pulse:
         _response = self._raw_client.extract(
             file=file,
             file_url=file_url,
+            model=model,
             pages=pages,
             figure_processing=figure_processing,
             extensions=extensions,
@@ -253,6 +265,7 @@ class Pulse:
         *,
         file: typing.Optional[core.File] = OMIT,
         file_url: typing.Optional[str] = OMIT,
+        model: typing.Optional[ExtractAsyncRequestModel] = OMIT,
         pages: typing.Optional[str] = OMIT,
         figure_processing: typing.Optional[ExtractAsyncRequestFigureProcessing] = OMIT,
         extensions: typing.Optional[ExtractAsyncRequestExtensions] = OMIT,
@@ -285,6 +298,9 @@ class Pulse:
 
         file_url : typing.Optional[str]
             Public or pre-signed URL that Pulse will download and extract. Required unless file is provided.
+
+        model : typing.Optional[ExtractAsyncRequestModel]
+            Extraction model to use. When set to `enterprise-preview`, routes the request through Pulse's self-hosted VPC extraction model instead of the default cloud-based service. If omitted or set to any other value, the default model is used.
 
         pages : typing.Optional[str]
             Page range filter supporting segments such as `1-2` or mixed ranges like `1-2,5`.
@@ -354,6 +370,7 @@ class Pulse:
         _response = self._raw_client.extract_async(
             file=file,
             file_url=file_url,
+            model=model,
             pages=pages,
             figure_processing=figure_processing,
             extensions=extensions,
@@ -393,6 +410,9 @@ class Pulse:
         specific page groups.
 
         Set `async: true` to return immediately with a job_id for polling.
+
+        To split many extractions at once, see [Batch Split](api:POST/batch/split)
+        or the [Batch Processing guide](/batch).
 
         Parameters
         ----------
@@ -461,6 +481,10 @@ class Pulse:
         Creates a versioned schema record that can be retrieved later.
         Set `async: true` to return immediately with a job_id for polling.
 
+        To apply schemas across many extractions or splits at once, see
+        [Batch Schema](api:POST/batch/schema) or the
+        [Batch Processing guide](/batch).
+
         Parameters
         ----------
         extraction_id : typing.Optional[str]
@@ -527,6 +551,10 @@ class Pulse:
         Set `async: true` to return immediately with a `tables_id` for
         polling via `GET /job/{tables_id}`.
 
+        To extract tables from many extractions at once, see
+        [Batch Tables](api:POST/batch/tables) or the
+        [Batch Processing guide](/batch).
+
         Parameters
         ----------
         extraction_id : str
@@ -561,6 +589,14 @@ class Pulse:
             extraction_id=extraction_id, tables_config=tables_config, async_=async_, request_options=request_options
         )
         return _response.data
+
+    @property
+    def batch(self):
+        if self._batch is None:
+            from .batch.client import BatchClient  # noqa: E402
+
+            self._batch = BatchClient(client_wrapper=self._client_wrapper)
+        return self._batch
 
     @property
     def jobs(self):
@@ -647,6 +683,7 @@ class AsyncPulse:
             timeout=_defaulted_timeout,
         )
         self._raw_client = AsyncRawPulse(client_wrapper=self._client_wrapper)
+        self._batch: typing.Optional[AsyncBatchClient] = None
         self._jobs: typing.Optional[AsyncJobsClient] = None
         self._webhooks: typing.Optional[AsyncWebhooksClient] = None
 
@@ -666,6 +703,7 @@ class AsyncPulse:
         *,
         file: typing.Optional[core.File] = OMIT,
         file_url: typing.Optional[str] = OMIT,
+        model: typing.Optional[ExtractRequestModel] = OMIT,
         pages: typing.Optional[str] = OMIT,
         figure_processing: typing.Optional[ExtractRequestFigureProcessing] = OMIT,
         extensions: typing.Optional[ExtractRequestExtensions] = OMIT,
@@ -692,6 +730,9 @@ class AsyncPulse:
         Set `async: true` to return immediately with a job_id for polling via
         GET /job/{jobId}. Otherwise processes synchronously.
 
+        To process many files at once, see [Batch Extract](api:POST/batch/extract)
+        or the [Batch Processing guide](/batch).
+
         Parameters
         ----------
         file : typing.Optional[core.File]
@@ -699,6 +740,9 @@ class AsyncPulse:
 
         file_url : typing.Optional[str]
             Public or pre-signed URL that Pulse will download and extract. Required unless file is provided.
+
+        model : typing.Optional[ExtractRequestModel]
+            Extraction model to use. When set to `enterprise-preview`, routes the request through Pulse's self-hosted VPC extraction model instead of the default cloud-based service. If omitted or set to any other value, the default model is used.
 
         pages : typing.Optional[str]
             Page range filter supporting segments such as `1-2` or mixed ranges like `1-2,5`.
@@ -776,6 +820,7 @@ class AsyncPulse:
         _response = await self._raw_client.extract(
             file=file,
             file_url=file_url,
+            model=model,
             pages=pages,
             figure_processing=figure_processing,
             extensions=extensions,
@@ -801,6 +846,7 @@ class AsyncPulse:
         *,
         file: typing.Optional[core.File] = OMIT,
         file_url: typing.Optional[str] = OMIT,
+        model: typing.Optional[ExtractAsyncRequestModel] = OMIT,
         pages: typing.Optional[str] = OMIT,
         figure_processing: typing.Optional[ExtractAsyncRequestFigureProcessing] = OMIT,
         extensions: typing.Optional[ExtractAsyncRequestExtensions] = OMIT,
@@ -833,6 +879,9 @@ class AsyncPulse:
 
         file_url : typing.Optional[str]
             Public or pre-signed URL that Pulse will download and extract. Required unless file is provided.
+
+        model : typing.Optional[ExtractAsyncRequestModel]
+            Extraction model to use. When set to `enterprise-preview`, routes the request through Pulse's self-hosted VPC extraction model instead of the default cloud-based service. If omitted or set to any other value, the default model is used.
 
         pages : typing.Optional[str]
             Page range filter supporting segments such as `1-2` or mixed ranges like `1-2,5`.
@@ -910,6 +959,7 @@ class AsyncPulse:
         _response = await self._raw_client.extract_async(
             file=file,
             file_url=file_url,
+            model=model,
             pages=pages,
             figure_processing=figure_processing,
             extensions=extensions,
@@ -949,6 +999,9 @@ class AsyncPulse:
         specific page groups.
 
         Set `async: true` to return immediately with a job_id for polling.
+
+        To split many extractions at once, see [Batch Split](api:POST/batch/split)
+        or the [Batch Processing guide](/batch).
 
         Parameters
         ----------
@@ -1025,6 +1078,10 @@ class AsyncPulse:
         Creates a versioned schema record that can be retrieved later.
         Set `async: true` to return immediately with a job_id for polling.
 
+        To apply schemas across many extractions or splits at once, see
+        [Batch Schema](api:POST/batch/schema) or the
+        [Batch Processing guide](/batch).
+
         Parameters
         ----------
         extraction_id : typing.Optional[str]
@@ -1099,6 +1156,10 @@ class AsyncPulse:
         Set `async: true` to return immediately with a `tables_id` for
         polling via `GET /job/{tables_id}`.
 
+        To extract tables from many extractions at once, see
+        [Batch Tables](api:POST/batch/tables) or the
+        [Batch Processing guide](/batch).
+
         Parameters
         ----------
         extraction_id : str
@@ -1141,6 +1202,14 @@ class AsyncPulse:
             extraction_id=extraction_id, tables_config=tables_config, async_=async_, request_options=request_options
         )
         return _response.data
+
+    @property
+    def batch(self):
+        if self._batch is None:
+            from .batch.client import AsyncBatchClient  # noqa: E402
+
+            self._batch = AsyncBatchClient(client_wrapper=self._client_wrapper)
+        return self._batch
 
     @property
     def jobs(self):

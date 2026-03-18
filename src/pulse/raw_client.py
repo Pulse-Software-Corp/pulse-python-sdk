@@ -19,11 +19,13 @@ from .errors.unauthorized_error import UnauthorizedError
 from .types.async_submission_response import AsyncSubmissionResponse
 from .types.extract_async_request_extensions import ExtractAsyncRequestExtensions
 from .types.extract_async_request_figure_processing import ExtractAsyncRequestFigureProcessing
+from .types.extract_async_request_model import ExtractAsyncRequestModel
 from .types.extract_async_request_schema import ExtractAsyncRequestSchema
 from .types.extract_async_request_storage import ExtractAsyncRequestStorage
 from .types.extract_async_request_structured_output import ExtractAsyncRequestStructuredOutput
 from .types.extract_request_extensions import ExtractRequestExtensions
 from .types.extract_request_figure_processing import ExtractRequestFigureProcessing
+from .types.extract_request_model import ExtractRequestModel
 from .types.extract_request_schema import ExtractRequestSchema
 from .types.extract_request_storage import ExtractRequestStorage
 from .types.extract_request_structured_output import ExtractRequestStructuredOutput
@@ -49,6 +51,7 @@ class RawPulse:
         *,
         file: typing.Optional[core.File] = OMIT,
         file_url: typing.Optional[str] = OMIT,
+        model: typing.Optional[ExtractRequestModel] = OMIT,
         pages: typing.Optional[str] = OMIT,
         figure_processing: typing.Optional[ExtractRequestFigureProcessing] = OMIT,
         extensions: typing.Optional[ExtractRequestExtensions] = OMIT,
@@ -75,6 +78,9 @@ class RawPulse:
         Set `async: true` to return immediately with a job_id for polling via
         GET /job/{jobId}. Otherwise processes synchronously.
 
+        To process many files at once, see [Batch Extract](api:POST/batch/extract)
+        or the [Batch Processing guide](/batch).
+
         Parameters
         ----------
         file : typing.Optional[core.File]
@@ -82,6 +88,9 @@ class RawPulse:
 
         file_url : typing.Optional[str]
             Public or pre-signed URL that Pulse will download and extract. Required unless file is provided.
+
+        model : typing.Optional[ExtractRequestModel]
+            Extraction model to use. When set to `enterprise-preview`, routes the request through Pulse's self-hosted VPC extraction model instead of the default cloud-based service. If omitted or set to any other value, the default model is used.
 
         pages : typing.Optional[str]
             Page range filter supporting segments such as `1-2` or mixed ranges like `1-2,5`.
@@ -144,6 +153,7 @@ class RawPulse:
             method="POST",
             data={
                 "fileUrl": file_url,
+                "model": model,
                 "pages": pages,
                 "figureProcessing": figure_processing,
                 "extensions": extensions,
@@ -221,6 +231,7 @@ class RawPulse:
         *,
         file: typing.Optional[core.File] = OMIT,
         file_url: typing.Optional[str] = OMIT,
+        model: typing.Optional[ExtractAsyncRequestModel] = OMIT,
         pages: typing.Optional[str] = OMIT,
         figure_processing: typing.Optional[ExtractAsyncRequestFigureProcessing] = OMIT,
         extensions: typing.Optional[ExtractAsyncRequestExtensions] = OMIT,
@@ -253,6 +264,9 @@ class RawPulse:
 
         file_url : typing.Optional[str]
             Public or pre-signed URL that Pulse will download and extract. Required unless file is provided.
+
+        model : typing.Optional[ExtractAsyncRequestModel]
+            Extraction model to use. When set to `enterprise-preview`, routes the request through Pulse's self-hosted VPC extraction model instead of the default cloud-based service. If omitted or set to any other value, the default model is used.
 
         pages : typing.Optional[str]
             Page range filter supporting segments such as `1-2` or mixed ranges like `1-2,5`.
@@ -315,6 +329,7 @@ class RawPulse:
             method="POST",
             data={
                 "fileUrl": file_url,
+                "model": model,
                 "pages": pages,
                 "figureProcessing": figure_processing,
                 "extensions": extensions,
@@ -406,6 +421,9 @@ class RawPulse:
         specific page groups.
 
         Set `async: true` to return immediately with a job_id for polling.
+
+        To split many extractions at once, see [Batch Split](api:POST/batch/split)
+        or the [Batch Processing guide](/batch).
 
         Parameters
         ----------
@@ -540,6 +558,10 @@ class RawPulse:
 
         Creates a versioned schema record that can be retrieved later.
         Set `async: true` to return immediately with a job_id for polling.
+
+        To apply schemas across many extractions or splits at once, see
+        [Batch Schema](api:POST/batch/schema) or the
+        [Batch Processing guide](/batch).
 
         Parameters
         ----------
@@ -678,6 +700,10 @@ class RawPulse:
         Set `async: true` to return immediately with a `tables_id` for
         polling via `GET /job/{tables_id}`.
 
+        To extract tables from many extractions at once, see
+        [Batch Tables](api:POST/batch/tables) or the
+        [Batch Processing guide](/batch).
+
         Parameters
         ----------
         extraction_id : str
@@ -804,6 +830,7 @@ class AsyncRawPulse:
         *,
         file: typing.Optional[core.File] = OMIT,
         file_url: typing.Optional[str] = OMIT,
+        model: typing.Optional[ExtractRequestModel] = OMIT,
         pages: typing.Optional[str] = OMIT,
         figure_processing: typing.Optional[ExtractRequestFigureProcessing] = OMIT,
         extensions: typing.Optional[ExtractRequestExtensions] = OMIT,
@@ -830,6 +857,9 @@ class AsyncRawPulse:
         Set `async: true` to return immediately with a job_id for polling via
         GET /job/{jobId}. Otherwise processes synchronously.
 
+        To process many files at once, see [Batch Extract](api:POST/batch/extract)
+        or the [Batch Processing guide](/batch).
+
         Parameters
         ----------
         file : typing.Optional[core.File]
@@ -837,6 +867,9 @@ class AsyncRawPulse:
 
         file_url : typing.Optional[str]
             Public or pre-signed URL that Pulse will download and extract. Required unless file is provided.
+
+        model : typing.Optional[ExtractRequestModel]
+            Extraction model to use. When set to `enterprise-preview`, routes the request through Pulse's self-hosted VPC extraction model instead of the default cloud-based service. If omitted or set to any other value, the default model is used.
 
         pages : typing.Optional[str]
             Page range filter supporting segments such as `1-2` or mixed ranges like `1-2,5`.
@@ -899,6 +932,7 @@ class AsyncRawPulse:
             method="POST",
             data={
                 "fileUrl": file_url,
+                "model": model,
                 "pages": pages,
                 "figureProcessing": figure_processing,
                 "extensions": extensions,
@@ -976,6 +1010,7 @@ class AsyncRawPulse:
         *,
         file: typing.Optional[core.File] = OMIT,
         file_url: typing.Optional[str] = OMIT,
+        model: typing.Optional[ExtractAsyncRequestModel] = OMIT,
         pages: typing.Optional[str] = OMIT,
         figure_processing: typing.Optional[ExtractAsyncRequestFigureProcessing] = OMIT,
         extensions: typing.Optional[ExtractAsyncRequestExtensions] = OMIT,
@@ -1008,6 +1043,9 @@ class AsyncRawPulse:
 
         file_url : typing.Optional[str]
             Public or pre-signed URL that Pulse will download and extract. Required unless file is provided.
+
+        model : typing.Optional[ExtractAsyncRequestModel]
+            Extraction model to use. When set to `enterprise-preview`, routes the request through Pulse's self-hosted VPC extraction model instead of the default cloud-based service. If omitted or set to any other value, the default model is used.
 
         pages : typing.Optional[str]
             Page range filter supporting segments such as `1-2` or mixed ranges like `1-2,5`.
@@ -1070,6 +1108,7 @@ class AsyncRawPulse:
             method="POST",
             data={
                 "fileUrl": file_url,
+                "model": model,
                 "pages": pages,
                 "figureProcessing": figure_processing,
                 "extensions": extensions,
@@ -1161,6 +1200,9 @@ class AsyncRawPulse:
         specific page groups.
 
         Set `async: true` to return immediately with a job_id for polling.
+
+        To split many extractions at once, see [Batch Split](api:POST/batch/split)
+        or the [Batch Processing guide](/batch).
 
         Parameters
         ----------
@@ -1295,6 +1337,10 @@ class AsyncRawPulse:
 
         Creates a versioned schema record that can be retrieved later.
         Set `async: true` to return immediately with a job_id for polling.
+
+        To apply schemas across many extractions or splits at once, see
+        [Batch Schema](api:POST/batch/schema) or the
+        [Batch Processing guide](/batch).
 
         Parameters
         ----------
@@ -1432,6 +1478,10 @@ class AsyncRawPulse:
 
         Set `async: true` to return immediately with a `tables_id` for
         polling via `GET /job/{tables_id}`.
+
+        To extract tables from many extractions at once, see
+        [Batch Tables](api:POST/batch/tables) or the
+        [Batch Processing guide](/batch).
 
         Parameters
         ----------

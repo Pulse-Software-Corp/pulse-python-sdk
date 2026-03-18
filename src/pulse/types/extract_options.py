@@ -9,6 +9,7 @@ from ..core.serialization import FieldMetadata
 from ..core.unchecked_base_model import UncheckedBaseModel
 from .extract_options_extensions import ExtractOptionsExtensions
 from .extract_options_figure_processing import ExtractOptionsFigureProcessing
+from .extract_options_model import ExtractOptionsModel
 from .extract_options_schema import ExtractOptionsSchema
 from .extract_options_storage import ExtractOptionsStorage
 from .extract_options_structured_output import ExtractOptionsStructuredOutput
@@ -17,6 +18,11 @@ from .extract_options_structured_output import ExtractOptionsStructuredOutput
 class ExtractOptions(UncheckedBaseModel):
     """
     Common extraction options shared by synchronous and asynchronous endpoints.
+    """
+
+    model: typing.Optional[ExtractOptionsModel] = pydantic.Field(default=None)
+    """
+    Extraction model to use. When set to `enterprise-preview`, routes the request through Pulse's self-hosted VPC extraction model instead of the default cloud-based service. If omitted or set to any other value, the default model is used.
     """
 
     pages: typing.Optional[str] = pydantic.Field(default=None)

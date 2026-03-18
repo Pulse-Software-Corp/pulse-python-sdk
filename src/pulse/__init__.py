@@ -6,13 +6,14 @@ import typing
 from importlib import import_module
 
 if typing.TYPE_CHECKING:
-    from . import jobs, webhooks
+    from . import batch, jobs, webhooks
     from .client import AsyncPulse, Pulse
     from .version import __version__
 _dynamic_imports: typing.Dict[str, str] = {
     "AsyncPulse": ".client",
     "Pulse": ".client",
     "__version__": ".version",
+    "batch": ".batch",
     "jobs": ".jobs",
     "webhooks": ".webhooks",
 }
@@ -39,4 +40,4 @@ def __dir__():
     return sorted(lazy_attrs)
 
 
-__all__ = ["AsyncPulse", "Pulse", "__version__", "jobs", "webhooks"]
+__all__ = ["AsyncPulse", "Pulse", "__version__", "batch", "jobs", "webhooks"]

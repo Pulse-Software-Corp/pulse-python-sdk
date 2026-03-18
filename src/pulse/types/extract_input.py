@@ -9,6 +9,7 @@ from ..core.serialization import FieldMetadata
 from ..core.unchecked_base_model import UncheckedBaseModel
 from .extract_input_extensions import ExtractInputExtensions
 from .extract_input_figure_processing import ExtractInputFigureProcessing
+from .extract_input_model import ExtractInputModel
 from .extract_input_schema import ExtractInputSchema
 from .extract_input_storage import ExtractInputStorage
 from .extract_input_structured_output import ExtractInputStructuredOutput
@@ -29,6 +30,11 @@ class ExtractInput(UncheckedBaseModel):
     )
     """
     Public or pre-signed URL that Pulse will download and extract. Required unless file is provided.
+    """
+
+    model: typing.Optional[ExtractInputModel] = pydantic.Field(default=None)
+    """
+    Extraction model to use. When set to `enterprise-preview`, routes the request through Pulse's self-hosted VPC extraction model instead of the default cloud-based service. If omitted or set to any other value, the default model is used.
     """
 
     pages: typing.Optional[str] = pydantic.Field(default=None)

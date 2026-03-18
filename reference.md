@@ -17,6 +17,9 @@ extraction based on user-provided schemas and extraction options.
 
 Set `async: true` to return immediately with a job_id for polling via
 GET /job/{jobId}. Otherwise processes synchronously.
+
+To process many files at once, see [Batch Extract](api:POST/batch/extract)
+or the [Batch Processing guide](/batch).
 </dd>
 </dl>
 </dd>
@@ -63,6 +66,14 @@ typing.Optional[core.File]` — See core.File for more documentation
 <dd>
 
 **file_url:** `typing.Optional[str]` — Public or pre-signed URL that Pulse will download and extract. Required unless file is provided.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**model:** `typing.Optional[ExtractRequestModel]` — Extraction model to use. When set to `enterprise-preview`, routes the request through Pulse's self-hosted VPC extraction model instead of the default cloud-based service. If omitted or set to any other value, the default model is used.
     
 </dd>
 </dl>
@@ -280,6 +291,14 @@ typing.Optional[core.File]` — See core.File for more documentation
 <dl>
 <dd>
 
+**model:** `typing.Optional[ExtractAsyncRequestModel]` — Extraction model to use. When set to `enterprise-preview`, routes the request through Pulse's self-hosted VPC extraction model instead of the default cloud-based service. If omitted or set to any other value, the default model is used.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
 **pages:** `typing.Optional[str]` — Page range filter supporting segments such as `1-2` or mixed ranges like `1-2,5`.
     
 </dd>
@@ -441,6 +460,9 @@ the `/schema` endpoint (split mode) for targeted schema extraction on
 specific page groups.
 
 Set `async: true` to return immediately with a job_id for polling.
+
+To split many extractions at once, see [Batch Split](api:POST/batch/split)
+or the [Batch Processing guide](/batch).
 </dd>
 </dl>
 </dd>
@@ -546,6 +568,10 @@ Each topic can have its own schema, prompt, and effort setting.
 
 Creates a versioned schema record that can be retrieved later.
 Set `async: true` to return immediately with a job_id for polling.
+
+To apply schemas across many extractions or splits at once, see
+[Batch Schema](api:POST/batch/schema) or the
+[Batch Processing guide](/batch).
 </dd>
 </dl>
 </dd>
@@ -661,6 +687,10 @@ organization.
 
 Set `async: true` to return immediately with a `tables_id` for
 polling via `GET /job/{tables_id}`.
+
+To extract tables from many extractions at once, see
+[Batch Tables](api:POST/batch/tables) or the
+[Batch Processing guide](/batch).
 </dd>
 </dl>
 </dd>
@@ -715,6 +745,498 @@ client.tables(
 <dd>
 
 **async_:** `typing.Optional[bool]` — When true, returns immediately with a job ID. Poll `GET /job/{tables_id}` for the result.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+## Batch
+<details><summary><code>client.batch.<a href="src/pulse/batch/client.py">extract</a>(...) -&gt; AsyncHttpResponse[BatchExtractResponse]</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Process multiple files in parallel. Enumerates files from an input
+source (S3 prefix, local directory, or URL list), calls
+[Extract](api:POST/extract) for each file, and saves results to an
+output destination.
+
+Always asynchronous — returns a batch job ID immediately.
+Poll [GET /job/{jobId}](api:GET/job/{jobId}) for real-time progress
+including per-file completion status.
+
+See the [Extract](api:POST/extract) endpoint for details on
+`extract_options` and the [Batch Processing guide](/batch) for
+an overview of the batch pipeline.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from pulse import BatchInputSource, BatchOutputDestination, Pulse
+
+client = Pulse(
+    api_key="YOUR_API_KEY",
+)
+client.batch.extract(
+    input=BatchInputSource(),
+    output=BatchOutputDestination(),
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**input:** `BatchInputSource` — Source of files to process.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**output:** `BatchOutputDestination` — Where to save extraction result JSON files.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**extract_options:** `typing.Optional[typing.Dict[str, typing.Any]]` — Options forwarded to each `/extract` call (e.g. `pages`, `figureProcessing`, `extensions`).
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**workers:** `typing.Optional[int]` — Number of parallel workers. Higher values increase throughput but consume more server resources.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.batch.<a href="src/pulse/batch/client.py">schema</a>(...) -&gt; AsyncHttpResponse[BatchSchemaResponse]</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Apply schema extraction to multiple items in parallel.
+Mode is inferred from the input:
+
+**Single mode** — Provide `extraction_ids` or `batch_extract_id`
+with `schema_config` to apply one schema to each extraction.
+
+**Split mode** — Provide `split_ids` or `batch_split_id`
+with `split_schema_config` to apply per-topic schemas to each split.
+
+Each child call goes through the full [Schema](api:POST/schema) code
+path. Poll [GET /job/{jobId}](api:GET/job/{jobId}) for real-time
+progress.
+
+See the [Schema](api:POST/schema) endpoint for details on
+`schema_config` and `split_schema_config`, and the
+[Batch Processing guide](/batch) for an overview of the batch
+pipeline.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from pulse import BatchOutputDestination, Pulse
+
+client = Pulse(
+    api_key="YOUR_API_KEY",
+)
+client.batch.schema(
+    output=BatchOutputDestination(),
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**output:** `BatchOutputDestination` — Where to save schema result JSON files.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**batch_extract_id:** `typing.Optional[str]` — ID of a prior `/batch/extract` run (single mode).
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**extraction_ids:** `typing.Optional[typing.Sequence[str]]` — Explicit list of extraction IDs (single mode).
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**batch_split_id:** `typing.Optional[str]` — ID of a prior `/batch/split` run (split mode).
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**split_ids:** `typing.Optional[typing.Sequence[str]]` — Explicit list of split IDs (split mode).
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**schema_config:** `typing.Optional[SchemaConfig]` — Schema configuration for single mode. Applied to each extraction.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**split_schema_config:** `typing.Optional[typing.Dict[str, TopicSchemaConfig]]` — Per-topic schema configurations for split mode. Keys must match the topic names from the splits.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**page_range:** `typing.Optional[str]` — Page range filter for single mode (e.g. `1-5,10`).
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**workers:** `typing.Optional[int]` — Number of parallel workers.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.batch.<a href="src/pulse/batch/client.py">tables</a>(...) -&gt; AsyncHttpResponse[BatchTablesResponse]</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Extract tables from multiple existing extractions in parallel.
+Each child call goes through the full [Tables](api:POST/tables) code
+path.
+
+Extractions are identified by either a `batch_extract_id` (from a
+prior [Batch Extract](api:POST/batch/extract) run) or an explicit
+list of `extraction_ids`.
+
+Poll [GET /job/{jobId}](api:GET/job/{jobId}) for real-time progress.
+
+See the [Tables](api:POST/tables) endpoint for details on
+`tables_config` and the [Batch Processing guide](/batch) for an
+overview of the batch pipeline.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from pulse import BatchOutputDestination, Pulse
+
+client = Pulse(
+    api_key="YOUR_API_KEY",
+)
+client.batch.tables(
+    output=BatchOutputDestination(),
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**output:** `BatchOutputDestination` — Where to save table result JSON files.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**batch_extract_id:** `typing.Optional[str]` — ID of a prior `/batch/extract` run. All completed child extraction IDs will be used.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**extraction_ids:** `typing.Optional[typing.Sequence[str]]` — Explicit list of extraction IDs to process.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**tables_config:** `typing.Optional[TablesConfig]` — Table extraction configuration forwarded to each `/tables` call.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**workers:** `typing.Optional[int]` — Number of parallel workers.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.batch.<a href="src/pulse/batch/client.py">split</a>(...) -&gt; AsyncHttpResponse[BatchSplitResponse]</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Split multiple existing extractions by topics in parallel.
+Each child call goes through the full [Split](api:POST/split) code
+path.
+
+Extractions are identified by either a `batch_extract_id` (from a
+prior [Batch Extract](api:POST/batch/extract) run) or an explicit
+list of `extraction_ids`.
+
+Poll [GET /job/{jobId}](api:GET/job/{jobId}) for real-time progress.
+
+See the [Split](api:POST/split) endpoint for details on
+`split_config` and the [Batch Processing guide](/batch) for an
+overview of the batch pipeline.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from pulse import BatchOutputDestination, Pulse, SplitConfig, TopicDefinition
+
+client = Pulse(
+    api_key="YOUR_API_KEY",
+)
+client.batch.split(
+    output=BatchOutputDestination(),
+    split_config=SplitConfig(
+        split_input=[
+            TopicDefinition(
+                name="name",
+            )
+        ],
+    ),
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**output:** `BatchOutputDestination` — Where to save split result JSON files.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**split_config:** `SplitConfig` — Split configuration with topic definitions. Applied to each extraction.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**batch_extract_id:** `typing.Optional[str]` — ID of a prior `/batch/extract` run. All completed child extraction IDs will be used.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**extraction_ids:** `typing.Optional[typing.Sequence[str]]` — Explicit list of extraction IDs to process.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**workers:** `typing.Optional[int]` — Number of parallel workers.
     
 </dd>
 </dl>
