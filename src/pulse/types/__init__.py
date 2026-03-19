@@ -2,3 +2,284 @@
 
 # isort: skip_file
 
+import typing
+from importlib import import_module
+
+if typing.TYPE_CHECKING:
+    from .async_submission_response import AsyncSubmissionResponse
+    from .async_submission_response_status import AsyncSubmissionResponseStatus
+    from .batch_extract_response import BatchExtractResponse
+    from .batch_extract_response_status import BatchExtractResponseStatus
+    from .batch_extraction_ids import BatchExtractionIds
+    from .batch_file_upload import BatchFileUpload
+    from .batch_input_source import BatchInputSource
+    from .batch_output_destination import BatchOutputDestination
+    from .batch_schema_response import BatchSchemaResponse
+    from .batch_schema_response_status import BatchSchemaResponseStatus
+    from .batch_split_response import BatchSplitResponse
+    from .batch_split_response_status import BatchSplitResponseStatus
+    from .batch_tables_response import BatchTablesResponse
+    from .batch_tables_response_status import BatchTablesResponseStatus
+    from .extract_async_request_extensions import ExtractAsyncRequestExtensions
+    from .extract_async_request_extensions_alt_outputs import ExtractAsyncRequestExtensionsAltOutputs
+    from .extract_async_request_extensions_chunking import ExtractAsyncRequestExtensionsChunking
+    from .extract_async_request_extensions_chunking_chunk_types_item import (
+        ExtractAsyncRequestExtensionsChunkingChunkTypesItem,
+    )
+    from .extract_async_request_figure_processing import ExtractAsyncRequestFigureProcessing
+    from .extract_async_request_model import ExtractAsyncRequestModel
+    from .extract_async_request_schema import ExtractAsyncRequestSchema
+    from .extract_async_request_storage import ExtractAsyncRequestStorage
+    from .extract_async_request_structured_output import ExtractAsyncRequestStructuredOutput
+    from .extract_async_submission_response import ExtractAsyncSubmissionResponse
+    from .extract_input import ExtractInput
+    from .extract_input_extensions import ExtractInputExtensions
+    from .extract_input_extensions_alt_outputs import ExtractInputExtensionsAltOutputs
+    from .extract_input_extensions_chunking import ExtractInputExtensionsChunking
+    from .extract_input_extensions_chunking_chunk_types_item import ExtractInputExtensionsChunkingChunkTypesItem
+    from .extract_input_figure_processing import ExtractInputFigureProcessing
+    from .extract_input_model import ExtractInputModel
+    from .extract_input_schema import ExtractInputSchema
+    from .extract_input_storage import ExtractInputStorage
+    from .extract_input_structured_output import ExtractInputStructuredOutput
+    from .extract_options import ExtractOptions
+    from .extract_options_extensions import ExtractOptionsExtensions
+    from .extract_options_extensions_alt_outputs import ExtractOptionsExtensionsAltOutputs
+    from .extract_options_extensions_chunking import ExtractOptionsExtensionsChunking
+    from .extract_options_extensions_chunking_chunk_types_item import ExtractOptionsExtensionsChunkingChunkTypesItem
+    from .extract_options_figure_processing import ExtractOptionsFigureProcessing
+    from .extract_options_model import ExtractOptionsModel
+    from .extract_options_schema import ExtractOptionsSchema
+    from .extract_options_storage import ExtractOptionsStorage
+    from .extract_options_structured_output import ExtractOptionsStructuredOutput
+    from .extract_request_extensions import ExtractRequestExtensions
+    from .extract_request_extensions_alt_outputs import ExtractRequestExtensionsAltOutputs
+    from .extract_request_extensions_chunking import ExtractRequestExtensionsChunking
+    from .extract_request_extensions_chunking_chunk_types_item import ExtractRequestExtensionsChunkingChunkTypesItem
+    from .extract_request_figure_processing import ExtractRequestFigureProcessing
+    from .extract_request_model import ExtractRequestModel
+    from .extract_request_schema import ExtractRequestSchema
+    from .extract_request_storage import ExtractRequestStorage
+    from .extract_request_structured_output import ExtractRequestStructuredOutput
+    from .extract_response import ExtractResponse
+    from .extract_response_chunks import ExtractResponseChunks
+    from .extract_response_extensions import ExtractResponseExtensions
+    from .extract_response_extensions_alt_outputs import ExtractResponseExtensionsAltOutputs
+    from .extract_response_extensions_alt_outputs_wlbb import ExtractResponseExtensionsAltOutputsWlbb
+    from .extract_response_extensions_alt_outputs_wlbb_words_item import (
+        ExtractResponseExtensionsAltOutputsWlbbWordsItem,
+    )
+    from .extract_response_extensions_chunking import ExtractResponseExtensionsChunking
+    from .extract_response_extensions_footnote_references_item import ExtractResponseExtensionsFootnoteReferencesItem
+    from .extract_response_plan_info import ExtractResponsePlanInfo
+    from .extract_source import ExtractSource
+    from .job_cancellation_response import JobCancellationResponse
+    from .job_status import JobStatus
+    from .job_status_response import JobStatusResponse
+    from .schema_config import SchemaConfig
+    from .schema_response import SchemaResponse
+    from .single_schema_response import SingleSchemaResponse
+    from .split_config import SplitConfig
+    from .split_output import SplitOutput
+    from .split_response import SplitResponse
+    from .split_schema_response import SplitSchemaResponse
+    from .structured_output_config import StructuredOutputConfig
+    from .structured_output_result import StructuredOutputResult
+    from .tables_config import TablesConfig
+    from .tables_config_table_format import TablesConfigTableFormat
+    from .tables_response import TablesResponse
+    from .tables_response_tables_output import TablesResponseTablesOutput
+    from .tables_response_tables_output_tables_item import TablesResponseTablesOutputTablesItem
+    from .topic_definition import TopicDefinition
+    from .topic_schema_config import TopicSchemaConfig
+_dynamic_imports: typing.Dict[str, str] = {
+    "AsyncSubmissionResponse": ".async_submission_response",
+    "AsyncSubmissionResponseStatus": ".async_submission_response_status",
+    "BatchExtractResponse": ".batch_extract_response",
+    "BatchExtractResponseStatus": ".batch_extract_response_status",
+    "BatchExtractionIds": ".batch_extraction_ids",
+    "BatchFileUpload": ".batch_file_upload",
+    "BatchInputSource": ".batch_input_source",
+    "BatchOutputDestination": ".batch_output_destination",
+    "BatchSchemaResponse": ".batch_schema_response",
+    "BatchSchemaResponseStatus": ".batch_schema_response_status",
+    "BatchSplitResponse": ".batch_split_response",
+    "BatchSplitResponseStatus": ".batch_split_response_status",
+    "BatchTablesResponse": ".batch_tables_response",
+    "BatchTablesResponseStatus": ".batch_tables_response_status",
+    "ExtractAsyncRequestExtensions": ".extract_async_request_extensions",
+    "ExtractAsyncRequestExtensionsAltOutputs": ".extract_async_request_extensions_alt_outputs",
+    "ExtractAsyncRequestExtensionsChunking": ".extract_async_request_extensions_chunking",
+    "ExtractAsyncRequestExtensionsChunkingChunkTypesItem": ".extract_async_request_extensions_chunking_chunk_types_item",
+    "ExtractAsyncRequestFigureProcessing": ".extract_async_request_figure_processing",
+    "ExtractAsyncRequestModel": ".extract_async_request_model",
+    "ExtractAsyncRequestSchema": ".extract_async_request_schema",
+    "ExtractAsyncRequestStorage": ".extract_async_request_storage",
+    "ExtractAsyncRequestStructuredOutput": ".extract_async_request_structured_output",
+    "ExtractAsyncSubmissionResponse": ".extract_async_submission_response",
+    "ExtractInput": ".extract_input",
+    "ExtractInputExtensions": ".extract_input_extensions",
+    "ExtractInputExtensionsAltOutputs": ".extract_input_extensions_alt_outputs",
+    "ExtractInputExtensionsChunking": ".extract_input_extensions_chunking",
+    "ExtractInputExtensionsChunkingChunkTypesItem": ".extract_input_extensions_chunking_chunk_types_item",
+    "ExtractInputFigureProcessing": ".extract_input_figure_processing",
+    "ExtractInputModel": ".extract_input_model",
+    "ExtractInputSchema": ".extract_input_schema",
+    "ExtractInputStorage": ".extract_input_storage",
+    "ExtractInputStructuredOutput": ".extract_input_structured_output",
+    "ExtractOptions": ".extract_options",
+    "ExtractOptionsExtensions": ".extract_options_extensions",
+    "ExtractOptionsExtensionsAltOutputs": ".extract_options_extensions_alt_outputs",
+    "ExtractOptionsExtensionsChunking": ".extract_options_extensions_chunking",
+    "ExtractOptionsExtensionsChunkingChunkTypesItem": ".extract_options_extensions_chunking_chunk_types_item",
+    "ExtractOptionsFigureProcessing": ".extract_options_figure_processing",
+    "ExtractOptionsModel": ".extract_options_model",
+    "ExtractOptionsSchema": ".extract_options_schema",
+    "ExtractOptionsStorage": ".extract_options_storage",
+    "ExtractOptionsStructuredOutput": ".extract_options_structured_output",
+    "ExtractRequestExtensions": ".extract_request_extensions",
+    "ExtractRequestExtensionsAltOutputs": ".extract_request_extensions_alt_outputs",
+    "ExtractRequestExtensionsChunking": ".extract_request_extensions_chunking",
+    "ExtractRequestExtensionsChunkingChunkTypesItem": ".extract_request_extensions_chunking_chunk_types_item",
+    "ExtractRequestFigureProcessing": ".extract_request_figure_processing",
+    "ExtractRequestModel": ".extract_request_model",
+    "ExtractRequestSchema": ".extract_request_schema",
+    "ExtractRequestStorage": ".extract_request_storage",
+    "ExtractRequestStructuredOutput": ".extract_request_structured_output",
+    "ExtractResponse": ".extract_response",
+    "ExtractResponseChunks": ".extract_response_chunks",
+    "ExtractResponseExtensions": ".extract_response_extensions",
+    "ExtractResponseExtensionsAltOutputs": ".extract_response_extensions_alt_outputs",
+    "ExtractResponseExtensionsAltOutputsWlbb": ".extract_response_extensions_alt_outputs_wlbb",
+    "ExtractResponseExtensionsAltOutputsWlbbWordsItem": ".extract_response_extensions_alt_outputs_wlbb_words_item",
+    "ExtractResponseExtensionsChunking": ".extract_response_extensions_chunking",
+    "ExtractResponseExtensionsFootnoteReferencesItem": ".extract_response_extensions_footnote_references_item",
+    "ExtractResponsePlanInfo": ".extract_response_plan_info",
+    "ExtractSource": ".extract_source",
+    "JobCancellationResponse": ".job_cancellation_response",
+    "JobStatus": ".job_status",
+    "JobStatusResponse": ".job_status_response",
+    "SchemaConfig": ".schema_config",
+    "SchemaResponse": ".schema_response",
+    "SingleSchemaResponse": ".single_schema_response",
+    "SplitConfig": ".split_config",
+    "SplitOutput": ".split_output",
+    "SplitResponse": ".split_response",
+    "SplitSchemaResponse": ".split_schema_response",
+    "StructuredOutputConfig": ".structured_output_config",
+    "StructuredOutputResult": ".structured_output_result",
+    "TablesConfig": ".tables_config",
+    "TablesConfigTableFormat": ".tables_config_table_format",
+    "TablesResponse": ".tables_response",
+    "TablesResponseTablesOutput": ".tables_response_tables_output",
+    "TablesResponseTablesOutputTablesItem": ".tables_response_tables_output_tables_item",
+    "TopicDefinition": ".topic_definition",
+    "TopicSchemaConfig": ".topic_schema_config",
+}
+
+
+def __getattr__(attr_name: str) -> typing.Any:
+    module_name = _dynamic_imports.get(attr_name)
+    if module_name is None:
+        raise AttributeError(f"No {attr_name} found in _dynamic_imports for module name -> {__name__}")
+    try:
+        module = import_module(module_name, __package__)
+        if module_name == f".{attr_name}":
+            return module
+        else:
+            return getattr(module, attr_name)
+    except ImportError as e:
+        raise ImportError(f"Failed to import {attr_name} from {module_name}: {e}") from e
+    except AttributeError as e:
+        raise AttributeError(f"Failed to get {attr_name} from {module_name}: {e}") from e
+
+
+def __dir__():
+    lazy_attrs = list(_dynamic_imports.keys())
+    return sorted(lazy_attrs)
+
+
+__all__ = [
+    "AsyncSubmissionResponse",
+    "AsyncSubmissionResponseStatus",
+    "BatchExtractResponse",
+    "BatchExtractResponseStatus",
+    "BatchExtractionIds",
+    "BatchFileUpload",
+    "BatchInputSource",
+    "BatchOutputDestination",
+    "BatchSchemaResponse",
+    "BatchSchemaResponseStatus",
+    "BatchSplitResponse",
+    "BatchSplitResponseStatus",
+    "BatchTablesResponse",
+    "BatchTablesResponseStatus",
+    "ExtractAsyncRequestExtensions",
+    "ExtractAsyncRequestExtensionsAltOutputs",
+    "ExtractAsyncRequestExtensionsChunking",
+    "ExtractAsyncRequestExtensionsChunkingChunkTypesItem",
+    "ExtractAsyncRequestFigureProcessing",
+    "ExtractAsyncRequestModel",
+    "ExtractAsyncRequestSchema",
+    "ExtractAsyncRequestStorage",
+    "ExtractAsyncRequestStructuredOutput",
+    "ExtractAsyncSubmissionResponse",
+    "ExtractInput",
+    "ExtractInputExtensions",
+    "ExtractInputExtensionsAltOutputs",
+    "ExtractInputExtensionsChunking",
+    "ExtractInputExtensionsChunkingChunkTypesItem",
+    "ExtractInputFigureProcessing",
+    "ExtractInputModel",
+    "ExtractInputSchema",
+    "ExtractInputStorage",
+    "ExtractInputStructuredOutput",
+    "ExtractOptions",
+    "ExtractOptionsExtensions",
+    "ExtractOptionsExtensionsAltOutputs",
+    "ExtractOptionsExtensionsChunking",
+    "ExtractOptionsExtensionsChunkingChunkTypesItem",
+    "ExtractOptionsFigureProcessing",
+    "ExtractOptionsModel",
+    "ExtractOptionsSchema",
+    "ExtractOptionsStorage",
+    "ExtractOptionsStructuredOutput",
+    "ExtractRequestExtensions",
+    "ExtractRequestExtensionsAltOutputs",
+    "ExtractRequestExtensionsChunking",
+    "ExtractRequestExtensionsChunkingChunkTypesItem",
+    "ExtractRequestFigureProcessing",
+    "ExtractRequestModel",
+    "ExtractRequestSchema",
+    "ExtractRequestStorage",
+    "ExtractRequestStructuredOutput",
+    "ExtractResponse",
+    "ExtractResponseChunks",
+    "ExtractResponseExtensions",
+    "ExtractResponseExtensionsAltOutputs",
+    "ExtractResponseExtensionsAltOutputsWlbb",
+    "ExtractResponseExtensionsAltOutputsWlbbWordsItem",
+    "ExtractResponseExtensionsChunking",
+    "ExtractResponseExtensionsFootnoteReferencesItem",
+    "ExtractResponsePlanInfo",
+    "ExtractSource",
+    "JobCancellationResponse",
+    "JobStatus",
+    "JobStatusResponse",
+    "SchemaConfig",
+    "SchemaResponse",
+    "SingleSchemaResponse",
+    "SplitConfig",
+    "SplitOutput",
+    "SplitResponse",
+    "SplitSchemaResponse",
+    "StructuredOutputConfig",
+    "StructuredOutputResult",
+    "TablesConfig",
+    "TablesConfigTableFormat",
+    "TablesResponse",
+    "TablesResponseTablesOutput",
+    "TablesResponseTablesOutputTablesItem",
+    "TopicDefinition",
+    "TopicSchemaConfig",
+]

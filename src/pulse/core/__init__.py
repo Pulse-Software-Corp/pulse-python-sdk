@@ -6,8 +6,57 @@ import typing
 from importlib import import_module
 
 if typing.TYPE_CHECKING:
-    from .file import File, with_content_type
-_dynamic_imports: typing.Dict[str, str] = {"File": ".file", "with_content_type": ".file"}
+    from .api_error import ApiError
+    from .client_wrapper import AsyncClientWrapper, BaseClientWrapper, SyncClientWrapper
+    from .datetime_utils import serialize_datetime
+    from .file import File, convert_file_dict_to_httpx_tuples, with_content_type
+    from .http_client import AsyncHttpClient, HttpClient
+    from .http_response import AsyncHttpResponse, HttpResponse
+    from .jsonable_encoder import jsonable_encoder
+    from .pydantic_utilities import (
+        IS_PYDANTIC_V2,
+        UniversalBaseModel,
+        UniversalRootModel,
+        parse_obj_as,
+        universal_field_validator,
+        universal_root_validator,
+        update_forward_refs,
+    )
+    from .query_encoder import encode_query
+    from .remove_none_from_dict import remove_none_from_dict
+    from .request_options import RequestOptions
+    from .serialization import FieldMetadata, convert_and_respect_annotation_metadata
+    from .unchecked_base_model import UncheckedBaseModel, UnionMetadata, construct_type
+_dynamic_imports: typing.Dict[str, str] = {
+    "ApiError": ".api_error",
+    "AsyncClientWrapper": ".client_wrapper",
+    "AsyncHttpClient": ".http_client",
+    "AsyncHttpResponse": ".http_response",
+    "BaseClientWrapper": ".client_wrapper",
+    "FieldMetadata": ".serialization",
+    "File": ".file",
+    "HttpClient": ".http_client",
+    "HttpResponse": ".http_response",
+    "IS_PYDANTIC_V2": ".pydantic_utilities",
+    "RequestOptions": ".request_options",
+    "SyncClientWrapper": ".client_wrapper",
+    "UncheckedBaseModel": ".unchecked_base_model",
+    "UnionMetadata": ".unchecked_base_model",
+    "UniversalBaseModel": ".pydantic_utilities",
+    "UniversalRootModel": ".pydantic_utilities",
+    "construct_type": ".unchecked_base_model",
+    "convert_and_respect_annotation_metadata": ".serialization",
+    "convert_file_dict_to_httpx_tuples": ".file",
+    "encode_query": ".query_encoder",
+    "jsonable_encoder": ".jsonable_encoder",
+    "parse_obj_as": ".pydantic_utilities",
+    "remove_none_from_dict": ".remove_none_from_dict",
+    "serialize_datetime": ".datetime_utils",
+    "universal_field_validator": ".pydantic_utilities",
+    "universal_root_validator": ".pydantic_utilities",
+    "update_forward_refs": ".pydantic_utilities",
+    "with_content_type": ".file",
+}
 
 
 def __getattr__(attr_name: str) -> typing.Any:
@@ -31,4 +80,33 @@ def __dir__():
     return sorted(lazy_attrs)
 
 
-__all__ = ["File", "with_content_type"]
+__all__ = [
+    "ApiError",
+    "AsyncClientWrapper",
+    "AsyncHttpClient",
+    "AsyncHttpResponse",
+    "BaseClientWrapper",
+    "FieldMetadata",
+    "File",
+    "HttpClient",
+    "HttpResponse",
+    "IS_PYDANTIC_V2",
+    "RequestOptions",
+    "SyncClientWrapper",
+    "UncheckedBaseModel",
+    "UnionMetadata",
+    "UniversalBaseModel",
+    "UniversalRootModel",
+    "construct_type",
+    "convert_and_respect_annotation_metadata",
+    "convert_file_dict_to_httpx_tuples",
+    "encode_query",
+    "jsonable_encoder",
+    "parse_obj_as",
+    "remove_none_from_dict",
+    "serialize_datetime",
+    "universal_field_validator",
+    "universal_root_validator",
+    "update_forward_refs",
+    "with_content_type",
+]

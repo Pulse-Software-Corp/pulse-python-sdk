@@ -7,12 +7,13 @@ import typing_extensions
 from ..core.pydantic_utilities import IS_PYDANTIC_V2
 from ..core.serialization import FieldMetadata
 from ..core.unchecked_base_model import UncheckedBaseModel
+from .batch_file_upload import BatchFileUpload
 
 
 class BatchInputSource(UncheckedBaseModel):
     """
     Input source for batch file enumeration. Provide exactly one of
-    `s3_prefix`, `local_path`, or `file_urls`.
+    `s3_prefix`, `file_urls`, or `files`.
     """
 
     s_3_prefix: typing_extensions.Annotated[typing.Optional[str], FieldMetadata(alias="s3_prefix")] = pydantic.Field(
@@ -22,14 +23,14 @@ class BatchInputSource(UncheckedBaseModel):
     S3 URI prefix (e.g. `s3://bucket/folder/`). All supported files under this prefix will be processed.
     """
 
-    local_path: typing.Optional[str] = pydantic.Field(default=None)
-    """
-    Absolute path to a local directory. All supported files in the directory will be processed.
-    """
-
     file_urls: typing.Optional[typing.List[str]] = pydantic.Field(default=None)
     """
     Explicit list of file URLs to download and process.
+    """
+
+    files: typing.Optional[typing.List[BatchFileUpload]] = pydantic.Field(default=None)
+    """
+    Inline file uploads. Each entry contains a filename and base64-encoded file content. Use this when the client has local files that need to be sent to a remote API server.
     """
 
     if IS_PYDANTIC_V2:
