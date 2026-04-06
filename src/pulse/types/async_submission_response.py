@@ -38,6 +38,11 @@ class AsyncSubmissionResponse(UncheckedBaseModel):
     **Deprecated** — Timestamp indicating when the job was accepted. Retained for backward compatibility. Use `GET /job/{jobId}` for timing details.
     """
 
+    credits_used: typing.Optional[float] = pydantic.Field(default=None)
+    """
+    Number of credits consumed by this request. Only present when the organization has the credit billing system enabled.
+    """
+
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2
     else:

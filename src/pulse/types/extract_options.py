@@ -11,6 +11,7 @@ from .extract_options_extensions import ExtractOptionsExtensions
 from .extract_options_figure_processing import ExtractOptionsFigureProcessing
 from .extract_options_model import ExtractOptionsModel
 from .extract_options_schema import ExtractOptionsSchema
+from .extract_options_spreadsheet import ExtractOptionsSpreadsheet
 from .extract_options_storage import ExtractOptionsStorage
 from .extract_options_structured_output import ExtractOptionsStructuredOutput
 
@@ -40,6 +41,11 @@ class ExtractOptions(UncheckedBaseModel):
     extensions: typing.Optional[ExtractOptionsExtensions] = pydantic.Field(default=None)
     """
     Settings that enable additional processing passes or alternate output formats. Each enabled extension produces a corresponding output field under `response.extensions.*`.
+    """
+
+    spreadsheet: typing.Optional[ExtractOptionsSpreadsheet] = pydantic.Field(default=None)
+    """
+    Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets. Only applies to `.xlsx` and `.xls` files. Accepts both camelCase and snake_case field names.
     """
 
     storage: typing.Optional[ExtractOptionsStorage] = pydantic.Field(default=None)

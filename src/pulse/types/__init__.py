@@ -29,6 +29,7 @@ if typing.TYPE_CHECKING:
     from .extract_async_request_figure_processing import ExtractAsyncRequestFigureProcessing
     from .extract_async_request_model import ExtractAsyncRequestModel
     from .extract_async_request_schema import ExtractAsyncRequestSchema
+    from .extract_async_request_spreadsheet import ExtractAsyncRequestSpreadsheet
     from .extract_async_request_storage import ExtractAsyncRequestStorage
     from .extract_async_request_structured_output import ExtractAsyncRequestStructuredOutput
     from .extract_async_submission_response import ExtractAsyncSubmissionResponse
@@ -40,8 +41,11 @@ if typing.TYPE_CHECKING:
     from .extract_input_figure_processing import ExtractInputFigureProcessing
     from .extract_input_model import ExtractInputModel
     from .extract_input_schema import ExtractInputSchema
+    from .extract_input_spreadsheet import ExtractInputSpreadsheet
     from .extract_input_storage import ExtractInputStorage
     from .extract_input_structured_output import ExtractInputStructuredOutput
+    from .extract_large_result_response import ExtractLargeResultResponse
+    from .extract_large_result_response_plan_info import ExtractLargeResultResponsePlanInfo
     from .extract_options import ExtractOptions
     from .extract_options_extensions import ExtractOptionsExtensions
     from .extract_options_extensions_alt_outputs import ExtractOptionsExtensionsAltOutputs
@@ -50,6 +54,7 @@ if typing.TYPE_CHECKING:
     from .extract_options_figure_processing import ExtractOptionsFigureProcessing
     from .extract_options_model import ExtractOptionsModel
     from .extract_options_schema import ExtractOptionsSchema
+    from .extract_options_spreadsheet import ExtractOptionsSpreadsheet
     from .extract_options_storage import ExtractOptionsStorage
     from .extract_options_structured_output import ExtractOptionsStructuredOutput
     from .extract_request_extensions import ExtractRequestExtensions
@@ -59,6 +64,7 @@ if typing.TYPE_CHECKING:
     from .extract_request_figure_processing import ExtractRequestFigureProcessing
     from .extract_request_model import ExtractRequestModel
     from .extract_request_schema import ExtractRequestSchema
+    from .extract_request_spreadsheet import ExtractRequestSpreadsheet
     from .extract_request_storage import ExtractRequestStorage
     from .extract_request_structured_output import ExtractRequestStructuredOutput
     from .extract_response import ExtractResponse
@@ -72,16 +78,66 @@ if typing.TYPE_CHECKING:
     from .extract_response_extensions_chunking import ExtractResponseExtensionsChunking
     from .extract_response_extensions_footnote_references_item import ExtractResponseExtensionsFootnoteReferencesItem
     from .extract_response_plan_info import ExtractResponsePlanInfo
+    from .extract_result_core import ExtractResultCore
+    from .extract_result_core_extensions import ExtractResultCoreExtensions
+    from .extract_result_core_extensions_alt_outputs import ExtractResultCoreExtensionsAltOutputs
+    from .extract_result_core_extensions_alt_outputs_wlbb import ExtractResultCoreExtensionsAltOutputsWlbb
+    from .extract_result_core_extensions_alt_outputs_wlbb_words_item import (
+        ExtractResultCoreExtensionsAltOutputsWlbbWordsItem,
+    )
+    from .extract_result_core_extensions_chunking import ExtractResultCoreExtensionsChunking
+    from .extract_result_core_extensions_footnote_references_item import (
+        ExtractResultCoreExtensionsFootnoteReferencesItem,
+    )
+    from .extract_result_core_plan_info import ExtractResultCorePlanInfo
     from .extract_source import ExtractSource
+    from .gone_error_body import GoneErrorBody
+    from .gone_error_body_error import GoneErrorBodyError
     from .job_cancellation_response import JobCancellationResponse
     from .job_status import JobStatus
     from .job_status_response import JobStatusResponse
+    from .pipeline_batch_extract_result import PipelineBatchExtractResult
+    from .pipeline_execute_multipart_input import PipelineExecuteMultipartInput
+    from .pipeline_execute_response import PipelineExecuteResponse
+    from .pipeline_execute_response_status import PipelineExecuteResponseStatus
+    from .pipeline_extract_result import PipelineExtractResult
+    from .pipeline_extract_result_extensions import PipelineExtractResultExtensions
+    from .pipeline_extract_result_extensions_alt_outputs import PipelineExtractResultExtensionsAltOutputs
+    from .pipeline_extract_result_extensions_alt_outputs_wlbb import PipelineExtractResultExtensionsAltOutputsWlbb
+    from .pipeline_extract_result_extensions_alt_outputs_wlbb_words_item import (
+        PipelineExtractResultExtensionsAltOutputsWlbbWordsItem,
+    )
+    from .pipeline_extract_result_extensions_chunking import PipelineExtractResultExtensionsChunking
+    from .pipeline_extract_result_extensions_footnote_references_item import (
+        PipelineExtractResultExtensionsFootnoteReferencesItem,
+    )
+    from .pipeline_extract_result_plan_info import PipelineExtractResultPlanInfo
+    from .pipeline_results import PipelineResults
+    from .pipeline_schema_result import PipelineSchemaResult
+    from .pipeline_split_result import PipelineSplitResult
+    from .pipeline_step_batch_extract_config import PipelineStepBatchExtractConfig
+    from .pipeline_step_batch_extract_config_extensions import PipelineStepBatchExtractConfigExtensions
+    from .pipeline_step_batch_extract_config_extensions_alt_outputs import (
+        PipelineStepBatchExtractConfigExtensionsAltOutputs,
+    )
+    from .pipeline_step_batch_extract_config_extensions_chunking import PipelineStepBatchExtractConfigExtensionsChunking
+    from .pipeline_step_batch_extract_config_extensions_chunking_chunk_types_item import (
+        PipelineStepBatchExtractConfigExtensionsChunkingChunkTypesItem,
+    )
+    from .pipeline_step_batch_extract_config_figure_processing import PipelineStepBatchExtractConfigFigureProcessing
+    from .pipeline_step_batch_extract_config_model import PipelineStepBatchExtractConfigModel
+    from .pipeline_step_batch_extract_config_schema import PipelineStepBatchExtractConfigSchema
+    from .pipeline_step_batch_extract_config_spreadsheet import PipelineStepBatchExtractConfigSpreadsheet
+    from .pipeline_step_batch_extract_config_storage import PipelineStepBatchExtractConfigStorage
+    from .pipeline_step_batch_extract_config_structured_output import PipelineStepBatchExtractConfigStructuredOutput
+    from .pipeline_steps import PipelineSteps
     from .schema_config import SchemaConfig
     from .schema_response import SchemaResponse
     from .single_schema_response import SingleSchemaResponse
     from .split_config import SplitConfig
     from .split_output import SplitOutput
     from .split_response import SplitResponse
+    from .split_result_core import SplitResultCore
     from .split_schema_response import SplitSchemaResponse
     from .structured_output_config import StructuredOutputConfig
     from .structured_output_result import StructuredOutputResult
@@ -114,6 +170,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ExtractAsyncRequestFigureProcessing": ".extract_async_request_figure_processing",
     "ExtractAsyncRequestModel": ".extract_async_request_model",
     "ExtractAsyncRequestSchema": ".extract_async_request_schema",
+    "ExtractAsyncRequestSpreadsheet": ".extract_async_request_spreadsheet",
     "ExtractAsyncRequestStorage": ".extract_async_request_storage",
     "ExtractAsyncRequestStructuredOutput": ".extract_async_request_structured_output",
     "ExtractAsyncSubmissionResponse": ".extract_async_submission_response",
@@ -125,8 +182,11 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ExtractInputFigureProcessing": ".extract_input_figure_processing",
     "ExtractInputModel": ".extract_input_model",
     "ExtractInputSchema": ".extract_input_schema",
+    "ExtractInputSpreadsheet": ".extract_input_spreadsheet",
     "ExtractInputStorage": ".extract_input_storage",
     "ExtractInputStructuredOutput": ".extract_input_structured_output",
+    "ExtractLargeResultResponse": ".extract_large_result_response",
+    "ExtractLargeResultResponsePlanInfo": ".extract_large_result_response_plan_info",
     "ExtractOptions": ".extract_options",
     "ExtractOptionsExtensions": ".extract_options_extensions",
     "ExtractOptionsExtensionsAltOutputs": ".extract_options_extensions_alt_outputs",
@@ -135,6 +195,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ExtractOptionsFigureProcessing": ".extract_options_figure_processing",
     "ExtractOptionsModel": ".extract_options_model",
     "ExtractOptionsSchema": ".extract_options_schema",
+    "ExtractOptionsSpreadsheet": ".extract_options_spreadsheet",
     "ExtractOptionsStorage": ".extract_options_storage",
     "ExtractOptionsStructuredOutput": ".extract_options_structured_output",
     "ExtractRequestExtensions": ".extract_request_extensions",
@@ -144,6 +205,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ExtractRequestFigureProcessing": ".extract_request_figure_processing",
     "ExtractRequestModel": ".extract_request_model",
     "ExtractRequestSchema": ".extract_request_schema",
+    "ExtractRequestSpreadsheet": ".extract_request_spreadsheet",
     "ExtractRequestStorage": ".extract_request_storage",
     "ExtractRequestStructuredOutput": ".extract_request_structured_output",
     "ExtractResponse": ".extract_response",
@@ -155,16 +217,54 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ExtractResponseExtensionsChunking": ".extract_response_extensions_chunking",
     "ExtractResponseExtensionsFootnoteReferencesItem": ".extract_response_extensions_footnote_references_item",
     "ExtractResponsePlanInfo": ".extract_response_plan_info",
+    "ExtractResultCore": ".extract_result_core",
+    "ExtractResultCoreExtensions": ".extract_result_core_extensions",
+    "ExtractResultCoreExtensionsAltOutputs": ".extract_result_core_extensions_alt_outputs",
+    "ExtractResultCoreExtensionsAltOutputsWlbb": ".extract_result_core_extensions_alt_outputs_wlbb",
+    "ExtractResultCoreExtensionsAltOutputsWlbbWordsItem": ".extract_result_core_extensions_alt_outputs_wlbb_words_item",
+    "ExtractResultCoreExtensionsChunking": ".extract_result_core_extensions_chunking",
+    "ExtractResultCoreExtensionsFootnoteReferencesItem": ".extract_result_core_extensions_footnote_references_item",
+    "ExtractResultCorePlanInfo": ".extract_result_core_plan_info",
     "ExtractSource": ".extract_source",
+    "GoneErrorBody": ".gone_error_body",
+    "GoneErrorBodyError": ".gone_error_body_error",
     "JobCancellationResponse": ".job_cancellation_response",
     "JobStatus": ".job_status",
     "JobStatusResponse": ".job_status_response",
+    "PipelineBatchExtractResult": ".pipeline_batch_extract_result",
+    "PipelineExecuteMultipartInput": ".pipeline_execute_multipart_input",
+    "PipelineExecuteResponse": ".pipeline_execute_response",
+    "PipelineExecuteResponseStatus": ".pipeline_execute_response_status",
+    "PipelineExtractResult": ".pipeline_extract_result",
+    "PipelineExtractResultExtensions": ".pipeline_extract_result_extensions",
+    "PipelineExtractResultExtensionsAltOutputs": ".pipeline_extract_result_extensions_alt_outputs",
+    "PipelineExtractResultExtensionsAltOutputsWlbb": ".pipeline_extract_result_extensions_alt_outputs_wlbb",
+    "PipelineExtractResultExtensionsAltOutputsWlbbWordsItem": ".pipeline_extract_result_extensions_alt_outputs_wlbb_words_item",
+    "PipelineExtractResultExtensionsChunking": ".pipeline_extract_result_extensions_chunking",
+    "PipelineExtractResultExtensionsFootnoteReferencesItem": ".pipeline_extract_result_extensions_footnote_references_item",
+    "PipelineExtractResultPlanInfo": ".pipeline_extract_result_plan_info",
+    "PipelineResults": ".pipeline_results",
+    "PipelineSchemaResult": ".pipeline_schema_result",
+    "PipelineSplitResult": ".pipeline_split_result",
+    "PipelineStepBatchExtractConfig": ".pipeline_step_batch_extract_config",
+    "PipelineStepBatchExtractConfigExtensions": ".pipeline_step_batch_extract_config_extensions",
+    "PipelineStepBatchExtractConfigExtensionsAltOutputs": ".pipeline_step_batch_extract_config_extensions_alt_outputs",
+    "PipelineStepBatchExtractConfigExtensionsChunking": ".pipeline_step_batch_extract_config_extensions_chunking",
+    "PipelineStepBatchExtractConfigExtensionsChunkingChunkTypesItem": ".pipeline_step_batch_extract_config_extensions_chunking_chunk_types_item",
+    "PipelineStepBatchExtractConfigFigureProcessing": ".pipeline_step_batch_extract_config_figure_processing",
+    "PipelineStepBatchExtractConfigModel": ".pipeline_step_batch_extract_config_model",
+    "PipelineStepBatchExtractConfigSchema": ".pipeline_step_batch_extract_config_schema",
+    "PipelineStepBatchExtractConfigSpreadsheet": ".pipeline_step_batch_extract_config_spreadsheet",
+    "PipelineStepBatchExtractConfigStorage": ".pipeline_step_batch_extract_config_storage",
+    "PipelineStepBatchExtractConfigStructuredOutput": ".pipeline_step_batch_extract_config_structured_output",
+    "PipelineSteps": ".pipeline_steps",
     "SchemaConfig": ".schema_config",
     "SchemaResponse": ".schema_response",
     "SingleSchemaResponse": ".single_schema_response",
     "SplitConfig": ".split_config",
     "SplitOutput": ".split_output",
     "SplitResponse": ".split_response",
+    "SplitResultCore": ".split_result_core",
     "SplitSchemaResponse": ".split_schema_response",
     "StructuredOutputConfig": ".structured_output_config",
     "StructuredOutputResult": ".structured_output_result",
@@ -221,6 +321,7 @@ __all__ = [
     "ExtractAsyncRequestFigureProcessing",
     "ExtractAsyncRequestModel",
     "ExtractAsyncRequestSchema",
+    "ExtractAsyncRequestSpreadsheet",
     "ExtractAsyncRequestStorage",
     "ExtractAsyncRequestStructuredOutput",
     "ExtractAsyncSubmissionResponse",
@@ -232,8 +333,11 @@ __all__ = [
     "ExtractInputFigureProcessing",
     "ExtractInputModel",
     "ExtractInputSchema",
+    "ExtractInputSpreadsheet",
     "ExtractInputStorage",
     "ExtractInputStructuredOutput",
+    "ExtractLargeResultResponse",
+    "ExtractLargeResultResponsePlanInfo",
     "ExtractOptions",
     "ExtractOptionsExtensions",
     "ExtractOptionsExtensionsAltOutputs",
@@ -242,6 +346,7 @@ __all__ = [
     "ExtractOptionsFigureProcessing",
     "ExtractOptionsModel",
     "ExtractOptionsSchema",
+    "ExtractOptionsSpreadsheet",
     "ExtractOptionsStorage",
     "ExtractOptionsStructuredOutput",
     "ExtractRequestExtensions",
@@ -251,6 +356,7 @@ __all__ = [
     "ExtractRequestFigureProcessing",
     "ExtractRequestModel",
     "ExtractRequestSchema",
+    "ExtractRequestSpreadsheet",
     "ExtractRequestStorage",
     "ExtractRequestStructuredOutput",
     "ExtractResponse",
@@ -262,16 +368,54 @@ __all__ = [
     "ExtractResponseExtensionsChunking",
     "ExtractResponseExtensionsFootnoteReferencesItem",
     "ExtractResponsePlanInfo",
+    "ExtractResultCore",
+    "ExtractResultCoreExtensions",
+    "ExtractResultCoreExtensionsAltOutputs",
+    "ExtractResultCoreExtensionsAltOutputsWlbb",
+    "ExtractResultCoreExtensionsAltOutputsWlbbWordsItem",
+    "ExtractResultCoreExtensionsChunking",
+    "ExtractResultCoreExtensionsFootnoteReferencesItem",
+    "ExtractResultCorePlanInfo",
     "ExtractSource",
+    "GoneErrorBody",
+    "GoneErrorBodyError",
     "JobCancellationResponse",
     "JobStatus",
     "JobStatusResponse",
+    "PipelineBatchExtractResult",
+    "PipelineExecuteMultipartInput",
+    "PipelineExecuteResponse",
+    "PipelineExecuteResponseStatus",
+    "PipelineExtractResult",
+    "PipelineExtractResultExtensions",
+    "PipelineExtractResultExtensionsAltOutputs",
+    "PipelineExtractResultExtensionsAltOutputsWlbb",
+    "PipelineExtractResultExtensionsAltOutputsWlbbWordsItem",
+    "PipelineExtractResultExtensionsChunking",
+    "PipelineExtractResultExtensionsFootnoteReferencesItem",
+    "PipelineExtractResultPlanInfo",
+    "PipelineResults",
+    "PipelineSchemaResult",
+    "PipelineSplitResult",
+    "PipelineStepBatchExtractConfig",
+    "PipelineStepBatchExtractConfigExtensions",
+    "PipelineStepBatchExtractConfigExtensionsAltOutputs",
+    "PipelineStepBatchExtractConfigExtensionsChunking",
+    "PipelineStepBatchExtractConfigExtensionsChunkingChunkTypesItem",
+    "PipelineStepBatchExtractConfigFigureProcessing",
+    "PipelineStepBatchExtractConfigModel",
+    "PipelineStepBatchExtractConfigSchema",
+    "PipelineStepBatchExtractConfigSpreadsheet",
+    "PipelineStepBatchExtractConfigStorage",
+    "PipelineStepBatchExtractConfigStructuredOutput",
+    "PipelineSteps",
     "SchemaConfig",
     "SchemaResponse",
     "SingleSchemaResponse",
     "SplitConfig",
     "SplitOutput",
     "SplitResponse",
+    "SplitResultCore",
     "SplitSchemaResponse",
     "StructuredOutputConfig",
     "StructuredOutputResult",

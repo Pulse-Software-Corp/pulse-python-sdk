@@ -23,12 +23,14 @@ from .types.extract_async_request_extensions import ExtractAsyncRequestExtension
 from .types.extract_async_request_figure_processing import ExtractAsyncRequestFigureProcessing
 from .types.extract_async_request_model import ExtractAsyncRequestModel
 from .types.extract_async_request_schema import ExtractAsyncRequestSchema
+from .types.extract_async_request_spreadsheet import ExtractAsyncRequestSpreadsheet
 from .types.extract_async_request_storage import ExtractAsyncRequestStorage
 from .types.extract_async_request_structured_output import ExtractAsyncRequestStructuredOutput
 from .types.extract_request_extensions import ExtractRequestExtensions
 from .types.extract_request_figure_processing import ExtractRequestFigureProcessing
 from .types.extract_request_model import ExtractRequestModel
 from .types.extract_request_schema import ExtractRequestSchema
+from .types.extract_request_spreadsheet import ExtractRequestSpreadsheet
 from .types.extract_request_storage import ExtractRequestStorage
 from .types.extract_request_structured_output import ExtractRequestStructuredOutput
 from .types.extract_response import ExtractResponse
@@ -57,6 +59,7 @@ class RawPulse:
         pages: typing.Optional[str] = OMIT,
         figure_processing: typing.Optional[ExtractRequestFigureProcessing] = OMIT,
         extensions: typing.Optional[ExtractRequestExtensions] = OMIT,
+        spreadsheet: typing.Optional[ExtractRequestSpreadsheet] = OMIT,
         storage: typing.Optional[ExtractRequestStorage] = OMIT,
         async_: typing.Optional[bool] = OMIT,
         structured_output: typing.Optional[ExtractRequestStructuredOutput] = OMIT,
@@ -103,6 +106,9 @@ class RawPulse:
         extensions : typing.Optional[ExtractRequestExtensions]
             Settings that enable additional processing passes or alternate output formats. Each enabled extension produces a corresponding output field under `response.extensions.*`.
 
+        spreadsheet : typing.Optional[ExtractRequestSpreadsheet]
+            Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets. Only applies to `.xlsx` and `.xls` files. Accepts both camelCase and snake_case field names.
+
         storage : typing.Optional[ExtractRequestStorage]
             Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created.
 
@@ -148,7 +154,7 @@ class RawPulse:
         Returns
         -------
         HttpResponse[ExtractResponse]
-            Full extraction result with markdown, bounding boxes, chunks, etc. Returned when `async=false` (default).
+            Extraction result.  For documents under 70 pages the full result is returned inline.  For larger documents the response contains `is_url: true` and a single-use `url` to download the full result via `GET /large_results/{jobId}`.
         """
         _response = self._client_wrapper.httpx_client.request(
             "extract",
@@ -159,6 +165,7 @@ class RawPulse:
                 "pages": pages,
                 "figureProcessing": figure_processing,
                 "extensions": extensions,
+                "spreadsheet": spreadsheet,
                 "storage": storage,
                 "async": async_,
                 "structuredOutput": structured_output,
@@ -237,6 +244,7 @@ class RawPulse:
         pages: typing.Optional[str] = OMIT,
         figure_processing: typing.Optional[ExtractAsyncRequestFigureProcessing] = OMIT,
         extensions: typing.Optional[ExtractAsyncRequestExtensions] = OMIT,
+        spreadsheet: typing.Optional[ExtractAsyncRequestSpreadsheet] = OMIT,
         storage: typing.Optional[ExtractAsyncRequestStorage] = OMIT,
         async_: typing.Optional[bool] = OMIT,
         structured_output: typing.Optional[ExtractAsyncRequestStructuredOutput] = OMIT,
@@ -278,6 +286,9 @@ class RawPulse:
 
         extensions : typing.Optional[ExtractAsyncRequestExtensions]
             Settings that enable additional processing passes or alternate output formats. Each enabled extension produces a corresponding output field under `response.extensions.*`.
+
+        spreadsheet : typing.Optional[ExtractAsyncRequestSpreadsheet]
+            Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets. Only applies to `.xlsx` and `.xls` files. Accepts both camelCase and snake_case field names.
 
         storage : typing.Optional[ExtractAsyncRequestStorage]
             Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created.
@@ -335,6 +346,7 @@ class RawPulse:
                 "pages": pages,
                 "figureProcessing": figure_processing,
                 "extensions": extensions,
+                "spreadsheet": spreadsheet,
                 "storage": storage,
                 "async": async_,
                 "structuredOutput": structured_output,
@@ -919,6 +931,7 @@ class AsyncRawPulse:
         pages: typing.Optional[str] = OMIT,
         figure_processing: typing.Optional[ExtractRequestFigureProcessing] = OMIT,
         extensions: typing.Optional[ExtractRequestExtensions] = OMIT,
+        spreadsheet: typing.Optional[ExtractRequestSpreadsheet] = OMIT,
         storage: typing.Optional[ExtractRequestStorage] = OMIT,
         async_: typing.Optional[bool] = OMIT,
         structured_output: typing.Optional[ExtractRequestStructuredOutput] = OMIT,
@@ -965,6 +978,9 @@ class AsyncRawPulse:
         extensions : typing.Optional[ExtractRequestExtensions]
             Settings that enable additional processing passes or alternate output formats. Each enabled extension produces a corresponding output field under `response.extensions.*`.
 
+        spreadsheet : typing.Optional[ExtractRequestSpreadsheet]
+            Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets. Only applies to `.xlsx` and `.xls` files. Accepts both camelCase and snake_case field names.
+
         storage : typing.Optional[ExtractRequestStorage]
             Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created.
 
@@ -1010,7 +1026,7 @@ class AsyncRawPulse:
         Returns
         -------
         AsyncHttpResponse[ExtractResponse]
-            Full extraction result with markdown, bounding boxes, chunks, etc. Returned when `async=false` (default).
+            Extraction result.  For documents under 70 pages the full result is returned inline.  For larger documents the response contains `is_url: true` and a single-use `url` to download the full result via `GET /large_results/{jobId}`.
         """
         _response = await self._client_wrapper.httpx_client.request(
             "extract",
@@ -1021,6 +1037,7 @@ class AsyncRawPulse:
                 "pages": pages,
                 "figureProcessing": figure_processing,
                 "extensions": extensions,
+                "spreadsheet": spreadsheet,
                 "storage": storage,
                 "async": async_,
                 "structuredOutput": structured_output,
@@ -1099,6 +1116,7 @@ class AsyncRawPulse:
         pages: typing.Optional[str] = OMIT,
         figure_processing: typing.Optional[ExtractAsyncRequestFigureProcessing] = OMIT,
         extensions: typing.Optional[ExtractAsyncRequestExtensions] = OMIT,
+        spreadsheet: typing.Optional[ExtractAsyncRequestSpreadsheet] = OMIT,
         storage: typing.Optional[ExtractAsyncRequestStorage] = OMIT,
         async_: typing.Optional[bool] = OMIT,
         structured_output: typing.Optional[ExtractAsyncRequestStructuredOutput] = OMIT,
@@ -1140,6 +1158,9 @@ class AsyncRawPulse:
 
         extensions : typing.Optional[ExtractAsyncRequestExtensions]
             Settings that enable additional processing passes or alternate output formats. Each enabled extension produces a corresponding output field under `response.extensions.*`.
+
+        spreadsheet : typing.Optional[ExtractAsyncRequestSpreadsheet]
+            Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets. Only applies to `.xlsx` and `.xls` files. Accepts both camelCase and snake_case field names.
 
         storage : typing.Optional[ExtractAsyncRequestStorage]
             Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created.
@@ -1197,6 +1218,7 @@ class AsyncRawPulse:
                 "pages": pages,
                 "figureProcessing": figure_processing,
                 "extensions": extensions,
+                "spreadsheet": spreadsheet,
                 "storage": storage,
                 "async": async_,
                 "structuredOutput": structured_output,

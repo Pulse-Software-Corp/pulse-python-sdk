@@ -22,13 +22,6 @@ class ExtractResponseExtensions(UncheckedBaseModel):
     Chunk results by strategy. Present when `extensions.chunking` was provided in the request.
     """
 
-    merge_tables: typing_extensions.Annotated[
-        typing.Optional[typing.Dict[str, typing.Any]], FieldMetadata(alias="mergeTables")
-    ] = pydantic.Field(default=None)
-    """
-    Merge tables result/metadata. Present when `extensions.mergeTables` was enabled.
-    """
-
     footnote_references: typing_extensions.Annotated[
         typing.Optional[typing.List[ExtractResponseExtensionsFootnoteReferencesItem]],
         FieldMetadata(alias="footnoteReferences"),

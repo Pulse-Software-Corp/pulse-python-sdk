@@ -23,6 +23,11 @@ class TablesConfig(UncheckedBaseModel):
     Output format for table content. Currently only `html` is supported.
     """
 
+    charts_to_tables: typing.Optional[bool] = pydantic.Field(default=None)
+    """
+    Convert figures and charts into tables using LLM processing. Resulting tables have `from_chart: true` in the response.
+    """
+
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2
     else:

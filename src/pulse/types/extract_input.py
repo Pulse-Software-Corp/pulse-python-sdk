@@ -11,6 +11,7 @@ from .extract_input_extensions import ExtractInputExtensions
 from .extract_input_figure_processing import ExtractInputFigureProcessing
 from .extract_input_model import ExtractInputModel
 from .extract_input_schema import ExtractInputSchema
+from .extract_input_spreadsheet import ExtractInputSpreadsheet
 from .extract_input_storage import ExtractInputStorage
 from .extract_input_structured_output import ExtractInputStructuredOutput
 
@@ -52,6 +53,11 @@ class ExtractInput(UncheckedBaseModel):
     extensions: typing.Optional[ExtractInputExtensions] = pydantic.Field(default=None)
     """
     Settings that enable additional processing passes or alternate output formats. Each enabled extension produces a corresponding output field under `response.extensions.*`.
+    """
+
+    spreadsheet: typing.Optional[ExtractInputSpreadsheet] = pydantic.Field(default=None)
+    """
+    Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets. Only applies to `.xlsx` and `.xls` files. Accepts both camelCase and snake_case field names.
     """
 
     storage: typing.Optional[ExtractInputStorage] = pydantic.Field(default=None)

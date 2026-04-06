@@ -38,6 +38,11 @@ class SingleSchemaResponse(UncheckedBaseModel):
     API path to download the filled Excel template (e.g. `/schema/{schema_id}/excel`). Requires the same API key authentication. Only present when `excel_template` was provided in the request.
     """
 
+    credits_used: typing.Optional[float] = pydantic.Field(default=None)
+    """
+    Number of credits consumed by this request. Only present when the organization has the credit billing system enabled.
+    """
+
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2
     else:

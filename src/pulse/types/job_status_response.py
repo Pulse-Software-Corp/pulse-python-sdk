@@ -32,7 +32,7 @@ class JobStatusResponse(UncheckedBaseModel):
 
     result: typing.Optional[typing.Dict[str, typing.Any]] = pydantic.Field(default=None)
     """
-    Structured payload that contains output when the job is completed.
+    Structured payload returned when the job completes.  For large extractions (70+ pages) this object contains `is_url: true` and a single-use `url` to download the full result via `GET /large_results/{jobId}`.
     """
 
     error: typing.Optional[str] = pydantic.Field(default=None)

@@ -16,13 +16,6 @@ class ExtractOptionsExtensions(UncheckedBaseModel):
     Settings that enable additional processing passes or alternate output formats. Each enabled extension produces a corresponding output field under `response.extensions.*`.
     """
 
-    merge_tables: typing_extensions.Annotated[typing.Optional[bool], FieldMetadata(alias="mergeTables")] = (
-        pydantic.Field(default=None)
-    )
-    """
-    Merge tables that span multiple pages into a single table.
-    """
-
     footnote_references: typing_extensions.Annotated[
         typing.Optional[bool], FieldMetadata(alias="footnoteReferences")
     ] = pydantic.Field(default=None)

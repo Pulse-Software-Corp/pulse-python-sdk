@@ -105,6 +105,14 @@ typing.Optional[core.File]` — See core.File for more documentation
 <dl>
 <dd>
 
+**spreadsheet:** `typing.Optional[ExtractRequestSpreadsheet]` — Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets. Only applies to `.xlsx` and `.xls` files. Accepts both camelCase and snake_case field names.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
 **storage:** `typing.Optional[ExtractRequestStorage]` — Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created.
     
 </dd>
@@ -316,6 +324,14 @@ typing.Optional[core.File]` — See core.File for more documentation
 <dd>
 
 **extensions:** `typing.Optional[ExtractAsyncRequestExtensions]` — Settings that enable additional processing passes or alternate output formats. Each enabled extension produces a corresponding output field under `response.extensions.*`.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**spreadsheet:** `typing.Optional[ExtractAsyncRequestSpreadsheet]` — Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets. Only applies to `.xlsx` and `.xls` files. Accepts both camelCase and snake_case field names.
     
 </dd>
 </dl>
@@ -1347,6 +1363,125 @@ client.batch.split(
 </dl>
 </details>
 
+## Pipeline
+<details><summary><code>client.pipeline.<a href="src/pulse/pipeline/client.py">execute</a>(...) -&gt; AsyncHttpResponse[PipelineExecuteResponse]</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Chain multiple processing steps (extract, schema, split) into a single
+request with inline configurations. No saved pipeline required.
+
+The `steps` object defines what to run and in what order. Outputs flow
+forward automatically — you never need to pass extraction IDs between
+steps.
+
+**Supported step combinations:**
+- `extract` — extract a single document
+- `extract` → `schema` — extract then apply structured schema
+- `extract` → `split` — extract then split into topics
+- `batch_extract` → `schema` — extract multiple files, combine into one schema output
+
+**Document input:**
+- Single file: provide `fileUrl` in JSON or `file` via multipart
+- Multiple files (batch_extract): provide `fileUrls` in JSON or multiple `file` fields via multipart
+
+Set `async: true` to return immediately with a `job_id` for polling via
+`GET /job/{jobId}`.
+
+Set `autoDelete: true` for zero-retention mode — all stored artifacts
+are deleted immediately after you receive the results. Requires
+`save_extractions` to be disabled for your organization.
+
+Requires the `enable_adhoc_pipeline` feature flag.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from pulse import PipelineSteps, Pulse
+
+client = Pulse(
+    api_key="YOUR_API_KEY",
+)
+client.pipeline.execute(
+    steps=PipelineSteps(),
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**steps:** `PipelineSteps` — Ordered step definitions. Key order determines execution order.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**file_url:** `typing.Optional[str]` — URL of the document to process. Use with `extract` step.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**async_:** `typing.Optional[bool]` — If true, returns immediately with a `job_id` for polling via `GET /job/{jobId}`.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**auto_delete:** `typing.Optional[bool]` — If true, all stored artifacts are deleted immediately after you receive the results. The inline data in the response is unaffected. Requires `save_extractions` to be disabled for your organization.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
 ## Jobs
 <details><summary><code>client.jobs.<a href="src/pulse/jobs/client.py">get_job</a>(...) -&gt; AsyncHttpResponse[JobStatusResponse]</code></summary>
 <dl>
@@ -1471,6 +1606,82 @@ client.jobs.cancel_job(
 <dd>
 
 **job_id:** `str` — Identifier returned from an async job submission.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+## LargeResults
+<details><summary><code>client.large_results.<a href="src/pulse/large_results/client.py">get_large_result</a>(...) -&gt; AsyncHttpResponse[ExtractResultCore]</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Download the full result for a large extraction (70+ pages).
+
+When `/extract` or `GET /job/{jobId}` returns `is_url: true`, fetch
+the complete result from the URL provided.  The URL is single-use:
+after a successful download the resource is deleted and subsequent
+requests return 410 Gone.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from pulse import Pulse
+
+client = Pulse(
+    api_key="YOUR_API_KEY",
+)
+client.large_results.get_large_result(
+    job_id="jobId",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**job_id:** `str` — Job identifier from the extraction response.
     
 </dd>
 </dl>

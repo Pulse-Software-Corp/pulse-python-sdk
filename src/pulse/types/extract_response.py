@@ -13,7 +13,7 @@ from .structured_output_result import StructuredOutputResult
 
 class ExtractResponse(UncheckedBaseModel):
     """
-    Full extraction result returned by the synchronous `/extract` endpoint. Contains the extracted markdown, optional extensions output, bounding boxes, and storage metadata.
+    Full extraction result returned by the synchronous `/extract` endpoint. Inherits all core fields and adds deprecated backward-compatibility fields.
     """
 
     markdown: typing.Optional[str] = pydantic.Field(default=None)
@@ -54,6 +54,11 @@ class ExtractResponse(UncheckedBaseModel):
     warnings: typing.Optional[typing.List[str]] = pydantic.Field(default=None)
     """
     Non-fatal warnings generated during extraction. Includes deprecation notices when legacy input parameters are used, as well as processing warnings (e.g. word-level bounding box limitations).
+    """
+
+    credits_used: typing.Optional[float] = pydantic.Field(default=None)
+    """
+    Number of credits consumed by this request. Only present when the organization has the credit billing system enabled.
     """
 
     html: typing.Optional[str] = pydantic.Field(default=None)

@@ -17,12 +17,14 @@ from .types.extract_async_request_extensions import ExtractAsyncRequestExtension
 from .types.extract_async_request_figure_processing import ExtractAsyncRequestFigureProcessing
 from .types.extract_async_request_model import ExtractAsyncRequestModel
 from .types.extract_async_request_schema import ExtractAsyncRequestSchema
+from .types.extract_async_request_spreadsheet import ExtractAsyncRequestSpreadsheet
 from .types.extract_async_request_storage import ExtractAsyncRequestStorage
 from .types.extract_async_request_structured_output import ExtractAsyncRequestStructuredOutput
 from .types.extract_request_extensions import ExtractRequestExtensions
 from .types.extract_request_figure_processing import ExtractRequestFigureProcessing
 from .types.extract_request_model import ExtractRequestModel
 from .types.extract_request_schema import ExtractRequestSchema
+from .types.extract_request_spreadsheet import ExtractRequestSpreadsheet
 from .types.extract_request_storage import ExtractRequestStorage
 from .types.extract_request_structured_output import ExtractRequestStructuredOutput
 from .types.extract_response import ExtractResponse
@@ -37,6 +39,8 @@ from .types.topic_schema_config import TopicSchemaConfig
 if typing.TYPE_CHECKING:
     from .batch.client import AsyncBatchClient, BatchClient
     from .jobs.client import AsyncJobsClient, JobsClient
+    from .large_results.client import AsyncLargeResultsClient, LargeResultsClient
+    from .pipeline.client import AsyncPipelineClient, PipelineClient
     from .webhooks.client import AsyncWebhooksClient, WebhooksClient
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -111,7 +115,9 @@ class Pulse:
         )
         self._raw_client = RawPulse(client_wrapper=self._client_wrapper)
         self._batch: typing.Optional[BatchClient] = None
+        self._pipeline: typing.Optional[PipelineClient] = None
         self._jobs: typing.Optional[JobsClient] = None
+        self._large_results: typing.Optional[LargeResultsClient] = None
         self._webhooks: typing.Optional[WebhooksClient] = None
 
     @property
@@ -134,6 +140,7 @@ class Pulse:
         pages: typing.Optional[str] = OMIT,
         figure_processing: typing.Optional[ExtractRequestFigureProcessing] = OMIT,
         extensions: typing.Optional[ExtractRequestExtensions] = OMIT,
+        spreadsheet: typing.Optional[ExtractRequestSpreadsheet] = OMIT,
         storage: typing.Optional[ExtractRequestStorage] = OMIT,
         async_: typing.Optional[bool] = OMIT,
         structured_output: typing.Optional[ExtractRequestStructuredOutput] = OMIT,
@@ -180,6 +187,9 @@ class Pulse:
         extensions : typing.Optional[ExtractRequestExtensions]
             Settings that enable additional processing passes or alternate output formats. Each enabled extension produces a corresponding output field under `response.extensions.*`.
 
+        spreadsheet : typing.Optional[ExtractRequestSpreadsheet]
+            Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets. Only applies to `.xlsx` and `.xls` files. Accepts both camelCase and snake_case field names.
+
         storage : typing.Optional[ExtractRequestStorage]
             Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created.
 
@@ -225,7 +235,7 @@ class Pulse:
         Returns
         -------
         ExtractResponse
-            Full extraction result with markdown, bounding boxes, chunks, etc. Returned when `async=false` (default).
+            Extraction result.  For documents under 70 pages the full result is returned inline.  For larger documents the response contains `is_url: true` and a single-use `url` to download the full result via `GET /large_results/{jobId}`.
 
         Examples
         --------
@@ -243,6 +253,7 @@ class Pulse:
             pages=pages,
             figure_processing=figure_processing,
             extensions=extensions,
+            spreadsheet=spreadsheet,
             storage=storage,
             async_=async_,
             structured_output=structured_output,
@@ -269,6 +280,7 @@ class Pulse:
         pages: typing.Optional[str] = OMIT,
         figure_processing: typing.Optional[ExtractAsyncRequestFigureProcessing] = OMIT,
         extensions: typing.Optional[ExtractAsyncRequestExtensions] = OMIT,
+        spreadsheet: typing.Optional[ExtractAsyncRequestSpreadsheet] = OMIT,
         storage: typing.Optional[ExtractAsyncRequestStorage] = OMIT,
         async_: typing.Optional[bool] = OMIT,
         structured_output: typing.Optional[ExtractAsyncRequestStructuredOutput] = OMIT,
@@ -310,6 +322,9 @@ class Pulse:
 
         extensions : typing.Optional[ExtractAsyncRequestExtensions]
             Settings that enable additional processing passes or alternate output formats. Each enabled extension produces a corresponding output field under `response.extensions.*`.
+
+        spreadsheet : typing.Optional[ExtractAsyncRequestSpreadsheet]
+            Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets. Only applies to `.xlsx` and `.xls` files. Accepts both camelCase and snake_case field names.
 
         storage : typing.Optional[ExtractAsyncRequestStorage]
             Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created.
@@ -374,6 +389,7 @@ class Pulse:
             pages=pages,
             figure_processing=figure_processing,
             extensions=extensions,
+            spreadsheet=spreadsheet,
             storage=storage,
             async_=async_,
             structured_output=structured_output,
@@ -650,12 +666,28 @@ class Pulse:
         return self._batch
 
     @property
+    def pipeline(self):
+        if self._pipeline is None:
+            from .pipeline.client import PipelineClient  # noqa: E402
+
+            self._pipeline = PipelineClient(client_wrapper=self._client_wrapper)
+        return self._pipeline
+
+    @property
     def jobs(self):
         if self._jobs is None:
             from .jobs.client import JobsClient  # noqa: E402
 
             self._jobs = JobsClient(client_wrapper=self._client_wrapper)
         return self._jobs
+
+    @property
+    def large_results(self):
+        if self._large_results is None:
+            from .large_results.client import LargeResultsClient  # noqa: E402
+
+            self._large_results = LargeResultsClient(client_wrapper=self._client_wrapper)
+        return self._large_results
 
     @property
     def webhooks(self):
@@ -735,7 +767,9 @@ class AsyncPulse:
         )
         self._raw_client = AsyncRawPulse(client_wrapper=self._client_wrapper)
         self._batch: typing.Optional[AsyncBatchClient] = None
+        self._pipeline: typing.Optional[AsyncPipelineClient] = None
         self._jobs: typing.Optional[AsyncJobsClient] = None
+        self._large_results: typing.Optional[AsyncLargeResultsClient] = None
         self._webhooks: typing.Optional[AsyncWebhooksClient] = None
 
     @property
@@ -758,6 +792,7 @@ class AsyncPulse:
         pages: typing.Optional[str] = OMIT,
         figure_processing: typing.Optional[ExtractRequestFigureProcessing] = OMIT,
         extensions: typing.Optional[ExtractRequestExtensions] = OMIT,
+        spreadsheet: typing.Optional[ExtractRequestSpreadsheet] = OMIT,
         storage: typing.Optional[ExtractRequestStorage] = OMIT,
         async_: typing.Optional[bool] = OMIT,
         structured_output: typing.Optional[ExtractRequestStructuredOutput] = OMIT,
@@ -804,6 +839,9 @@ class AsyncPulse:
         extensions : typing.Optional[ExtractRequestExtensions]
             Settings that enable additional processing passes or alternate output formats. Each enabled extension produces a corresponding output field under `response.extensions.*`.
 
+        spreadsheet : typing.Optional[ExtractRequestSpreadsheet]
+            Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets. Only applies to `.xlsx` and `.xls` files. Accepts both camelCase and snake_case field names.
+
         storage : typing.Optional[ExtractRequestStorage]
             Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created.
 
@@ -849,7 +887,7 @@ class AsyncPulse:
         Returns
         -------
         ExtractResponse
-            Full extraction result with markdown, bounding boxes, chunks, etc. Returned when `async=false` (default).
+            Extraction result.  For documents under 70 pages the full result is returned inline.  For larger documents the response contains `is_url: true` and a single-use `url` to download the full result via `GET /large_results/{jobId}`.
 
         Examples
         --------
@@ -875,6 +913,7 @@ class AsyncPulse:
             pages=pages,
             figure_processing=figure_processing,
             extensions=extensions,
+            spreadsheet=spreadsheet,
             storage=storage,
             async_=async_,
             structured_output=structured_output,
@@ -901,6 +940,7 @@ class AsyncPulse:
         pages: typing.Optional[str] = OMIT,
         figure_processing: typing.Optional[ExtractAsyncRequestFigureProcessing] = OMIT,
         extensions: typing.Optional[ExtractAsyncRequestExtensions] = OMIT,
+        spreadsheet: typing.Optional[ExtractAsyncRequestSpreadsheet] = OMIT,
         storage: typing.Optional[ExtractAsyncRequestStorage] = OMIT,
         async_: typing.Optional[bool] = OMIT,
         structured_output: typing.Optional[ExtractAsyncRequestStructuredOutput] = OMIT,
@@ -942,6 +982,9 @@ class AsyncPulse:
 
         extensions : typing.Optional[ExtractAsyncRequestExtensions]
             Settings that enable additional processing passes or alternate output formats. Each enabled extension produces a corresponding output field under `response.extensions.*`.
+
+        spreadsheet : typing.Optional[ExtractAsyncRequestSpreadsheet]
+            Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets. Only applies to `.xlsx` and `.xls` files. Accepts both camelCase and snake_case field names.
 
         storage : typing.Optional[ExtractAsyncRequestStorage]
             Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created.
@@ -1014,6 +1057,7 @@ class AsyncPulse:
             pages=pages,
             figure_processing=figure_processing,
             extensions=extensions,
+            spreadsheet=spreadsheet,
             storage=storage,
             async_=async_,
             structured_output=structured_output,
@@ -1323,12 +1367,28 @@ class AsyncPulse:
         return self._batch
 
     @property
+    def pipeline(self):
+        if self._pipeline is None:
+            from .pipeline.client import AsyncPipelineClient  # noqa: E402
+
+            self._pipeline = AsyncPipelineClient(client_wrapper=self._client_wrapper)
+        return self._pipeline
+
+    @property
     def jobs(self):
         if self._jobs is None:
             from .jobs.client import AsyncJobsClient  # noqa: E402
 
             self._jobs = AsyncJobsClient(client_wrapper=self._client_wrapper)
         return self._jobs
+
+    @property
+    def large_results(self):
+        if self._large_results is None:
+            from .large_results.client import AsyncLargeResultsClient  # noqa: E402
+
+            self._large_results = AsyncLargeResultsClient(client_wrapper=self._client_wrapper)
+        return self._large_results
 
     @property
     def webhooks(self):
