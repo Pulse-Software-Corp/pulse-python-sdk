@@ -4,6 +4,7 @@ import typing
 
 import httpx
 from .http_client import AsyncHttpClient, HttpClient
+from ..version import __version__
 
 
 class BaseClientWrapper:
@@ -26,6 +27,7 @@ class BaseClientWrapper:
             "X-Fern-Language": "Python",
             "X-Fern-SDK-Name": "pulse-python-sdk",
             "X-Fern-SDK-Version": "1.0.8",
+            "X-Pulse-Source": f"sdk-python-{__version__}",
             **(self.get_custom_headers() or {}),
         }
         headers["x-api-key"] = self.api_key
