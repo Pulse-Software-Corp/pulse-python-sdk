@@ -2,4 +2,4 @@
 
 import typing
 
-TablesConfigTableFormat = typing.Union[typing.Literal["html"], typing.Any]
+TablesConfigTableFormat = typing.Union[typing.Literal["html", "json"], typing.Any]

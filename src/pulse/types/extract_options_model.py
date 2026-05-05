@@ -2,4 +2,4 @@
 
 import typing
 
-ExtractOptionsModel = typing.Union[typing.Literal["enterprise-preview"], typing.Any]
+ExtractOptionsModel = typing.Union[typing.Literal["default", "pulse-ultra-2"], typing.Any]

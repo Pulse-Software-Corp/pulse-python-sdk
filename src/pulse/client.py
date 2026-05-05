@@ -38,9 +38,11 @@ from .types.topic_schema_config import TopicSchemaConfig
 
 if typing.TYPE_CHECKING:
     from .batch.client import AsyncBatchClient, BatchClient
+    from .form.client import AsyncFormClient, FormClient
     from .jobs.client import AsyncJobsClient, JobsClient
     from .large_results.client import AsyncLargeResultsClient, LargeResultsClient
     from .pipeline.client import AsyncPipelineClient, PipelineClient
+    from .results.client import AsyncResultsClient, ResultsClient
     from .webhooks.client import AsyncWebhooksClient, WebhooksClient
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -69,7 +71,7 @@ class Pulse:
         Additional headers to send with every request.
 
     timeout : typing.Optional[float]
-        The timeout to be used, in seconds, for requests. By default the timeout is 60 seconds, unless a custom httpx client is used, in which case this default is not enforced.
+        The timeout to be used, in seconds, for requests. By default there is no timeout set, unless a custom httpx client is used, in which case this default is not enforced.
 
     follow_redirects : typing.Optional[bool]
         Whether the default httpx client follows redirects or not, this is irrelevant if a custom httpx client is passed in.
@@ -98,7 +100,7 @@ class Pulse:
         httpx_client: typing.Optional[httpx.Client] = None,
     ):
         _defaulted_timeout = (
-            timeout if timeout is not None else 60 if httpx_client is None else httpx_client.timeout.read
+            timeout if timeout is not None else None if httpx_client is None else httpx_client.timeout.read
         )
         if api_key is None:
             raise ApiError(body="The client must be instantiated be either passing in api_key or setting PULSE_API_KEY")
@@ -114,9 +116,11 @@ class Pulse:
             timeout=_defaulted_timeout,
         )
         self._raw_client = RawPulse(client_wrapper=self._client_wrapper)
+        self._form: typing.Optional[FormClient] = None
         self._batch: typing.Optional[BatchClient] = None
         self._pipeline: typing.Optional[PipelineClient] = None
         self._jobs: typing.Optional[JobsClient] = None
+        self._results: typing.Optional[ResultsClient] = None
         self._large_results: typing.Optional[LargeResultsClient] = None
         self._webhooks: typing.Optional[WebhooksClient] = None
 
@@ -176,7 +180,7 @@ class Pulse:
             Public or pre-signed URL that Pulse will download and extract. Required unless file is provided.
 
         model : typing.Optional[ExtractRequestModel]
-            Extraction model to use. When set to `enterprise-preview`, routes the request through Pulse's self-hosted VPC extraction model instead of the default cloud-based service. If omitted or set to any other value, the default model is used.
+            Extraction model to use. When set to `pulse-ultra-2`, routes the request through Pulse Ultra 2 (self-hosted VPC model) instead of the default cloud-based service. If omitted or set to `default`, the default model is used.
 
         pages : typing.Optional[str]
             Page range filter supporting segments such as `1-2` or mixed ranges like `1-2,5`.
@@ -312,7 +316,7 @@ class Pulse:
             Public or pre-signed URL that Pulse will download and extract. Required unless file is provided.
 
         model : typing.Optional[ExtractAsyncRequestModel]
-            Extraction model to use. When set to `enterprise-preview`, routes the request through Pulse's self-hosted VPC extraction model instead of the default cloud-based service. If omitted or set to any other value, the default model is used.
+            Extraction model to use. When set to `pulse-ultra-2`, routes the request through Pulse Ultra 2 (self-hosted VPC model) instead of the default cloud-based service. If omitted or set to `default`, the default model is used.
 
         pages : typing.Optional[str]
             Page range filter supporting segments such as `1-2` or mixed ranges like `1-2,5`.
@@ -658,6 +662,14 @@ class Pulse:
         return _response.data
 
     @property
+    def form(self):
+        if self._form is None:
+            from .form.client import FormClient  # noqa: E402
+
+            self._form = FormClient(client_wrapper=self._client_wrapper)
+        return self._form
+
+    @property
     def batch(self):
         if self._batch is None:
             from .batch.client import BatchClient  # noqa: E402
@@ -680,6 +692,14 @@ class Pulse:
 
             self._jobs = JobsClient(client_wrapper=self._client_wrapper)
         return self._jobs
+
+    @property
+    def results(self):
+        if self._results is None:
+            from .results.client import ResultsClient  # noqa: E402
+
+            self._results = ResultsClient(client_wrapper=self._client_wrapper)
+        return self._results
 
     @property
     def large_results(self):
@@ -721,7 +741,7 @@ class AsyncPulse:
         Additional headers to send with every request.
 
     timeout : typing.Optional[float]
-        The timeout to be used, in seconds, for requests. By default the timeout is 60 seconds, unless a custom httpx client is used, in which case this default is not enforced.
+        The timeout to be used, in seconds, for requests. By default there is no timeout set, unless a custom httpx client is used, in which case this default is not enforced.
 
     follow_redirects : typing.Optional[bool]
         Whether the default httpx client follows redirects or not, this is irrelevant if a custom httpx client is passed in.
@@ -750,7 +770,7 @@ class AsyncPulse:
         httpx_client: typing.Optional[httpx.AsyncClient] = None,
     ):
         _defaulted_timeout = (
-            timeout if timeout is not None else 60 if httpx_client is None else httpx_client.timeout.read
+            timeout if timeout is not None else None if httpx_client is None else httpx_client.timeout.read
         )
         if api_key is None:
             raise ApiError(body="The client must be instantiated be either passing in api_key or setting PULSE_API_KEY")
@@ -766,9 +786,11 @@ class AsyncPulse:
             timeout=_defaulted_timeout,
         )
         self._raw_client = AsyncRawPulse(client_wrapper=self._client_wrapper)
+        self._form: typing.Optional[AsyncFormClient] = None
         self._batch: typing.Optional[AsyncBatchClient] = None
         self._pipeline: typing.Optional[AsyncPipelineClient] = None
         self._jobs: typing.Optional[AsyncJobsClient] = None
+        self._results: typing.Optional[AsyncResultsClient] = None
         self._large_results: typing.Optional[AsyncLargeResultsClient] = None
         self._webhooks: typing.Optional[AsyncWebhooksClient] = None
 
@@ -828,7 +850,7 @@ class AsyncPulse:
             Public or pre-signed URL that Pulse will download and extract. Required unless file is provided.
 
         model : typing.Optional[ExtractRequestModel]
-            Extraction model to use. When set to `enterprise-preview`, routes the request through Pulse's self-hosted VPC extraction model instead of the default cloud-based service. If omitted or set to any other value, the default model is used.
+            Extraction model to use. When set to `pulse-ultra-2`, routes the request through Pulse Ultra 2 (self-hosted VPC model) instead of the default cloud-based service. If omitted or set to `default`, the default model is used.
 
         pages : typing.Optional[str]
             Page range filter supporting segments such as `1-2` or mixed ranges like `1-2,5`.
@@ -972,7 +994,7 @@ class AsyncPulse:
             Public or pre-signed URL that Pulse will download and extract. Required unless file is provided.
 
         model : typing.Optional[ExtractAsyncRequestModel]
-            Extraction model to use. When set to `enterprise-preview`, routes the request through Pulse's self-hosted VPC extraction model instead of the default cloud-based service. If omitted or set to any other value, the default model is used.
+            Extraction model to use. When set to `pulse-ultra-2`, routes the request through Pulse Ultra 2 (self-hosted VPC model) instead of the default cloud-based service. If omitted or set to `default`, the default model is used.
 
         pages : typing.Optional[str]
             Page range filter supporting segments such as `1-2` or mixed ranges like `1-2,5`.
@@ -1359,6 +1381,14 @@ class AsyncPulse:
         return _response.data
 
     @property
+    def form(self):
+        if self._form is None:
+            from .form.client import AsyncFormClient  # noqa: E402
+
+            self._form = AsyncFormClient(client_wrapper=self._client_wrapper)
+        return self._form
+
+    @property
     def batch(self):
         if self._batch is None:
             from .batch.client import AsyncBatchClient  # noqa: E402
@@ -1381,6 +1411,14 @@ class AsyncPulse:
 
             self._jobs = AsyncJobsClient(client_wrapper=self._client_wrapper)
         return self._jobs
+
+    @property
+    def results(self):
+        if self._results is None:
+            from .results.client import AsyncResultsClient  # noqa: E402
+
+            self._results = AsyncResultsClient(client_wrapper=self._client_wrapper)
+        return self._results
 
     @property
     def large_results(self):

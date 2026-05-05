@@ -95,7 +95,7 @@ class RawPulse:
             Public or pre-signed URL that Pulse will download and extract. Required unless file is provided.
 
         model : typing.Optional[ExtractRequestModel]
-            Extraction model to use. When set to `enterprise-preview`, routes the request through Pulse's self-hosted VPC extraction model instead of the default cloud-based service. If omitted or set to any other value, the default model is used.
+            Extraction model to use. When set to `pulse-ultra-2`, routes the request through Pulse Ultra 2 (self-hosted VPC model) instead of the default cloud-based service. If omitted or set to `default`, the default model is used.
 
         pages : typing.Optional[str]
             Page range filter supporting segments such as `1-2` or mixed ranges like `1-2,5`.
@@ -276,7 +276,7 @@ class RawPulse:
             Public or pre-signed URL that Pulse will download and extract. Required unless file is provided.
 
         model : typing.Optional[ExtractAsyncRequestModel]
-            Extraction model to use. When set to `enterprise-preview`, routes the request through Pulse's self-hosted VPC extraction model instead of the default cloud-based service. If omitted or set to any other value, the default model is used.
+            Extraction model to use. When set to `pulse-ultra-2`, routes the request through Pulse Ultra 2 (self-hosted VPC model) instead of the default cloud-based service. If omitted or set to `default`, the default model is used.
 
         pages : typing.Optional[str]
             Page range filter supporting segments such as `1-2` or mixed ranges like `1-2,5`.
@@ -967,7 +967,7 @@ class AsyncRawPulse:
             Public or pre-signed URL that Pulse will download and extract. Required unless file is provided.
 
         model : typing.Optional[ExtractRequestModel]
-            Extraction model to use. When set to `enterprise-preview`, routes the request through Pulse's self-hosted VPC extraction model instead of the default cloud-based service. If omitted or set to any other value, the default model is used.
+            Extraction model to use. When set to `pulse-ultra-2`, routes the request through Pulse Ultra 2 (self-hosted VPC model) instead of the default cloud-based service. If omitted or set to `default`, the default model is used.
 
         pages : typing.Optional[str]
             Page range filter supporting segments such as `1-2` or mixed ranges like `1-2,5`.
@@ -1148,7 +1148,7 @@ class AsyncRawPulse:
             Public or pre-signed URL that Pulse will download and extract. Required unless file is provided.
 
         model : typing.Optional[ExtractAsyncRequestModel]
-            Extraction model to use. When set to `enterprise-preview`, routes the request through Pulse's self-hosted VPC extraction model instead of the default cloud-based service. If omitted or set to any other value, the default model is used.
+            Extraction model to use. When set to `pulse-ultra-2`, routes the request through Pulse Ultra 2 (self-hosted VPC model) instead of the default cloud-based service. If omitted or set to `default`, the default model is used.
 
         pages : typing.Optional[str]
             Page range filter supporting segments such as `1-2` or mixed ranges like `1-2,5`.

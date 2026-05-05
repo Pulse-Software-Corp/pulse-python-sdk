@@ -11,6 +11,7 @@ from .extract_options import ExtractOptions
 from .pipeline_step_batch_extract_config import PipelineStepBatchExtractConfig
 from .schema_config import SchemaConfig
 from .split_config import SplitConfig
+from .tables_config import TablesConfig
 
 
 class PipelineSteps(UncheckedBaseModel):
@@ -38,6 +39,11 @@ class PipelineSteps(UncheckedBaseModel):
     split: typing.Optional[SplitConfig] = pydantic.Field(default=None)
     """
     Topic splitting step. Same config as `split_config` in `POST /split`. Requires `extract` or `batch_extract` before it.
+    """
+
+    tables: typing.Optional[TablesConfig] = pydantic.Field(default=None)
+    """
+    Table extraction step. Same config as `tables_config` in `POST /tables`. Requires `extract` before it. This is a terminal step — no further steps can follow.
     """
 
     if IS_PYDANTIC_V2:

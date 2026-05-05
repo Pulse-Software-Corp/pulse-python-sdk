@@ -2,4 +2,4 @@
 
 import typing
 
-PipelineStepBatchExtractConfigModel = typing.Union[typing.Literal["enterprise-preview"], typing.Any]
+PipelineStepBatchExtractConfigModel = typing.Union[typing.Literal["default", "pulse-ultra-2"], typing.Any]

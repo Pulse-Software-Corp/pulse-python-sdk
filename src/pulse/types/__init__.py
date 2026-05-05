@@ -91,6 +91,16 @@ if typing.TYPE_CHECKING:
     )
     from .extract_result_core_plan_info import ExtractResultCorePlanInfo
     from .extract_source import ExtractSource
+    from .form_cell import FormCell
+    from .form_cell_type import FormCellType
+    from .form_checkbox_detail import FormCheckboxDetail
+    from .form_clear_multipart_input import FormClearMultipartInput
+    from .form_detect_multipart_input import FormDetectMultipartInput
+    from .form_fill_multipart_input import FormFillMultipartInput
+    from .form_fill_shared_options import FormFillSharedOptions
+    from .form_plan_info import FormPlanInfo
+    from .form_result import FormResult
+    from .form_shared_options import FormSharedOptions
     from .gone_error_body import GoneErrorBody
     from .gone_error_body_error import GoneErrorBodyError
     from .job_cancellation_response import JobCancellationResponse
@@ -131,6 +141,9 @@ if typing.TYPE_CHECKING:
     from .pipeline_step_batch_extract_config_storage import PipelineStepBatchExtractConfigStorage
     from .pipeline_step_batch_extract_config_structured_output import PipelineStepBatchExtractConfigStructuredOutput
     from .pipeline_steps import PipelineSteps
+    from .pipeline_tables_result import PipelineTablesResult
+    from .pipeline_tables_result_tables_output import PipelineTablesResultTablesOutput
+    from .pipeline_tables_result_tables_output_tables_item import PipelineTablesResultTablesOutputTablesItem
     from .schema_config import SchemaConfig
     from .schema_response import SchemaResponse
     from .single_schema_response import SingleSchemaResponse
@@ -226,6 +239,16 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ExtractResultCoreExtensionsFootnoteReferencesItem": ".extract_result_core_extensions_footnote_references_item",
     "ExtractResultCorePlanInfo": ".extract_result_core_plan_info",
     "ExtractSource": ".extract_source",
+    "FormCell": ".form_cell",
+    "FormCellType": ".form_cell_type",
+    "FormCheckboxDetail": ".form_checkbox_detail",
+    "FormClearMultipartInput": ".form_clear_multipart_input",
+    "FormDetectMultipartInput": ".form_detect_multipart_input",
+    "FormFillMultipartInput": ".form_fill_multipart_input",
+    "FormFillSharedOptions": ".form_fill_shared_options",
+    "FormPlanInfo": ".form_plan_info",
+    "FormResult": ".form_result",
+    "FormSharedOptions": ".form_shared_options",
     "GoneErrorBody": ".gone_error_body",
     "GoneErrorBodyError": ".gone_error_body_error",
     "JobCancellationResponse": ".job_cancellation_response",
@@ -258,6 +281,9 @@ _dynamic_imports: typing.Dict[str, str] = {
     "PipelineStepBatchExtractConfigStorage": ".pipeline_step_batch_extract_config_storage",
     "PipelineStepBatchExtractConfigStructuredOutput": ".pipeline_step_batch_extract_config_structured_output",
     "PipelineSteps": ".pipeline_steps",
+    "PipelineTablesResult": ".pipeline_tables_result",
+    "PipelineTablesResultTablesOutput": ".pipeline_tables_result_tables_output",
+    "PipelineTablesResultTablesOutputTablesItem": ".pipeline_tables_result_tables_output_tables_item",
     "SchemaConfig": ".schema_config",
     "SchemaResponse": ".schema_response",
     "SingleSchemaResponse": ".single_schema_response",
@@ -377,6 +403,16 @@ __all__ = [
     "ExtractResultCoreExtensionsFootnoteReferencesItem",
     "ExtractResultCorePlanInfo",
     "ExtractSource",
+    "FormCell",
+    "FormCellType",
+    "FormCheckboxDetail",
+    "FormClearMultipartInput",
+    "FormDetectMultipartInput",
+    "FormFillMultipartInput",
+    "FormFillSharedOptions",
+    "FormPlanInfo",
+    "FormResult",
+    "FormSharedOptions",
     "GoneErrorBody",
     "GoneErrorBodyError",
     "JobCancellationResponse",
@@ -409,6 +445,9 @@ __all__ = [
     "PipelineStepBatchExtractConfigStorage",
     "PipelineStepBatchExtractConfigStructuredOutput",
     "PipelineSteps",
+    "PipelineTablesResult",
+    "PipelineTablesResultTablesOutput",
+    "PipelineTablesResultTablesOutputTablesItem",
     "SchemaConfig",
     "SchemaResponse",
     "SingleSchemaResponse",

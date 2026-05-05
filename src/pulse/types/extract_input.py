@@ -35,7 +35,7 @@ class ExtractInput(UncheckedBaseModel):
 
     model: typing.Optional[ExtractInputModel] = pydantic.Field(default=None)
     """
-    Extraction model to use. When set to `enterprise-preview`, routes the request through Pulse's self-hosted VPC extraction model instead of the default cloud-based service. If omitted or set to any other value, the default model is used.
+    Extraction model to use. When set to `pulse-ultra-2`, routes the request through Pulse Ultra 2 (self-hosted VPC model) instead of the default cloud-based service. If omitted or set to `default`, the default model is used.
     """
 
     pages: typing.Optional[str] = pydantic.Field(default=None)

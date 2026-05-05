@@ -2,4 +2,4 @@
 
 import typing
 
-ExtractAsyncRequestModel = typing.Union[typing.Literal["enterprise-preview"], typing.Any]
+ExtractAsyncRequestModel = typing.Union[typing.Literal["default", "pulse-ultra-2"], typing.Any]

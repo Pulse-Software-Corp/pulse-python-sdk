@@ -8,9 +8,9 @@ from ..core.unchecked_base_model import UncheckedBaseModel
 
 
 class TablesResponseTablesOutputTablesItem(UncheckedBaseModel):
-    table_content: typing.Optional[str] = pydantic.Field(default=None)
+    table_content: typing.Optional[typing.Any] = pydantic.Field(default=None)
     """
-    The table content in the requested format (e.g. HTML).
+    The table content. When `table_format` is `html` (default), this is an HTML string. When `json`, this is an object with `headers` (array of column names) and `rows` (array of objects keyed by header name).
     """
 
     citations: typing.Optional[typing.List[str]] = pydantic.Field(default=None)

@@ -20,7 +20,7 @@ class TablesConfig(UncheckedBaseModel):
 
     table_format: typing.Optional[TablesConfigTableFormat] = pydantic.Field(default=None)
     """
-    Output format for table content. Currently only `html` is supported.
+    Output format for table content. `html` returns an HTML `<table>` string. `json` returns a structured object with `headers` (array of column names) and `rows` (array of objects keyed by header name).
     """
 
     charts_to_tables: typing.Optional[bool] = pydantic.Field(default=None)

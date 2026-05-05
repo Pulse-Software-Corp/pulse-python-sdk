@@ -73,7 +73,7 @@ typing.Optional[core.File]` — See core.File for more documentation
 <dl>
 <dd>
 
-**model:** `typing.Optional[ExtractRequestModel]` — Extraction model to use. When set to `enterprise-preview`, routes the request through Pulse's self-hosted VPC extraction model instead of the default cloud-based service. If omitted or set to any other value, the default model is used.
+**model:** `typing.Optional[ExtractRequestModel]` — Extraction model to use. When set to `pulse-ultra-2`, routes the request through Pulse Ultra 2 (self-hosted VPC model) instead of the default cloud-based service. If omitted or set to `default`, the default model is used.
     
 </dd>
 </dl>
@@ -299,7 +299,7 @@ typing.Optional[core.File]` — See core.File for more documentation
 <dl>
 <dd>
 
-**model:** `typing.Optional[ExtractAsyncRequestModel]` — Extraction model to use. When set to `enterprise-preview`, routes the request through Pulse's self-hosted VPC extraction model instead of the default cloud-based service. If omitted or set to any other value, the default model is used.
+**model:** `typing.Optional[ExtractAsyncRequestModel]` — Extraction model to use. When set to `pulse-ultra-2`, routes the request through Pulse Ultra 2 (self-hosted VPC model) instead of the default cloud-based service. If omitted or set to `default`, the default model is used.
     
 </dd>
 </dl>
@@ -871,6 +871,396 @@ client.tables(
 </dl>
 </details>
 
+## Form
+<details><summary><code>client.form.<a href="src/pulse/form/client.py">detect</a>(...) -&gt; AsyncHttpResponse[FormResult]</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Run cell detection on a PDF and return the detected `form_fields`
+along with a reusable `form_id`. No LLM matching, no fill, no
+clear — this is the OCR / layout step that `/form/fill` and
+`/form/clear` would otherwise run internally.
+
+The returned `form_id` references the uploaded PDF and its
+detected layout, and can be passed back to a subsequent
+`/form/fill`, `/form/clear`, or `/form/detect` call as the
+single input source — Pulse will skip detection on the fast
+path and reuse the cached cells.
+
+**Input modes** — provide exactly one of:
+- `form_id` (JSON) — re-detect cells on a previously stored
+  PDF. Useful when callers want to refresh layout after editing
+  or when chaining detect calls.
+- `file` (multipart) or `file_url` (JSON or multipart) — start
+  from a raw PDF.
+
+Optional `page_range` (alias `pages`, e.g. `"1-3,5"`) restricts
+the operation to a subset of pages.
+
+Synchronous by default — returns the detected layout inline.
+Set `async: true` to receive `{job_id, status: "pending"}`
+immediately and poll [GET /job/{jobId}](api:GET/job/{jobId}).
+
+Billed at **1 credit per page**. Requires the `form_filler`
+feature flag to be enabled for your organization.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from pulse import Pulse
+
+client = Pulse(
+    api_key="YOUR_API_KEY",
+)
+client.form.detect()
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**form_id:** `typing.Optional[str]` — Re-detect cells on a previously stored PDF (returned by an earlier `/form/detect`, `/form/fill`, or `/form/clear` call). Useful when chaining detect calls or refreshing layout after edits.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**file_url:** `typing.Optional[str]` — Public or pre-signed URL of a PDF to detect cells on.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**page_range:** `typing.Optional[str]` — Restrict the operation to a subset of pages. Accepts comma-separated page numbers and ranges, e.g. `"1-3,5"`. Alias: `pages`.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**async_:** `typing.Optional[bool]` — When `true`, the endpoint returns immediately with `{job_id, status: "pending"}` (HTTP 202) and processes the job in the background. Poll [GET /job/{jobId}](api:GET/job/{jobId}) for the result. Default `false` — return the full result inline.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.form.<a href="src/pulse/form/client.py">fill</a>(...) -&gt; AsyncHttpResponse[FormResult]</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Fill the fields of a PDF form with values inferred from a natural
+language `instructions` prompt. Works on both AcroForm PDFs
+(true form fields are written) and flat/scanned PDFs (values
+are rendered as an overlay using detected cells from OCR).
+
+**Input modes** — provide exactly one of:
+- `form_id` (JSON) — reuse a previously processed form from a
+  prior `/form/detect`, `/form/fill`, or `/form/clear` call.
+  Skips re-detection (fast path); the cached `form_fields` are
+  reused.
+- `file` (multipart) or `file_url` (JSON or multipart) — start
+  from a raw PDF. Pulse runs cell detection internally before
+  filling.
+
+Optional `form_fields` lets callers supply or edit the detected
+cells before filling. Optional `page_range` (alias `pages`,
+e.g. `"1-3,5"`) restricts the operation to a subset of pages.
+
+Synchronous by default — returns the filled `FormResult` inline
+(including a `pdf_url` you can `GET` to download the PDF
+binary). Set `async: true` to receive `{job_id, status:
+"pending"}` and poll [GET /job/{jobId}](api:GET/job/{jobId}).
+
+Billed at **3 credits per page**. Requires the `form_filler`
+feature flag to be enabled for your organization.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from pulse import Pulse
+
+client = Pulse(
+    api_key="YOUR_API_KEY",
+)
+client.form.fill(
+    instructions="instructions",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**instructions:** `str` — Required natural-language description of what to fill into the form (e.g. `"Use John Doe, 123 Main St, born 1990-01-01"`).
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**form_id:** `typing.Optional[str]` — ID returned by a previous `/form/detect`, `/form/fill`, or `/form/clear` call. Reuses the stored PDF and cached `form_fields` (fast path; skips re-detection).
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**file_url:** `typing.Optional[str]` — Public or pre-signed URL of a PDF to download and fill.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**form_fields:** `typing.Optional[typing.Sequence[FormCell]]` — Optional override for the cells used when filling / clearing. When omitted, Pulse uses the cells stored on the referenced `form_id` (fast path) or runs detection on the uploaded PDF. Useful for editing detected cells before filling.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**page_range:** `typing.Optional[str]` — Restrict the operation to a subset of pages. Accepts comma-separated page numbers and ranges, e.g. `"1-3,5"`. Alias: `pages`.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**async_:** `typing.Optional[bool]` — When `true`, the endpoint returns immediately with `{job_id, status: "pending"}` (HTTP 202) and processes the job in the background. Poll [GET /job/{jobId}](api:GET/job/{jobId}) for the result. Default `false` — return the full result inline.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.form.<a href="src/pulse/form/client.py">clear</a>(...) -&gt; AsyncHttpResponse[FormResult]</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Remove user-entered data from a PDF form, leaving the blank
+form template intact. Erases handwritten entries, typed values,
+and unchecks selected checkboxes — printed labels, field
+titles, section headers, and other static template content are
+preserved.
+
+**Input modes** — provide exactly one of:
+- `form_id` (JSON) — reuse a previously processed form from a
+  prior `/form/detect`, `/form/fill`, or `/form/clear` call
+  (fast path; cached layout reused).
+- `file` (multipart) or `file_url` (JSON or multipart) — start
+  from a raw PDF.
+
+`instructions` is optional. When omitted, Pulse clears every
+user-filled field deterministically (no LLM call) on AcroForm
+PDFs, eliminating any chance of hallucinated content. Provide
+a natural language prompt to clear only specific fields
+(e.g. `"clear only the address fields"`); targeted clears go
+through the LLM matcher with a delete-only filter.
+
+Optional `form_fields` and `page_range` (alias `pages`) behave
+the same as on [Form Fill](api:POST/form/fill).
+
+Synchronous by default — returns the cleared `FormResult`
+inline (including a `pdf_url` you can `GET` to download the
+PDF binary). Set `async: true` to receive `{job_id, status:
+"pending"}` and poll [GET /job/{jobId}](api:GET/job/{jobId}).
+
+Billed at **3 credits per page**. Requires the `form_filler`
+feature flag to be enabled for your organization.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from pulse import Pulse
+
+client = Pulse(
+    api_key="YOUR_API_KEY",
+)
+client.form.clear()
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**form_id:** `typing.Optional[str]` — ID returned by a previous `/form/detect`, `/form/fill`, or `/form/clear` call (fast path; skips re-detection).
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**file_url:** `typing.Optional[str]` — Public or pre-signed URL of a PDF to download and clear.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**instructions:** `typing.Optional[str]` — Optional natural-language description of what to clear. When omitted, Pulse clears every user-filled value deterministically (no LLM call) on AcroForm PDFs while preserving the blank form template.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**form_fields:** `typing.Optional[typing.Sequence[FormCell]]` — Optional override for the cells used when filling / clearing. When omitted, Pulse uses the cells stored on the referenced `form_id` (fast path) or runs detection on the uploaded PDF. Useful for editing detected cells before filling.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**page_range:** `typing.Optional[str]` — Restrict the operation to a subset of pages. Accepts comma-separated page numbers and ranges, e.g. `"1-3,5"`. Alias: `pages`.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**async_:** `typing.Optional[bool]` — When `true`, the endpoint returns immediately with `{job_id, status: "pending"}` (HTTP 202) and processes the job in the background. Poll [GET /job/{jobId}](api:GET/job/{jobId}) for the result. Default `false` — return the full result inline.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
 ## Batch
 <details><summary><code>client.batch.<a href="src/pulse/batch/client.py">extract</a>(...) -&gt; AsyncHttpResponse[BatchExtractResponse]</code></summary>
 <dl>
@@ -1376,8 +1766,8 @@ client.batch.split(
 <dl>
 <dd>
 
-Chain multiple processing steps (extract, schema, split) into a single
-request with inline configurations. No saved pipeline required.
+Chain multiple processing steps (extract, schema, split, tables) into a
+single request with inline configurations. No saved pipeline required.
 
 The `steps` object defines what to run and in what order. Outputs flow
 forward automatically — you never need to pass extraction IDs between
@@ -1387,6 +1777,8 @@ steps.
 - `extract` — extract a single document
 - `extract` → `schema` — extract then apply structured schema
 - `extract` → `split` — extract then split into topics
+- `extract` → `split` → `schema` — extract, split by topic, apply per-topic schemas
+- `extract` → `tables` — extract then extract structured tables
 - `batch_extract` → `schema` — extract multiple files, combine into one schema output
 
 **Document input:**
@@ -1625,6 +2017,84 @@ client.jobs.cancel_job(
 </dl>
 </details>
 
+## Results
+<details><summary><code>client.results.<a href="src/pulse/results/client.py">get_pdf</a>(...) -&gt; typing.AsyncIterator[AsyncHttpResponse[typing.AsyncIterator[bytes]]]</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Download the PDF binary produced by a `/form/detect`,
+`/form/fill`, or `/form/clear` job. The `pdf_url` field on a
+`FormResult` points at this endpoint — you can hand it
+directly to a browser, embed it in an `<iframe>`, or fetch the
+bytes from a backend.
+
+Returns `404` for non-form jobs (no PDF was produced) and for
+form jobs whose PDF artifact is no longer available.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from pulse import Pulse
+
+client = Pulse(
+    api_key="YOUR_API_KEY",
+)
+client.results.get_pdf(
+    job_id="jobId",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**job_id:** `str` — Job identifier from a form endpoint.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration. You can pass in configuration such as `chunk_size`, and more to customize the request and response.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
 ## LargeResults
 <details><summary><code>client.large_results.<a href="src/pulse/large_results/client.py">get_large_result</a>(...) -&gt; AsyncHttpResponse[ExtractResultCore]</code></summary>
 <dl>
@@ -1638,12 +2108,18 @@ client.jobs.cancel_job(
 <dl>
 <dd>
 
-Download the full result for a large extraction (70+ pages).
-
-When `/extract` or `GET /job/{jobId}` returns `is_url: true`, fetch
-the complete result from the URL provided.  The URL is single-use:
-after a successful download the resource is deleted and subsequent
+Download the full result for a large extraction. When `/extract`
+or `GET /job/{jobId}` returns `is_url: true`, fetch the complete
+result from the URL provided.  The URL is single-use: after a
+successful download the resource is deleted and subsequent
 requests return 410 Gone.
+
+For form jobs (`/form/detect`, `/form/fill`, `/form/clear`)
+you don't need this endpoint at all — `GET /job/{jobId}`
+already returns the full `FormResult` inline under `result`,
+and the `pdf_url` field points at
+[GET /results/{jobId}/pdf](api:GET/results/{jobId}/pdf) for the
+binary.
 </dd>
 </dl>
 </dd>

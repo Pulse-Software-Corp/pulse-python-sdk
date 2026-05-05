@@ -34,8 +34,8 @@ class RawPipelineClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[PipelineExecuteResponse]:
         """
-        Chain multiple processing steps (extract, schema, split) into a single
-        request with inline configurations. No saved pipeline required.
+        Chain multiple processing steps (extract, schema, split, tables) into a
+        single request with inline configurations. No saved pipeline required.
 
         The `steps` object defines what to run and in what order. Outputs flow
         forward automatically — you never need to pass extraction IDs between
@@ -45,6 +45,8 @@ class RawPipelineClient:
         - `extract` — extract a single document
         - `extract` → `schema` — extract then apply structured schema
         - `extract` → `split` — extract then split into topics
+        - `extract` → `split` → `schema` — extract, split by topic, apply per-topic schemas
+        - `extract` → `tables` — extract then extract structured tables
         - `batch_extract` → `schema` — extract multiple files, combine into one schema output
 
         **Document input:**
@@ -173,8 +175,8 @@ class AsyncRawPipelineClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[PipelineExecuteResponse]:
         """
-        Chain multiple processing steps (extract, schema, split) into a single
-        request with inline configurations. No saved pipeline required.
+        Chain multiple processing steps (extract, schema, split, tables) into a
+        single request with inline configurations. No saved pipeline required.
 
         The `steps` object defines what to run and in what order. Outputs flow
         forward automatically — you never need to pass extraction IDs between
@@ -184,6 +186,8 @@ class AsyncRawPipelineClient:
         - `extract` — extract a single document
         - `extract` → `schema` — extract then apply structured schema
         - `extract` → `split` — extract then split into topics
+        - `extract` → `split` → `schema` — extract, split by topic, apply per-topic schemas
+        - `extract` → `tables` — extract then extract structured tables
         - `batch_extract` → `schema` — extract multiple files, combine into one schema output
 
         **Document input:**

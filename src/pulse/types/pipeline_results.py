@@ -11,6 +11,7 @@ from .pipeline_batch_extract_result import PipelineBatchExtractResult
 from .pipeline_extract_result import PipelineExtractResult
 from .pipeline_schema_result import PipelineSchemaResult
 from .pipeline_split_result import PipelineSplitResult
+from .pipeline_tables_result import PipelineTablesResult
 
 
 class PipelineResults(UncheckedBaseModel):
@@ -38,6 +39,11 @@ class PipelineResults(UncheckedBaseModel):
     split: typing.Optional[PipelineSplitResult] = pydantic.Field(default=None)
     """
     Split step result.
+    """
+
+    tables: typing.Optional[PipelineTablesResult] = pydantic.Field(default=None)
+    """
+    Tables step result.
     """
 
     if IS_PYDANTIC_V2:
