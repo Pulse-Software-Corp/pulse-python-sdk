@@ -12,9 +12,9 @@
     },
     "timeout_in_seconds": "infinity"
   },
-  "originGitCommit": "8b9c267580dc18b180330c42f0afc1b36bd1c129",
+  "originGitCommit": "e3a2f9d067c9901599b12746592ef0a341af714d",
   "originGitCommitIsDirty": false,
   "invokedBy": "ci",
   "ciProvider": "github",
-  "sdkVersion": "1.0.10"
+  "sdkVersion": "1.0.11"
 }
