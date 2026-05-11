@@ -16,13 +16,11 @@ class BatchOutputDestination(UncheckedBaseModel):
     multiple locations.
     """
 
-    s_3_prefix: typing_extensions.Annotated[typing.Optional[str], FieldMetadata(alias="s3_prefix")] = pydantic.Field(
-        default=None
-    )
-    """
-    S3 URI prefix where result JSON files will be written.
-    """
-
+    s_3_prefix: typing_extensions.Annotated[
+        typing.Optional[str],
+        FieldMetadata(alias="s3_prefix"),
+        pydantic.Field(alias="s3_prefix", description="S3 URI prefix where result JSON files will be written."),
+    ] = None
     local_path: typing.Optional[str] = pydantic.Field(default=None)
     """
     Absolute path to a local directory for result JSON files.

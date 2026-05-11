@@ -15,25 +15,22 @@ class PipelineStepBatchExtractConfigSpreadsheet(UncheckedBaseModel):
     """
 
     include_hidden_rows: typing_extensions.Annotated[
-        typing.Optional[bool], FieldMetadata(alias="includeHiddenRows")
-    ] = pydantic.Field(default=None)
-    """
-    Include rows that are hidden in the Excel workbook.
-    """
-
+        typing.Optional[bool],
+        FieldMetadata(alias="includeHiddenRows"),
+        pydantic.Field(alias="includeHiddenRows", description="Include rows that are hidden in the Excel workbook."),
+    ] = None
     include_hidden_cols: typing_extensions.Annotated[
-        typing.Optional[bool], FieldMetadata(alias="includeHiddenCols")
-    ] = pydantic.Field(default=None)
-    """
-    Include columns that are hidden in the Excel workbook.
-    """
-
+        typing.Optional[bool],
+        FieldMetadata(alias="includeHiddenCols"),
+        pydantic.Field(alias="includeHiddenCols", description="Include columns that are hidden in the Excel workbook."),
+    ] = None
     include_hidden_sheets: typing_extensions.Annotated[
-        typing.Optional[bool], FieldMetadata(alias="includeHiddenSheets")
-    ] = pydantic.Field(default=None)
-    """
-    Include sheets that are hidden in the Excel workbook.
-    """
+        typing.Optional[bool],
+        FieldMetadata(alias="includeHiddenSheets"),
+        pydantic.Field(
+            alias="includeHiddenSheets", description="Include sheets that are hidden in the Excel workbook."
+        ),
+    ] = None
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

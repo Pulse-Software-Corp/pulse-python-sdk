@@ -19,12 +19,14 @@ class ExtractOptionsFigureProcessing(UncheckedBaseModel):
     Generate descriptive captions for extracted figures.
     """
 
-    show_images: typing_extensions.Annotated[typing.Optional[bool], FieldMetadata(alias="showImages")] = pydantic.Field(
-        default=None
-    )
-    """
-    Embed base64-encoded images inline in figure tags in the output. Increases response size.
-    """
+    show_images: typing_extensions.Annotated[
+        typing.Optional[bool],
+        FieldMetadata(alias="showImages"),
+        pydantic.Field(
+            alias="showImages",
+            description="Embed base64-encoded images inline in figure tags in the output. Increases response size.",
+        ),
+    ] = None
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

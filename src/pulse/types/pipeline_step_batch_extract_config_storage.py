@@ -19,19 +19,22 @@ class PipelineStepBatchExtractConfigStorage(UncheckedBaseModel):
     Whether to persist extraction artifacts. Set to false for temporary extractions with no storage or database record.
     """
 
-    folder_name: typing_extensions.Annotated[typing.Optional[str], FieldMetadata(alias="folderName")] = pydantic.Field(
-        default=None
-    )
-    """
-    Target folder name to save the extraction to. Creates the folder if it doesn't exist.
-    """
-
-    folder_id: typing_extensions.Annotated[typing.Optional[str], FieldMetadata(alias="folderId")] = pydantic.Field(
-        default=None
-    )
-    """
-    Target folder ID to save the extraction to. Takes precedence over folderName if both are provided.
-    """
+    folder_name: typing_extensions.Annotated[
+        typing.Optional[str],
+        FieldMetadata(alias="folderName"),
+        pydantic.Field(
+            alias="folderName",
+            description="Target folder name to save the extraction to. Creates the folder if it doesn't exist.",
+        ),
+    ] = None
+    folder_id: typing_extensions.Annotated[
+        typing.Optional[str],
+        FieldMetadata(alias="folderId"),
+        pydantic.Field(
+            alias="folderId",
+            description="Target folder ID to save the extraction to. Takes precedence over folderName if both are provided.",
+        ),
+    ] = None
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

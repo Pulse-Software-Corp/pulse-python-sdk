@@ -16,13 +16,14 @@ class BatchInputSource(UncheckedBaseModel):
     `s3_prefix`, `file_urls`, or `files`.
     """
 
-    s_3_prefix: typing_extensions.Annotated[typing.Optional[str], FieldMetadata(alias="s3_prefix")] = pydantic.Field(
-        default=None
-    )
-    """
-    S3 URI prefix (e.g. `s3://bucket/folder/`). All supported files under this prefix will be processed.
-    """
-
+    s_3_prefix: typing_extensions.Annotated[
+        typing.Optional[str],
+        FieldMetadata(alias="s3_prefix"),
+        pydantic.Field(
+            alias="s3_prefix",
+            description="S3 URI prefix (e.g. `s3://bucket/folder/`). All supported files under this prefix will be processed.",
+        ),
+    ] = None
     file_urls: typing.Optional[typing.List[str]] = pydantic.Field(default=None)
     """
     Explicit list of file URLs to download and process.

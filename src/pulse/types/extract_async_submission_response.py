@@ -3,3 +3,6 @@
 from .async_submission_response import AsyncSubmissionResponse
 
 ExtractAsyncSubmissionResponse = AsyncSubmissionResponse
+"""
+**Deprecated** — Use `AsyncSubmissionResponse` instead. This alias is retained so that existing SDK imports continue to work.
+"""

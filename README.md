@@ -10,6 +10,7 @@ The Pulse Python library provides convenient access to the Pulse APIs from Pytho
 - [Installation](#installation)
 - [Reference](#reference)
 - [Usage](#usage)
+- [Environments](#environments)
 - [Async Client](#async-client)
 - [Exception Handling](#exception-handling)
 - [Advanced](#advanced)
@@ -37,9 +38,25 @@ Instantiate and use the client with the following:
 from pulse import Pulse
 
 client = Pulse(
-    api_key="YOUR_API_KEY",
+    api_key="<value>",
 )
-client.extract()
+
+client.form.detect(
+    file="example_file",
+)
+```
+
+## Environments
+
+This SDK allows you to configure different environments for API requests.
+
+```python
+from pulse import Pulse
+from pulse.environment import PulseEnvironment
+
+client = Pulse(
+    environment=PulseEnvironment.DEFAULT,
+)
 ```
 
 ## Async Client
@@ -52,12 +69,14 @@ import asyncio
 from pulse import AsyncPulse
 
 client = AsyncPulse(
-    api_key="YOUR_API_KEY",
+    api_key="<value>",
 )
 
 
 async def main() -> None:
-    await client.extract()
+    await client.form.detect(
+        file="example_file",
+    )
 
 
 asyncio.run(main())
@@ -72,7 +91,7 @@ will be thrown.
 from pulse.core.api_error import ApiError
 
 try:
-    client.extract(...)
+    client.form.detect(...)
 except ApiError as e:
     print(e.status_code)
     print(e.body)
@@ -88,11 +107,10 @@ The `.with_raw_response` property returns a "raw" client that can be used to acc
 ```python
 from pulse import Pulse
 
-client = Pulse(
-    ...,
-)
-response = client.with_raw_response.extract(...)
+client = Pulse(...)
+response = client.form.with_raw_response.detect(...)
 print(response.headers)  # access the response headers
+print(response.status_code)  # access the response status code
 print(response.data)  # access the underlying object
 ```
 
@@ -102,16 +120,26 @@ The SDK is instrumented with automatic retries with exponential backoff. A reque
 as the request is deemed retryable and the number of retry attempts has not grown larger than the configured
 retry limit (default: 2).
 
-A request is deemed retryable when any of the following HTTP status codes is returned:
+Which status codes are retried depends on the `retryStatusCodes` generator configuration:
 
+**`legacy`** (current default): retries on
 - [408](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/408) (Timeout)
+- [409](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/409) (Conflict)
 - [429](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/429) (Too Many Requests)
-- [5XX](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500) (Internal Server Errors)
+- [5XX](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status#server_error_responses) (All server errors, including 500)
+
+**`recommended`**: retries on
+- [408](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/408) (Timeout)
+- [409](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/409) (Conflict)
+- [429](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/429) (Too Many Requests)
+- [502](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/502) (Bad Gateway)
+- [503](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503) (Service Unavailable)
+- [504](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/504) (Gateway Timeout)
 
 Use the `max_retries` request option to configure this behavior.
 
 ```python
-client.extract(..., request_options={
+client.form.detect(..., request_options={
     "max_retries": 1
 })
 ```
@@ -121,17 +149,12 @@ client.extract(..., request_options={
 The SDK defaults to a 60 second timeout. You can configure this with a timeout option at the client or request level.
 
 ```python
-
 from pulse import Pulse
 
-client = Pulse(
-    ...,
-    timeout=20.0,
-)
-
+client = Pulse(..., timeout=20.0)
 
 # Override timeout for a specific method
-client.extract(..., request_options={
+client.form.detect(..., request_options={
     "timeout_in_seconds": 1
 })
 ```

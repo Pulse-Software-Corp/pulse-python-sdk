@@ -29,13 +29,14 @@ class PipelineSteps(UncheckedBaseModel):
     Multi-document parallel extraction step. Provide `file_urls` at the top level and optional `workers` here.
     """
 
-    schema_: typing_extensions.Annotated[typing.Optional[SchemaConfig], FieldMetadata(alias="schema")] = pydantic.Field(
-        default=None
-    )
-    """
-    Structured data extraction step. Same config as `schema_config` in `POST /schema`. Requires `extract` or `batch_extract` before it.
-    """
-
+    schema_: typing_extensions.Annotated[
+        typing.Optional[SchemaConfig],
+        FieldMetadata(alias="schema"),
+        pydantic.Field(
+            alias="schema",
+            description="Structured data extraction step. Same config as `schema_config` in `POST /schema`. Requires `extract` or `batch_extract` before it.",
+        ),
+    ] = None
     split: typing.Optional[SplitConfig] = pydantic.Field(default=None)
     """
     Topic splitting step. Same config as `split_config` in `POST /split`. Requires `extract` or `batch_extract` before it.

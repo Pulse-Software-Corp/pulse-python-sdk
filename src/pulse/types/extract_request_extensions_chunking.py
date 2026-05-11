@@ -16,18 +16,18 @@ class ExtractRequestExtensionsChunking(UncheckedBaseModel):
     """
 
     chunk_types: typing_extensions.Annotated[
-        typing.Optional[typing.List[ExtractRequestExtensionsChunkingChunkTypesItem]], FieldMetadata(alias="chunkTypes")
-    ] = pydantic.Field(default=None)
-    """
-    List of chunking strategies to apply (e.g. `["semantic", "header", "page", "recursive"]`).
-    """
-
-    chunk_size: typing_extensions.Annotated[typing.Optional[int], FieldMetadata(alias="chunkSize")] = pydantic.Field(
-        default=None
-    )
-    """
-    Maximum characters per chunk.
-    """
+        typing.Optional[typing.List[ExtractRequestExtensionsChunkingChunkTypesItem]],
+        FieldMetadata(alias="chunkTypes"),
+        pydantic.Field(
+            alias="chunkTypes",
+            description='List of chunking strategies to apply (e.g. `["semantic", "header", "page", "recursive"]`).',
+        ),
+    ] = None
+    chunk_size: typing_extensions.Annotated[
+        typing.Optional[int],
+        FieldMetadata(alias="chunkSize"),
+        pydantic.Field(alias="chunkSize", description="Maximum characters per chunk."),
+    ] = None
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

@@ -16,12 +16,10 @@ class TopicSchemaConfig(UncheckedBaseModel):
     """
 
     schema_: typing_extensions.Annotated[
-        typing.Optional[typing.Dict[str, typing.Any]], FieldMetadata(alias="schema")
-    ] = pydantic.Field(default=None)
-    """
-    JSON Schema for this topic.
-    """
-
+        typing.Optional[typing.Dict[str, typing.Any]],
+        FieldMetadata(alias="schema"),
+        pydantic.Field(alias="schema", description="JSON Schema for this topic."),
+    ] = None
     schema_prompt: typing.Optional[str] = pydantic.Field(default=None)
     """
     Additional instructions for this topic.

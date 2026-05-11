@@ -1,5 +1,5 @@
 # Reference
-<details><summary><code>client.<a href="src/pulse/client.py">extract</a>(...) -&gt; AsyncHttpResponse[ExtractResponse]</code></summary>
+<details><summary><code>client.<a href="src/pulse/client.py">extract</a>(...) -> ExtractResponse</code></summary>
 <dl>
 <dd>
 
@@ -35,11 +35,16 @@ or the [Batch Processing guide](/batch).
 
 ```python
 from pulse import Pulse
+from pulse.environment import PulseEnvironment
 
 client = Pulse(
-    api_key="YOUR_API_KEY",
+    api_key="<value>",
+    environment=PulseEnvironment.DEFAULT,
 )
-client.extract()
+
+client.extract(
+    file="example_file",
+)
 
 ```
 </dd>
@@ -55,9 +60,7 @@ client.extract()
 <dl>
 <dd>
 
-**file:** `from __future__ import annotations
-
-typing.Optional[core.File]` — See core.File for more documentation
+**file:** `typing.Optional[core.File]` — Document to upload directly. Required unless fileUrl is provided.
     
 </dd>
 </dl>
@@ -129,7 +132,7 @@ typing.Optional[core.File]` — See core.File for more documentation
 <dl>
 <dd>
 
-**async_:** `typing.Optional[bool]` — If true, returns immediately with a job_id for polling via GET /job/{jobId}. Otherwise processes synchronously.
+**async:** `typing.Optional[bool]` — If true, returns immediately with a job_id for polling via GET /job/{jobId}. Otherwise processes synchronously.
     
 </dd>
 </dl>
@@ -237,7 +240,7 @@ typing.Optional[core.File]` — See core.File for more documentation
 </dl>
 </details>
 
-<details><summary><code>client.<a href="src/pulse/client.py">extract_async</a>(...) -&gt; AsyncHttpResponse[AsyncSubmissionResponse]</code></summary>
+<details><summary><code>client.<a href="src/pulse/client.py">extract_async</a>(...) -> AsyncSubmissionResponse</code></summary>
 <dl>
 <dd>
 
@@ -269,11 +272,16 @@ clients can poll for completion status.
 
 ```python
 from pulse import Pulse
+from pulse.environment import PulseEnvironment
 
 client = Pulse(
-    api_key="YOUR_API_KEY",
+    api_key="<value>",
+    environment=PulseEnvironment.DEFAULT,
 )
-client.extract_async()
+
+client.extract_async(
+    file="example_file",
+)
 
 ```
 </dd>
@@ -289,9 +297,7 @@ client.extract_async()
 <dl>
 <dd>
 
-**file:** `from __future__ import annotations
-
-typing.Optional[core.File]` — See core.File for more documentation
+**file:** `typing.Optional[core.File]` — Document to upload directly. Required unless fileUrl is provided.
     
 </dd>
 </dl>
@@ -363,7 +369,7 @@ typing.Optional[core.File]` — See core.File for more documentation
 <dl>
 <dd>
 
-**async_:** `typing.Optional[bool]` — If true, returns immediately with a job_id for polling via GET /job/{jobId}. Otherwise processes synchronously.
+**async:** `typing.Optional[bool]` — If true, returns immediately with a job_id for polling via GET /job/{jobId}. Otherwise processes synchronously.
     
 </dd>
 </dl>
@@ -471,7 +477,7 @@ typing.Optional[core.File]` — See core.File for more documentation
 </dl>
 </details>
 
-<details><summary><code>client.<a href="src/pulse/client.py">split</a>(...) -&gt; AsyncHttpResponse[SplitResponse]</code></summary>
+<details><summary><code>client.<a href="src/pulse/client.py">split</a>(...) -> SplitResponse</code></summary>
 <dl>
 <dd>
 
@@ -510,10 +516,13 @@ or the [Batch Processing guide](/batch).
 
 ```python
 from pulse import Pulse
+from pulse.environment import PulseEnvironment
 
 client = Pulse(
-    api_key="YOUR_API_KEY",
+    api_key="<value>",
+    environment=PulseEnvironment.DEFAULT,
 )
+
 client.split(
     extraction_id="extraction_id",
 )
@@ -556,7 +565,7 @@ client.split(
 <dl>
 <dd>
 
-**async_:** `typing.Optional[bool]` — If true, returns immediately with a job_id for polling via  GET /job/{jobId}. Otherwise processes synchronously.
+**async:** `typing.Optional[bool]` — If true, returns immediately with a job_id for polling via  GET /job/{jobId}. Otherwise processes synchronously.
     
 </dd>
 </dl>
@@ -576,7 +585,7 @@ client.split(
 </dl>
 </details>
 
-<details><summary><code>client.<a href="src/pulse/client.py">schema</a>(...) -&gt; AsyncHttpResponse[SchemaResponse]</code></summary>
+<details><summary><code>client.<a href="src/pulse/client.py">schema</a>(...) -> SchemaResponse</code></summary>
 <dl>
 <dd>
 
@@ -629,10 +638,13 @@ To apply schemas across many extractions or splits at once, see
 
 ```python
 from pulse import Pulse
+from pulse.environment import PulseEnvironment
 
 client = Pulse(
-    api_key="YOUR_API_KEY",
+    api_key="<value>",
+    environment=PulseEnvironment.DEFAULT,
 )
+
 client.schema()
 
 ```
@@ -657,7 +669,7 @@ client.schema()
 <dl>
 <dd>
 
-**extraction_ids:** `typing.Optional[typing.Sequence[str]]` — Explicit list of extraction IDs to combine. The markdown and bounding boxes from all extractions are merged and the schema is applied to the composite content. Citations use `extraction_id-bb_id` format to disambiguate across source documents.
+**extraction_ids:** `typing.Optional[typing.List[str]]` — Explicit list of extraction IDs to combine. The markdown and bounding boxes from all extractions are merged and the schema is applied to the composite content. Citations use `extraction_id-bb_id` format to disambiguate across source documents.
     
 </dd>
 </dl>
@@ -697,7 +709,7 @@ client.schema()
 <dl>
 <dd>
 
-**async_:** `typing.Optional[bool]` — If true, returns immediately with a job_id for polling via  GET /job/{jobId}. Otherwise processes synchronously.
+**async:** `typing.Optional[bool]` — If true, returns immediately with a job_id for polling via  GET /job/{jobId}. Otherwise processes synchronously.
     
 </dd>
 </dl>
@@ -717,7 +729,7 @@ client.schema()
 </dl>
 </details>
 
-<details><summary><code>client.<a href="src/pulse/client.py">download_schema_excel</a>(...) -&gt; typing.AsyncIterator[AsyncHttpResponse[typing.AsyncIterator[bytes]]]</code></summary>
+<details><summary><code>client.<a href="src/pulse/client.py">download_schema_excel</a>(...) -> typing.Iterator[bytes]</code></summary>
 <dl>
 <dd>
 
@@ -748,10 +760,13 @@ that owns the underlying extraction.
 
 ```python
 from pulse import Pulse
+from pulse.environment import PulseEnvironment
 
 client = Pulse(
-    api_key="YOUR_API_KEY",
+    api_key="<value>",
+    environment=PulseEnvironment.DEFAULT,
 )
+
 client.download_schema_excel(
     schema_id="schemaId",
 )
@@ -778,7 +793,7 @@ client.download_schema_excel(
 <dl>
 <dd>
 
-**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration. You can pass in configuration such as `chunk_size`, and more to customize the request and response.
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
 </dl>
@@ -790,7 +805,7 @@ client.download_schema_excel(
 </dl>
 </details>
 
-<details><summary><code>client.<a href="src/pulse/client.py">tables</a>(...) -&gt; AsyncHttpResponse[TablesResponse]</code></summary>
+<details><summary><code>client.<a href="src/pulse/client.py">tables</a>(...) -> TablesResponse</code></summary>
 <dl>
 <dd>
 
@@ -829,10 +844,13 @@ To extract tables from many extractions at once, see
 
 ```python
 from pulse import Pulse
+from pulse.environment import PulseEnvironment
 
 client = Pulse(
-    api_key="YOUR_API_KEY",
+    api_key="<value>",
+    environment=PulseEnvironment.DEFAULT,
 )
+
 client.tables(
     extraction_id="extraction_id",
 )
@@ -867,7 +885,7 @@ client.tables(
 <dl>
 <dd>
 
-**async_:** `typing.Optional[bool]` — When true, returns immediately with a job ID. Poll `GET /job/{tables_id}` for the result.
+**async:** `typing.Optional[bool]` — When true, returns immediately with a job ID. Poll `GET /job/{tables_id}` for the result.
     
 </dd>
 </dl>
@@ -888,7 +906,7 @@ client.tables(
 </details>
 
 ## Form
-<details><summary><code>client.form.<a href="src/pulse/form/client.py">detect</a>(...) -&gt; AsyncHttpResponse[FormResult]</code></summary>
+<details><summary><code>client.form.<a href="src/pulse/form/client.py">detect</a>(...) -> FormResult</code></summary>
 <dl>
 <dd>
 
@@ -948,11 +966,16 @@ feature flag to be enabled for your organization.
 
 ```python
 from pulse import Pulse
+from pulse.environment import PulseEnvironment
 
 client = Pulse(
-    api_key="YOUR_API_KEY",
+    api_key="<value>",
+    environment=PulseEnvironment.DEFAULT,
 )
-client.form.detect()
+
+client.form.detect(
+    file="example_file",
+)
 
 ```
 </dd>
@@ -968,9 +991,7 @@ client.form.detect()
 <dl>
 <dd>
 
-**file:** `from __future__ import annotations
-
-typing.Optional[core.File]` — See core.File for more documentation
+**file:** `typing.Optional[core.File]` — Direct binary upload of the PDF. Mutually exclusive with `file_url` and `form_id`.
     
 </dd>
 </dl>
@@ -1002,7 +1023,7 @@ typing.Optional[core.File]` — See core.File for more documentation
 <dl>
 <dd>
 
-**async_:** `typing.Optional[str]` — Set to `"true"` to run asynchronously and receive `{job_id, status}` immediately.
+**async:** `typing.Optional[str]` — Set to `"true"` to run asynchronously and receive `{job_id, status}` immediately.
     
 </dd>
 </dl>
@@ -1022,7 +1043,7 @@ typing.Optional[core.File]` — See core.File for more documentation
 </dl>
 </details>
 
-<details><summary><code>client.form.<a href="src/pulse/form/client.py">fill</a>(...) -&gt; AsyncHttpResponse[FormResult]</code></summary>
+<details><summary><code>client.form.<a href="src/pulse/form/client.py">fill</a>(...) -> FormResult</code></summary>
 <dl>
 <dd>
 
@@ -1081,11 +1102,15 @@ feature flag to be enabled for your organization.
 
 ```python
 from pulse import Pulse
+from pulse.environment import PulseEnvironment
 
 client = Pulse(
-    api_key="YOUR_API_KEY",
+    api_key="<value>",
+    environment=PulseEnvironment.DEFAULT,
 )
+
 client.form.fill(
+    file="example_file",
     instructions="instructions",
 )
 
@@ -1111,9 +1136,7 @@ client.form.fill(
 <dl>
 <dd>
 
-**file:** `from __future__ import annotations
-
-typing.Optional[core.File]` — See core.File for more documentation
+**file:** `typing.Optional[core.File]` — Direct binary upload of the PDF. Mutually exclusive with `file_url` and `form_id`.
     
 </dd>
 </dl>
@@ -1153,7 +1176,7 @@ typing.Optional[core.File]` — See core.File for more documentation
 <dl>
 <dd>
 
-**async_:** `typing.Optional[str]` — Set to `"true"` to run asynchronously and receive `{job_id, status}` immediately.
+**async:** `typing.Optional[str]` — Set to `"true"` to run asynchronously and receive `{job_id, status}` immediately.
     
 </dd>
 </dl>
@@ -1173,7 +1196,7 @@ typing.Optional[core.File]` — See core.File for more documentation
 </dl>
 </details>
 
-<details><summary><code>client.form.<a href="src/pulse/form/client.py">clear</a>(...) -&gt; AsyncHttpResponse[FormResult]</code></summary>
+<details><summary><code>client.form.<a href="src/pulse/form/client.py">clear</a>(...) -> FormResult</code></summary>
 <dl>
 <dd>
 
@@ -1237,11 +1260,16 @@ feature flag to be enabled for your organization.
 
 ```python
 from pulse import Pulse
+from pulse.environment import PulseEnvironment
 
 client = Pulse(
-    api_key="YOUR_API_KEY",
+    api_key="<value>",
+    environment=PulseEnvironment.DEFAULT,
 )
-client.form.clear()
+
+client.form.clear(
+    file="example_file",
+)
 
 ```
 </dd>
@@ -1257,9 +1285,7 @@ client.form.clear()
 <dl>
 <dd>
 
-**file:** `from __future__ import annotations
-
-typing.Optional[core.File]` — See core.File for more documentation
+**file:** `typing.Optional[core.File]` — Direct binary upload of the PDF. Mutually exclusive with `file_url` and `form_id`.
     
 </dd>
 </dl>
@@ -1307,7 +1333,7 @@ typing.Optional[core.File]` — See core.File for more documentation
 <dl>
 <dd>
 
-**async_:** `typing.Optional[str]` — Set to `"true"` to run asynchronously and receive `{job_id, status}` immediately.
+**async:** `typing.Optional[str]` — Set to `"true"` to run asynchronously and receive `{job_id, status}` immediately.
     
 </dd>
 </dl>
@@ -1328,7 +1354,7 @@ typing.Optional[core.File]` — See core.File for more documentation
 </details>
 
 ## Batch
-<details><summary><code>client.batch.<a href="src/pulse/batch/client.py">extract</a>(...) -&gt; AsyncHttpResponse[BatchExtractResponse]</code></summary>
+<details><summary><code>client.batch.<a href="src/pulse/batch/client.py">extract</a>(...) -> BatchExtractResponse</code></summary>
 <dl>
 <dd>
 
@@ -1366,11 +1392,14 @@ an overview of the batch pipeline.
 <dd>
 
 ```python
-from pulse import BatchInputSource, BatchOutputDestination, Pulse
+from pulse import Pulse, BatchInputSource, BatchOutputDestination
+from pulse.environment import PulseEnvironment
 
 client = Pulse(
-    api_key="YOUR_API_KEY",
+    api_key="<value>",
+    environment=PulseEnvironment.DEFAULT,
 )
+
 client.batch.extract(
     input=BatchInputSource(),
     output=BatchOutputDestination(),
@@ -1434,7 +1463,7 @@ client.batch.extract(
 </dl>
 </details>
 
-<details><summary><code>client.batch.<a href="src/pulse/batch/client.py">schema</a>(...) -&gt; AsyncHttpResponse[BatchSchemaResponse]</code></summary>
+<details><summary><code>client.batch.<a href="src/pulse/batch/client.py">schema</a>(...) -> BatchSchemaResponse</code></summary>
 <dl>
 <dd>
 
@@ -1477,11 +1506,14 @@ pipeline.
 <dd>
 
 ```python
-from pulse import BatchOutputDestination, Pulse
+from pulse import Pulse, BatchOutputDestination
+from pulse.environment import PulseEnvironment
 
 client = Pulse(
-    api_key="YOUR_API_KEY",
+    api_key="<value>",
+    environment=PulseEnvironment.DEFAULT,
 )
+
 client.batch.schema(
     output=BatchOutputDestination(),
 )
@@ -1516,7 +1548,7 @@ client.batch.schema(
 <dl>
 <dd>
 
-**extraction_ids:** `typing.Optional[typing.Sequence[str]]` — Explicit list of extraction IDs (single mode).
+**extraction_ids:** `typing.Optional[typing.List[str]]` — Explicit list of extraction IDs (single mode).
     
 </dd>
 </dl>
@@ -1532,7 +1564,7 @@ client.batch.schema(
 <dl>
 <dd>
 
-**split_ids:** `typing.Optional[typing.Sequence[str]]` — Explicit list of split IDs (split mode).
+**split_ids:** `typing.Optional[typing.List[str]]` — Explicit list of split IDs (split mode).
     
 </dd>
 </dl>
@@ -1584,7 +1616,7 @@ client.batch.schema(
 </dl>
 </details>
 
-<details><summary><code>client.batch.<a href="src/pulse/batch/client.py">tables</a>(...) -&gt; AsyncHttpResponse[BatchTablesResponse]</code></summary>
+<details><summary><code>client.batch.<a href="src/pulse/batch/client.py">tables</a>(...) -> BatchTablesResponse</code></summary>
 <dl>
 <dd>
 
@@ -1623,11 +1655,14 @@ overview of the batch pipeline.
 <dd>
 
 ```python
-from pulse import BatchOutputDestination, Pulse
+from pulse import Pulse, BatchOutputDestination
+from pulse.environment import PulseEnvironment
 
 client = Pulse(
-    api_key="YOUR_API_KEY",
+    api_key="<value>",
+    environment=PulseEnvironment.DEFAULT,
 )
+
 client.batch.tables(
     output=BatchOutputDestination(),
 )
@@ -1662,7 +1697,7 @@ client.batch.tables(
 <dl>
 <dd>
 
-**extraction_ids:** `typing.Optional[typing.Sequence[str]]` — Explicit list of extraction IDs to process.
+**extraction_ids:** `typing.Optional[typing.List[str]]` — Explicit list of extraction IDs to process.
     
 </dd>
 </dl>
@@ -1698,7 +1733,7 @@ client.batch.tables(
 </dl>
 </details>
 
-<details><summary><code>client.batch.<a href="src/pulse/batch/client.py">split</a>(...) -&gt; AsyncHttpResponse[BatchSplitResponse]</code></summary>
+<details><summary><code>client.batch.<a href="src/pulse/batch/client.py">split</a>(...) -> BatchSplitResponse</code></summary>
 <dl>
 <dd>
 
@@ -1737,11 +1772,14 @@ overview of the batch pipeline.
 <dd>
 
 ```python
-from pulse import BatchOutputDestination, Pulse, SplitConfig, TopicDefinition
+from pulse import Pulse, BatchOutputDestination, SplitConfig, TopicDefinition
+from pulse.environment import PulseEnvironment
 
 client = Pulse(
-    api_key="YOUR_API_KEY",
+    api_key="<value>",
+    environment=PulseEnvironment.DEFAULT,
 )
+
 client.batch.split(
     output=BatchOutputDestination(),
     split_config=SplitConfig(
@@ -1791,7 +1829,7 @@ client.batch.split(
 <dl>
 <dd>
 
-**extraction_ids:** `typing.Optional[typing.Sequence[str]]` — Explicit list of extraction IDs to process.
+**extraction_ids:** `typing.Optional[typing.List[str]]` — Explicit list of extraction IDs to process.
     
 </dd>
 </dl>
@@ -1820,7 +1858,7 @@ client.batch.split(
 </details>
 
 ## Pipeline
-<details><summary><code>client.pipeline.<a href="src/pulse/pipeline/client.py">execute</a>(...) -&gt; AsyncHttpResponse[PipelineExecuteResponse]</code></summary>
+<details><summary><code>client.pipeline.<a href="src/pulse/pipeline/client.py">execute</a>(...) -> PipelineExecuteResponse</code></summary>
 <dl>
 <dd>
 
@@ -1873,11 +1911,14 @@ Requires the `enable_adhoc_pipeline` feature flag.
 <dd>
 
 ```python
-from pulse import PipelineSteps, Pulse
+from pulse import Pulse, PipelineSteps
+from pulse.environment import PulseEnvironment
 
 client = Pulse(
-    api_key="YOUR_API_KEY",
+    api_key="<value>",
+    environment=PulseEnvironment.DEFAULT,
 )
+
 client.pipeline.execute(
     steps=PipelineSteps(),
 )
@@ -1912,7 +1953,7 @@ client.pipeline.execute(
 <dl>
 <dd>
 
-**async_:** `typing.Optional[bool]` — If true, returns immediately with a `job_id` for polling via `GET /job/{jobId}`.
+**async:** `typing.Optional[bool]` — If true, returns immediately with a `job_id` for polling via `GET /job/{jobId}`.
     
 </dd>
 </dl>
@@ -1941,7 +1982,7 @@ client.pipeline.execute(
 </details>
 
 ## Jobs
-<details><summary><code>client.jobs.<a href="src/pulse/jobs/client.py">get_job</a>(...) -&gt; AsyncHttpResponse[JobStatusResponse]</code></summary>
+<details><summary><code>client.jobs.<a href="src/pulse/jobs/client.py">get_job</a>(...) -> JobStatusResponse</code></summary>
 <dl>
 <dd>
 
@@ -1970,10 +2011,13 @@ Check the status and retrieve results of an asynchronous job
 
 ```python
 from pulse import Pulse
+from pulse.environment import PulseEnvironment
 
 client = Pulse(
-    api_key="YOUR_API_KEY",
+    api_key="<value>",
+    environment=PulseEnvironment.DEFAULT,
 )
+
 client.jobs.get_job(
     job_id="jobId",
 )
@@ -2012,7 +2056,7 @@ client.jobs.get_job(
 </dl>
 </details>
 
-<details><summary><code>client.jobs.<a href="src/pulse/jobs/client.py">cancel_job</a>(...) -&gt; AsyncHttpResponse[JobCancellationResponse]</code></summary>
+<details><summary><code>client.jobs.<a href="src/pulse/jobs/client.py">cancel_job</a>(...) -> JobCancellationResponse</code></summary>
 <dl>
 <dd>
 
@@ -2041,10 +2085,13 @@ or processing. Jobs that have already completed will remain unchanged.
 
 ```python
 from pulse import Pulse
+from pulse.environment import PulseEnvironment
 
 client = Pulse(
-    api_key="YOUR_API_KEY",
+    api_key="<value>",
+    environment=PulseEnvironment.DEFAULT,
 )
+
 client.jobs.cancel_job(
     job_id="jobId",
 )
@@ -2084,7 +2131,7 @@ client.jobs.cancel_job(
 </details>
 
 ## Results
-<details><summary><code>client.results.<a href="src/pulse/results/client.py">get_pdf</a>(...) -&gt; typing.AsyncIterator[AsyncHttpResponse[typing.AsyncIterator[bytes]]]</code></summary>
+<details><summary><code>client.results.<a href="src/pulse/results/client.py">get_pdf</a>(...) -> typing.Iterator[bytes]</code></summary>
 <dl>
 <dd>
 
@@ -2119,10 +2166,13 @@ form jobs whose PDF artifact is no longer available.
 
 ```python
 from pulse import Pulse
+from pulse.environment import PulseEnvironment
 
 client = Pulse(
-    api_key="YOUR_API_KEY",
+    api_key="<value>",
+    environment=PulseEnvironment.DEFAULT,
 )
+
 client.results.get_pdf(
     job_id="jobId",
 )
@@ -2149,7 +2199,7 @@ client.results.get_pdf(
 <dl>
 <dd>
 
-**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration. You can pass in configuration such as `chunk_size`, and more to customize the request and response.
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
 </dl>
@@ -2162,7 +2212,7 @@ client.results.get_pdf(
 </details>
 
 ## LargeResults
-<details><summary><code>client.large_results.<a href="src/pulse/large_results/client.py">get_large_result</a>(...) -&gt; AsyncHttpResponse[ExtractResultCore]</code></summary>
+<details><summary><code>client.large_results.<a href="src/pulse/large_results/client.py">get_large_result</a>(...) -> ExtractResultCore</code></summary>
 <dl>
 <dd>
 
@@ -2201,10 +2251,13 @@ binary.
 
 ```python
 from pulse import Pulse
+from pulse.environment import PulseEnvironment
 
 client = Pulse(
-    api_key="YOUR_API_KEY",
+    api_key="<value>",
+    environment=PulseEnvironment.DEFAULT,
 )
+
 client.large_results.get_large_result(
     job_id="jobId",
 )
@@ -2244,7 +2297,7 @@ client.large_results.get_large_result(
 </details>
 
 ## Webhooks
-<details><summary><code>client.webhooks.<a href="src/pulse/webhooks/client.py">create_webhook_link</a>() -&gt; AsyncHttpResponse[CreateWebhookLinkResponse]</code></summary>
+<details><summary><code>client.webhooks.<a href="src/pulse/webhooks/client.py">create_webhook_link</a>() -> CreateWebhookLinkResponse</code></summary>
 <dl>
 <dd>
 
@@ -2272,10 +2325,13 @@ Generates a temporary link to the Svix webhook portal where users can manage the
 
 ```python
 from pulse import Pulse
+from pulse.environment import PulseEnvironment
 
 client = Pulse(
-    api_key="YOUR_API_KEY",
+    api_key="<value>",
+    environment=PulseEnvironment.DEFAULT,
 )
+
 client.webhooks.create_webhook_link()
 
 ```

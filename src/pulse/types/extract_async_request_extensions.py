@@ -17,23 +17,25 @@ class ExtractAsyncRequestExtensions(UncheckedBaseModel):
     """
 
     footnote_references: typing_extensions.Annotated[
-        typing.Optional[bool], FieldMetadata(alias="footnoteReferences")
-    ] = pydantic.Field(default=None)
-    """
-    Link footnote markers to their corresponding footnote text.
-    """
-
+        typing.Optional[bool],
+        FieldMetadata(alias="footnoteReferences"),
+        pydantic.Field(
+            alias="footnoteReferences", description="Link footnote markers to their corresponding footnote text."
+        ),
+    ] = None
     chunking: typing.Optional[ExtractAsyncRequestExtensionsChunking] = pydantic.Field(default=None)
     """
     Chunking configuration. When provided, the document is split into chunks using the specified strategies. Results appear in `response.extensions.chunking`.
     """
 
     alt_outputs: typing_extensions.Annotated[
-        typing.Optional[ExtractAsyncRequestExtensionsAltOutputs], FieldMetadata(alias="altOutputs")
-    ] = pydantic.Field(default=None)
-    """
-    Alternate output format options. Each enabled format produces a corresponding field under `response.extensions.altOutputs`.
-    """
+        typing.Optional[ExtractAsyncRequestExtensionsAltOutputs],
+        FieldMetadata(alias="altOutputs"),
+        pydantic.Field(
+            alias="altOutputs",
+            description="Alternate output format options. Each enabled format produces a corresponding field under `response.extensions.altOutputs`.",
+        ),
+    ] = None
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

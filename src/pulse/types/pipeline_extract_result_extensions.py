@@ -27,17 +27,18 @@ class PipelineExtractResultExtensions(UncheckedBaseModel):
     footnote_references: typing_extensions.Annotated[
         typing.Optional[typing.List[PipelineExtractResultExtensionsFootnoteReferencesItem]],
         FieldMetadata(alias="footnoteReferences"),
-    ] = pydantic.Field(default=None)
-    """
-    List of detected footnotes with their in-text references. Present when `extensions.footnoteReferences` was enabled. Each item links a footnote paragraph to the body-text paragraphs that reference it, using bounding-box text IDs.
-    """
-
+        pydantic.Field(
+            alias="footnoteReferences",
+            description="List of detected footnotes with their in-text references. Present when `extensions.footnoteReferences` was enabled. Each item links a footnote paragraph to the body-text paragraphs that reference it, using bounding-box text IDs.",
+        ),
+    ] = None
     alt_outputs: typing_extensions.Annotated[
-        typing.Optional[PipelineExtractResultExtensionsAltOutputs], FieldMetadata(alias="altOutputs")
-    ] = pydantic.Field(default=None)
-    """
-    Alternate output formats. Each key corresponds to an enabled alt output.
-    """
+        typing.Optional[PipelineExtractResultExtensionsAltOutputs],
+        FieldMetadata(alias="altOutputs"),
+        pydantic.Field(
+            alias="altOutputs", description="Alternate output formats. Each key corresponds to an enabled alt output."
+        ),
+    ] = None
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

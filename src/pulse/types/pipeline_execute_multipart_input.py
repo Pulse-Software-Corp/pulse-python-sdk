@@ -14,7 +14,7 @@ class PipelineExecuteMultipartInput(UncheckedBaseModel):
     Multipart form-data request body for ad-hoc pipeline execution. Upload file(s) directly and provide step configs as a JSON string.
     """
 
-    file: typing.Optional[str] = pydantic.Field(default=None)
+    file: typing.Optional[bytes] = pydantic.Field(default=None)
     """
     Document file to upload. For batch_extract, multiple `file` fields can be provided.
     """
@@ -24,13 +24,11 @@ class PipelineExecuteMultipartInput(UncheckedBaseModel):
     JSON string containing the step configurations (same structure as `PipelineSteps`).
     """
 
-    async_: typing_extensions.Annotated[typing.Optional[str], FieldMetadata(alias="async")] = pydantic.Field(
-        default=None
-    )
-    """
-    Set to `"true"` for async execution.
-    """
-
+    async_: typing_extensions.Annotated[
+        typing.Optional[str],
+        FieldMetadata(alias="async"),
+        pydantic.Field(alias="async", description='Set to `"true"` for async execution.'),
+    ] = None
     auto_delete: typing.Optional[str] = pydantic.Field(default=None)
     """
     Set to `"true"` for zero-retention mode.

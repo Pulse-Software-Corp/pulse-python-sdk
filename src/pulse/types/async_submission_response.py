@@ -31,13 +31,14 @@ class AsyncSubmissionResponse(UncheckedBaseModel):
     Human-readable description of the accepted job.
     """
 
-    queued_at: typing_extensions.Annotated[typing.Optional[dt.datetime], FieldMetadata(alias="queuedAt")] = (
-        pydantic.Field(default=None)
-    )
-    """
-    **Deprecated** — Timestamp indicating when the job was accepted. Retained for backward compatibility. Use `GET /job/{jobId}` for timing details.
-    """
-
+    queued_at: typing_extensions.Annotated[
+        typing.Optional[dt.datetime],
+        FieldMetadata(alias="queuedAt"),
+        pydantic.Field(
+            alias="queuedAt",
+            description="**Deprecated** — Timestamp indicating when the job was accepted. Retained for backward compatibility. Use `GET /job/{jobId}` for timing details.",
+        ),
+    ] = None
     credits_used: typing.Optional[float] = pydantic.Field(default=None)
     """
     Number of credits consumed by this request. Only present when the organization has the credit billing system enabled.

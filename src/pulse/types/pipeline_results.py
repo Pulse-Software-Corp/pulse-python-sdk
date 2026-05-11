@@ -29,13 +29,11 @@ class PipelineResults(UncheckedBaseModel):
     Batch extract step result.
     """
 
-    schema_: typing_extensions.Annotated[typing.Optional[PipelineSchemaResult], FieldMetadata(alias="schema")] = (
-        pydantic.Field(default=None)
-    )
-    """
-    Schema step result.
-    """
-
+    schema_: typing_extensions.Annotated[
+        typing.Optional[PipelineSchemaResult],
+        FieldMetadata(alias="schema"),
+        pydantic.Field(alias="schema", description="Schema step result."),
+    ] = None
     split: typing.Optional[PipelineSplitResult] = pydantic.Field(default=None)
     """
     Split step result.

@@ -14,18 +14,16 @@ class StructuredOutputConfig(UncheckedBaseModel):
     Configuration for schema-guided extraction.
     """
 
-    schema_: typing_extensions.Annotated[typing.Dict[str, typing.Any], FieldMetadata(alias="schema")] = pydantic.Field()
-    """
-    JSON Schema defining the structured data to extract.
-    """
-
-    schema_prompt: typing_extensions.Annotated[typing.Optional[str], FieldMetadata(alias="schemaPrompt")] = (
-        pydantic.Field(default=None)
-    )
-    """
-    Natural language instructions for extraction.
-    """
-
+    schema_: typing_extensions.Annotated[
+        typing.Dict[str, typing.Any],
+        FieldMetadata(alias="schema"),
+        pydantic.Field(alias="schema", description="JSON Schema defining the structured data to extract."),
+    ]
+    schema_prompt: typing_extensions.Annotated[
+        typing.Optional[str],
+        FieldMetadata(alias="schemaPrompt"),
+        pydantic.Field(alias="schemaPrompt", description="Natural language instructions for extraction."),
+    ] = None
     effort: typing.Optional[bool] = pydantic.Field(default=None)
     """
     Use higher quality model for better results. When true, uses a more capable model at the cost of higher latency.

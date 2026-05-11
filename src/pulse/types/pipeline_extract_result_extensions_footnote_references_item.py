@@ -15,19 +15,22 @@ class PipelineExtractResultExtensionsFootnoteReferencesItem(UncheckedBaseModel):
     The footnote marker symbol (e.g. "*", "†", "1", "#").
     """
 
-    footnote_text_id: typing_extensions.Annotated[typing.Optional[str], FieldMetadata(alias="footnoteTextId")] = (
-        pydantic.Field(default=None)
-    )
-    """
-    The bounding-box text ID (e.g. "txt-15") of the footnote explanation paragraph.
-    """
-
+    footnote_text_id: typing_extensions.Annotated[
+        typing.Optional[str],
+        FieldMetadata(alias="footnoteTextId"),
+        pydantic.Field(
+            alias="footnoteTextId",
+            description='The bounding-box text ID (e.g. "txt-15") of the footnote explanation paragraph.',
+        ),
+    ] = None
     reference_text_ids: typing_extensions.Annotated[
-        typing.Optional[typing.List[str]], FieldMetadata(alias="referenceTextIds")
-    ] = pydantic.Field(default=None)
-    """
-    Bounding-box text IDs of body-text paragraphs that contain a reference to this footnote marker.
-    """
+        typing.Optional[typing.List[str]],
+        FieldMetadata(alias="referenceTextIds"),
+        pydantic.Field(
+            alias="referenceTextIds",
+            description="Bounding-box text IDs of body-text paragraphs that contain a reference to this footnote marker.",
+        ),
+    ] = None
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

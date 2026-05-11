@@ -21,42 +21,45 @@ class ExtractInput(UncheckedBaseModel):
     Input schema for extraction requests. Provide either file (direct upload) or fileUrl (remote URL).
     """
 
-    file: typing.Optional[str] = pydantic.Field(default=None)
+    file: typing.Optional[bytes] = pydantic.Field(default=None)
     """
     Document to upload directly. Required unless fileUrl is provided.
     """
 
-    file_url: typing_extensions.Annotated[typing.Optional[str], FieldMetadata(alias="fileUrl")] = pydantic.Field(
-        default=None
-    )
-    """
-    Public or pre-signed URL that Pulse will download and extract. Required unless file is provided.
-    """
-
+    file_url: typing_extensions.Annotated[
+        typing.Optional[str],
+        FieldMetadata(alias="fileUrl"),
+        pydantic.Field(
+            alias="fileUrl",
+            description="Public or pre-signed URL that Pulse will download and extract. Required unless file is provided.",
+        ),
+    ] = None
     model: typing.Optional[ExtractInputModel] = pydantic.Field(default=None)
     """
     Extraction model to use. When set to `pulse-ultra-2`, routes the request through Pulse Ultra 2 (self-hosted VPC model) instead of the default cloud-based service. If omitted or set to `default`, the default model is used.
     """
 
     extraction_config_id: typing_extensions.Annotated[
-        typing.Optional[str], FieldMetadata(alias="extractionConfigId")
-    ] = pydantic.Field(default=None)
-    """
-    UUID of a saved extraction configuration (a "preset"). When provided, the server loads the saved configuration and applies its options on top of any inline parameters supplied in this request. Inline parameters always take precedence over preset values for the same field. Saved configs are managed via the platform UI or the `input_extractions` admin endpoints.
-    """
-
+        typing.Optional[str],
+        FieldMetadata(alias="extractionConfigId"),
+        pydantic.Field(
+            alias="extractionConfigId",
+            description='UUID of a saved extraction configuration (a "preset"). When provided, the server loads the saved configuration and applies its options on top of any inline parameters supplied in this request. Inline parameters always take precedence over preset values for the same field. Saved configs are managed via the platform UI or the `input_extractions` admin endpoints.',
+        ),
+    ] = None
     pages: typing.Optional[str] = pydantic.Field(default=None)
     """
     Page range filter supporting segments such as `1-2` or mixed ranges like `1-2,5`.
     """
 
     figure_processing: typing_extensions.Annotated[
-        typing.Optional[ExtractInputFigureProcessing], FieldMetadata(alias="figureProcessing")
-    ] = pydantic.Field(default=None)
-    """
-    Settings that control how figures in the document are processed. These affect the markdown output directly (e.g. figure descriptions, chart-to-table conversion, image embedding) and do not produce additional output fields in the response.
-    """
-
+        typing.Optional[ExtractInputFigureProcessing],
+        FieldMetadata(alias="figureProcessing"),
+        pydantic.Field(
+            alias="figureProcessing",
+            description="Settings that control how figures in the document are processed. These affect the markdown output directly (e.g. figure descriptions, chart-to-table conversion, image embedding) and do not produce additional output fields in the response.",
+        ),
+    ] = None
     extensions: typing.Optional[ExtractInputExtensions] = pydantic.Field(default=None)
     """
     Settings that enable additional processing passes or alternate output formats. Each enabled extension produces a corresponding output field under `response.extensions.*`.
@@ -72,81 +75,90 @@ class ExtractInput(UncheckedBaseModel):
     Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created.
     """
 
-    async_: typing_extensions.Annotated[typing.Optional[bool], FieldMetadata(alias="async")] = pydantic.Field(
-        default=None
-    )
-    """
-    If true, returns immediately with a job_id for polling via GET /job/{jobId}. Otherwise processes synchronously.
-    """
-
+    async_: typing_extensions.Annotated[
+        typing.Optional[bool],
+        FieldMetadata(alias="async"),
+        pydantic.Field(
+            alias="async",
+            description="If true, returns immediately with a job_id for polling via GET /job/{jobId}. Otherwise processes synchronously.",
+        ),
+    ] = None
     structured_output: typing_extensions.Annotated[
-        typing.Optional[ExtractInputStructuredOutput], FieldMetadata(alias="structuredOutput")
-    ] = pydantic.Field(default=None)
-    """
-    **⚠️ DEPRECATED** — Use the `/schema` endpoint after extraction instead. Pass the `extraction_id` from the extract response to `/schema` with your `schema_config`. This parameter still works for backward compatibility but will be removed in a future version.
-    """
-
-    schema_: typing_extensions.Annotated[typing.Optional[ExtractInputSchema], FieldMetadata(alias="schema")] = (
-        pydantic.Field(default=None)
-    )
-    """
-    (Deprecated) JSON schema describing structured data to extract. Use structuredOutput instead. Accepts either a JSON object or a stringified JSON representation.
-    """
-
-    schema_prompt: typing_extensions.Annotated[typing.Optional[str], FieldMetadata(alias="schemaPrompt")] = (
-        pydantic.Field(default=None)
-    )
-    """
-    (Deprecated) Natural language prompt for schema-guided extraction. Use structuredOutput.schemaPrompt instead.
-    """
-
-    custom_prompt: typing_extensions.Annotated[typing.Optional[str], FieldMetadata(alias="customPrompt")] = (
-        pydantic.Field(default=None)
-    )
-    """
-    (Deprecated) Custom instructions that augment the default extraction behaviour. Use `figureProcessing` or `extensions` instead.
-    """
-
+        typing.Optional[ExtractInputStructuredOutput],
+        FieldMetadata(alias="structuredOutput"),
+        pydantic.Field(
+            alias="structuredOutput",
+            description="**⚠️ DEPRECATED** — Use the `/schema` endpoint after extraction instead. Pass the `extraction_id` from the extract response to `/schema` with your `schema_config`. This parameter still works for backward compatibility but will be removed in a future version.",
+        ),
+    ] = None
+    schema_: typing_extensions.Annotated[
+        typing.Optional[ExtractInputSchema],
+        FieldMetadata(alias="schema"),
+        pydantic.Field(
+            alias="schema",
+            description="(Deprecated) JSON schema describing structured data to extract. Use structuredOutput instead. Accepts either a JSON object or a stringified JSON representation.",
+        ),
+    ] = None
+    schema_prompt: typing_extensions.Annotated[
+        typing.Optional[str],
+        FieldMetadata(alias="schemaPrompt"),
+        pydantic.Field(
+            alias="schemaPrompt",
+            description="(Deprecated) Natural language prompt for schema-guided extraction. Use structuredOutput.schemaPrompt instead.",
+        ),
+    ] = None
+    custom_prompt: typing_extensions.Annotated[
+        typing.Optional[str],
+        FieldMetadata(alias="customPrompt"),
+        pydantic.Field(
+            alias="customPrompt",
+            description="(Deprecated) Custom instructions that augment the default extraction behaviour. Use `figureProcessing` or `extensions` instead.",
+        ),
+    ] = None
     chunking: typing.Optional[str] = pydantic.Field(default=None)
     """
     **⚠️ DEPRECATED** — Use `extensions.chunking.chunkTypes` instead. Comma-separated list of chunking strategies to apply (for example `semantic,header,page,recursive`). Still accepted for backward compatibility.
     """
 
-    chunk_size: typing_extensions.Annotated[typing.Optional[int], FieldMetadata(alias="chunkSize")] = pydantic.Field(
-        default=None
-    )
-    """
-    **⚠️ DEPRECATED** — Use `extensions.chunking.chunkSize` instead. Override for maximum characters per chunk when chunking is enabled.
-    """
-
-    extract_figure: typing_extensions.Annotated[typing.Optional[bool], FieldMetadata(alias="extractFigure")] = (
-        pydantic.Field(default=None)
-    )
-    """
-    **⚠️ DEPRECATED** — Toggle to enable figure extraction in results.
-    """
-
-    figure_description: typing_extensions.Annotated[typing.Optional[bool], FieldMetadata(alias="figureDescription")] = (
-        pydantic.Field(default=None)
-    )
-    """
-    **⚠️ DEPRECATED** — Use `figureProcessing.description` instead. Toggle to generate descriptive captions for extracted figures.
-    """
-
-    show_images: typing_extensions.Annotated[typing.Optional[bool], FieldMetadata(alias="showImages")] = pydantic.Field(
-        default=None
-    )
-    """
-    **⚠️ DEPRECATED** — Use `figureProcessing.showImages` instead. Embed base64-encoded images inline in figure tags in the output. Increases response size.
-    """
-
-    return_html: typing_extensions.Annotated[typing.Optional[bool], FieldMetadata(alias="returnHtml")] = pydantic.Field(
-        default=None
-    )
-    """
-    **⚠️ DEPRECATED** — Use `extensions.altOutputs.returnHtml` instead. Whether to include HTML representation alongside markdown in the response.
-    """
-
+    chunk_size: typing_extensions.Annotated[
+        typing.Optional[int],
+        FieldMetadata(alias="chunkSize"),
+        pydantic.Field(
+            alias="chunkSize",
+            description="**⚠️ DEPRECATED** — Use `extensions.chunking.chunkSize` instead. Override for maximum characters per chunk when chunking is enabled.",
+        ),
+    ] = None
+    extract_figure: typing_extensions.Annotated[
+        typing.Optional[bool],
+        FieldMetadata(alias="extractFigure"),
+        pydantic.Field(
+            alias="extractFigure", description="**⚠️ DEPRECATED** — Toggle to enable figure extraction in results."
+        ),
+    ] = None
+    figure_description: typing_extensions.Annotated[
+        typing.Optional[bool],
+        FieldMetadata(alias="figureDescription"),
+        pydantic.Field(
+            alias="figureDescription",
+            description="**⚠️ DEPRECATED** — Use `figureProcessing.description` instead. Toggle to generate descriptive captions for extracted figures.",
+        ),
+    ] = None
+    show_images: typing_extensions.Annotated[
+        typing.Optional[bool],
+        FieldMetadata(alias="showImages"),
+        pydantic.Field(
+            alias="showImages",
+            description="**⚠️ DEPRECATED** — Use `figureProcessing.showImages` instead. Embed base64-encoded images inline in figure tags in the output. Increases response size.",
+        ),
+    ] = None
+    return_html: typing_extensions.Annotated[
+        typing.Optional[bool],
+        FieldMetadata(alias="returnHtml"),
+        pydantic.Field(
+            alias="returnHtml",
+            description="**⚠️ DEPRECATED** — Use `extensions.altOutputs.returnHtml` instead. Whether to include HTML representation alongside markdown in the response.",
+        ),
+    ] = None
     thinking: typing.Optional[bool] = pydantic.Field(default=None)
     """
     (Deprecated) Enables expanded rationale output for debugging.

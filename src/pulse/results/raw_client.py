@@ -7,11 +7,13 @@ from json.decoder import JSONDecodeError
 from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.http_response import AsyncHttpResponse, HttpResponse
-from ..core.jsonable_encoder import jsonable_encoder
+from ..core.jsonable_encoder import encode_path_param
+from ..core.parse_error import ParsingError
 from ..core.request_options import RequestOptions
 from ..core.unchecked_base_model import construct_type
 from ..errors.internal_server_error import InternalServerError
 from ..errors.not_found_error import NotFoundError
+from pydantic import ValidationError
 
 
 class RawResultsClient:
@@ -46,7 +48,7 @@ class RawResultsClient:
             PDF binary (`application/pdf`).
         """
         with self._client_wrapper.httpx_client.stream(
-            f"results/{jsonable_encoder(job_id)}/pdf",
+            f"results/{encode_path_param(job_id)}/pdf",
             method="GET",
             request_options=request_options,
         ) as _response:
@@ -86,6 +88,13 @@ class RawResultsClient:
                     raise ApiError(
                         status_code=_response.status_code, headers=dict(_response.headers), body=_response.text
                     )
+                except ValidationError as e:
+                    raise ParsingError(
+                        status_code=_response.status_code,
+                        headers=dict(_response.headers),
+                        body=_response.json(),
+                        cause=e,
+                    )
                 raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
             yield _stream()
@@ -123,7 +132,7 @@ class AsyncRawResultsClient:
             PDF binary (`application/pdf`).
         """
         async with self._client_wrapper.httpx_client.stream(
-            f"results/{jsonable_encoder(job_id)}/pdf",
+            f"results/{encode_path_param(job_id)}/pdf",
             method="GET",
             request_options=request_options,
         ) as _response:
@@ -163,6 +172,13 @@ class AsyncRawResultsClient:
                 except JSONDecodeError:
                     raise ApiError(
                         status_code=_response.status_code, headers=dict(_response.headers), body=_response.text
+                    )
+                except ValidationError as e:
+                    raise ParsingError(
+                        status_code=_response.status_code,
+                        headers=dict(_response.headers),
+                        body=_response.json(),
+                        cause=e,
                     )
                 raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 

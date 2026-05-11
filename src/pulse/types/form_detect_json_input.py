@@ -30,12 +30,14 @@ class FormDetectJsonInput(UncheckedBaseModel):
     Restrict the operation to a subset of pages. Accepts comma-separated page numbers and ranges, e.g. `"1-3,5"`. Alias: `pages`.
     """
 
-    async_: typing_extensions.Annotated[typing.Optional[bool], FieldMetadata(alias="async")] = pydantic.Field(
-        default=None
-    )
-    """
-    When `true`, the endpoint returns immediately with `{job_id, status: "pending"}` (HTTP 202) and processes the job in the background. Poll [GET /job/{jobId}](api:GET/job/{jobId}) for the result. Default `false` — return the full result inline.
-    """
+    async_: typing_extensions.Annotated[
+        typing.Optional[bool],
+        FieldMetadata(alias="async"),
+        pydantic.Field(
+            alias="async",
+            description='When `true`, the endpoint returns immediately with `{job_id, status: "pending"}` (HTTP 202) and processes the job in the background. Poll [GET /job/{jobId}](api:GET/job/{jobId}) for the result. Default `false` — return the full result inline.',
+        ),
+    ] = None
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

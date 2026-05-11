@@ -157,6 +157,7 @@ if typing.TYPE_CHECKING:
         UnauthorizedError,
     )
     from . import batch, form, jobs, large_results, pipeline, results, webhooks
+    from ._default_clients import DefaultAioHttpClient, DefaultAsyncHttpxClient
     from .client import AsyncPulse, Pulse
     from .environment import PulseEnvironment
     from .version import __version__
@@ -179,6 +180,8 @@ _dynamic_imports: typing.Dict[str, str] = {
     "BatchTablesResponse": ".types",
     "BatchTablesResponseStatus": ".types",
     "CreateWebhookLinkResponse": ".webhooks",
+    "DefaultAioHttpClient": "._default_clients",
+    "DefaultAsyncHttpxClient": "._default_clients",
     "ExtractAsyncRequestExtensions": ".types",
     "ExtractAsyncRequestExtensionsAltOutputs": ".types",
     "ExtractAsyncRequestExtensionsChunking": ".types",
@@ -362,6 +365,8 @@ __all__ = [
     "BatchTablesResponse",
     "BatchTablesResponseStatus",
     "CreateWebhookLinkResponse",
+    "DefaultAioHttpClient",
+    "DefaultAsyncHttpxClient",
     "ExtractAsyncRequestExtensions",
     "ExtractAsyncRequestExtensionsAltOutputs",
     "ExtractAsyncRequestExtensionsChunking",

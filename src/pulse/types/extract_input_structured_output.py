@@ -15,19 +15,17 @@ class ExtractInputStructuredOutput(UncheckedBaseModel):
     """
 
     schema_: typing_extensions.Annotated[
-        typing.Optional[typing.Dict[str, typing.Any]], FieldMetadata(alias="schema")
-    ] = pydantic.Field(default=None)
-    """
-    JSON schema describing the structured data to extract.
-    """
-
-    schema_prompt: typing_extensions.Annotated[typing.Optional[str], FieldMetadata(alias="schemaPrompt")] = (
-        pydantic.Field(default=None)
-    )
-    """
-    Natural language prompt with additional extraction instructions.
-    """
-
+        typing.Optional[typing.Dict[str, typing.Any]],
+        FieldMetadata(alias="schema"),
+        pydantic.Field(alias="schema", description="JSON schema describing the structured data to extract."),
+    ] = None
+    schema_prompt: typing_extensions.Annotated[
+        typing.Optional[str],
+        FieldMetadata(alias="schemaPrompt"),
+        pydantic.Field(
+            alias="schemaPrompt", description="Natural language prompt with additional extraction instructions."
+        ),
+    ] = None
     effort: typing.Optional[bool] = pydantic.Field(default=None)
     """
     Use higher quality model for better results. When true, uses a more capable model at the cost of higher latency.

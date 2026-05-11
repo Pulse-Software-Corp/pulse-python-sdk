@@ -3,3 +3,6 @@
 from .split_result_core import SplitResultCore
 
 SplitResponse = SplitResultCore
+"""
+Result of document splitting with page assignments.
+"""

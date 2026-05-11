@@ -6,7 +6,8 @@ from json.decoder import JSONDecodeError
 from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.http_response import AsyncHttpResponse, HttpResponse
-from ..core.jsonable_encoder import jsonable_encoder
+from ..core.jsonable_encoder import encode_path_param
+from ..core.parse_error import ParsingError
 from ..core.request_options import RequestOptions
 from ..core.unchecked_base_model import construct_type
 from ..errors.forbidden_error import ForbiddenError
@@ -16,6 +17,7 @@ from ..errors.too_many_requests_error import TooManyRequestsError
 from ..errors.unauthorized_error import UnauthorizedError
 from ..types.job_cancellation_response import JobCancellationResponse
 from ..types.job_status_response import JobStatusResponse
+from pydantic import ValidationError
 
 
 class RawJobsClient:
@@ -43,7 +45,7 @@ class RawJobsClient:
             Current job status payload
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"job/{jsonable_encoder(job_id)}",
+            f"job/{encode_path_param(job_id)}",
             method="GET",
             request_options=request_options,
         )
@@ -115,6 +117,10 @@ class RawJobsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def cancel_job(
@@ -138,7 +144,7 @@ class RawJobsClient:
             Job cancellation accepted
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"job/{jsonable_encoder(job_id)}",
+            f"job/{encode_path_param(job_id)}",
             method="DELETE",
             request_options=request_options,
         )
@@ -210,6 +216,10 @@ class RawJobsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
 
@@ -238,7 +248,7 @@ class AsyncRawJobsClient:
             Current job status payload
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"job/{jsonable_encoder(job_id)}",
+            f"job/{encode_path_param(job_id)}",
             method="GET",
             request_options=request_options,
         )
@@ -310,6 +320,10 @@ class AsyncRawJobsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def cancel_job(
@@ -333,7 +347,7 @@ class AsyncRawJobsClient:
             Job cancellation accepted
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"job/{jsonable_encoder(job_id)}",
+            f"job/{encode_path_param(job_id)}",
             method="DELETE",
             request_options=request_options,
         )
@@ -405,4 +419,8 @@ class AsyncRawJobsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)

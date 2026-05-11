@@ -9,7 +9,8 @@ from . import core
 from .core.api_error import ApiError
 from .core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from .core.http_response import AsyncHttpResponse, HttpResponse
-from .core.jsonable_encoder import jsonable_encoder
+from .core.jsonable_encoder import encode_path_param, jsonable_encoder
+from .core.parse_error import ParsingError
 from .core.request_options import RequestOptions
 from .core.serialization import convert_and_respect_annotation_metadata
 from .core.unchecked_base_model import construct_type
@@ -42,6 +43,7 @@ from .types.split_response import SplitResponse
 from .types.tables_config import TablesConfig
 from .types.tables_response import TablesResponse
 from .types.topic_schema_config import TopicSchemaConfig
+from pydantic import ValidationError
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -183,8 +185,8 @@ class RawPulse:
             files={
                 **({"file": file} if file is not None else {}),
                 **(
-                    {"figureProcessing": (None, json.dumps(jsonable_encoder(figureProcessing)), "application/json")}
-                    if figureProcessing is not OMIT
+                    {"figureProcessing": (None, json.dumps(jsonable_encoder(figure_processing)), "application/json")}
+                    if figure_processing is not OMIT
                     else {}
                 ),
                 **(
@@ -203,8 +205,8 @@ class RawPulse:
                     else {}
                 ),
                 **(
-                    {"structuredOutput": (None, json.dumps(jsonable_encoder(structuredOutput)), "application/json")}
-                    if structuredOutput is not OMIT
+                    {"structuredOutput": (None, json.dumps(jsonable_encoder(structured_output)), "application/json")}
+                    if structured_output is not OMIT
                     else {}
                 ),
                 **(
@@ -263,6 +265,10 @@ class RawPulse:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def extract_async(
@@ -393,8 +399,8 @@ class RawPulse:
             files={
                 **({"file": file} if file is not None else {}),
                 **(
-                    {"figureProcessing": (None, json.dumps(jsonable_encoder(figureProcessing)), "application/json")}
-                    if figureProcessing is not OMIT
+                    {"figureProcessing": (None, json.dumps(jsonable_encoder(figure_processing)), "application/json")}
+                    if figure_processing is not OMIT
                     else {}
                 ),
                 **(
@@ -413,8 +419,8 @@ class RawPulse:
                     else {}
                 ),
                 **(
-                    {"structuredOutput": (None, json.dumps(jsonable_encoder(structuredOutput)), "application/json")}
-                    if structuredOutput is not OMIT
+                    {"structuredOutput": (None, json.dumps(jsonable_encoder(structured_output)), "application/json")}
+                    if structured_output is not OMIT
                     else {}
                 ),
                 **(
@@ -473,6 +479,10 @@ class RawPulse:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def split(
@@ -605,6 +615,10 @@ class RawPulse:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def schema(
@@ -768,6 +782,10 @@ class RawPulse:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     @contextlib.contextmanager
@@ -794,7 +812,7 @@ class RawPulse:
             Filled Excel file
         """
         with self._client_wrapper.httpx_client.stream(
-            f"schema/{jsonable_encoder(schema_id)}/excel",
+            f"schema/{encode_path_param(schema_id)}/excel",
             method="GET",
             request_options=request_options,
         ) as _response:
@@ -833,6 +851,13 @@ class RawPulse:
                 except JSONDecodeError:
                     raise ApiError(
                         status_code=_response.status_code, headers=dict(_response.headers), body=_response.text
+                    )
+                except ValidationError as e:
+                    raise ParsingError(
+                        status_code=_response.status_code,
+                        headers=dict(_response.headers),
+                        body=_response.json(),
+                        cause=e,
                     )
                 raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
@@ -974,6 +999,10 @@ class RawPulse:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
 
@@ -1113,8 +1142,8 @@ class AsyncRawPulse:
             files={
                 **({"file": file} if file is not None else {}),
                 **(
-                    {"figureProcessing": (None, json.dumps(jsonable_encoder(figureProcessing)), "application/json")}
-                    if figureProcessing is not OMIT
+                    {"figureProcessing": (None, json.dumps(jsonable_encoder(figure_processing)), "application/json")}
+                    if figure_processing is not OMIT
                     else {}
                 ),
                 **(
@@ -1133,8 +1162,8 @@ class AsyncRawPulse:
                     else {}
                 ),
                 **(
-                    {"structuredOutput": (None, json.dumps(jsonable_encoder(structuredOutput)), "application/json")}
-                    if structuredOutput is not OMIT
+                    {"structuredOutput": (None, json.dumps(jsonable_encoder(structured_output)), "application/json")}
+                    if structured_output is not OMIT
                     else {}
                 ),
                 **(
@@ -1193,6 +1222,10 @@ class AsyncRawPulse:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def extract_async(
@@ -1323,8 +1356,8 @@ class AsyncRawPulse:
             files={
                 **({"file": file} if file is not None else {}),
                 **(
-                    {"figureProcessing": (None, json.dumps(jsonable_encoder(figureProcessing)), "application/json")}
-                    if figureProcessing is not OMIT
+                    {"figureProcessing": (None, json.dumps(jsonable_encoder(figure_processing)), "application/json")}
+                    if figure_processing is not OMIT
                     else {}
                 ),
                 **(
@@ -1343,8 +1376,8 @@ class AsyncRawPulse:
                     else {}
                 ),
                 **(
-                    {"structuredOutput": (None, json.dumps(jsonable_encoder(structuredOutput)), "application/json")}
-                    if structuredOutput is not OMIT
+                    {"structuredOutput": (None, json.dumps(jsonable_encoder(structured_output)), "application/json")}
+                    if structured_output is not OMIT
                     else {}
                 ),
                 **(
@@ -1403,6 +1436,10 @@ class AsyncRawPulse:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def split(
@@ -1535,6 +1572,10 @@ class AsyncRawPulse:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def schema(
@@ -1698,6 +1739,10 @@ class AsyncRawPulse:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     @contextlib.asynccontextmanager
@@ -1724,7 +1769,7 @@ class AsyncRawPulse:
             Filled Excel file
         """
         async with self._client_wrapper.httpx_client.stream(
-            f"schema/{jsonable_encoder(schema_id)}/excel",
+            f"schema/{encode_path_param(schema_id)}/excel",
             method="GET",
             request_options=request_options,
         ) as _response:
@@ -1764,6 +1809,13 @@ class AsyncRawPulse:
                 except JSONDecodeError:
                     raise ApiError(
                         status_code=_response.status_code, headers=dict(_response.headers), body=_response.text
+                    )
+                except ValidationError as e:
+                    raise ParsingError(
+                        status_code=_response.status_code,
+                        headers=dict(_response.headers),
+                        body=_response.json(),
+                        cause=e,
                     )
                 raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
@@ -1905,4 +1957,8 @@ class AsyncRawPulse:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)

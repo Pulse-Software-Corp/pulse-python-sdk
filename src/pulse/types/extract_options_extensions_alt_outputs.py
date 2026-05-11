@@ -19,19 +19,22 @@ class ExtractOptionsExtensionsAltOutputs(UncheckedBaseModel):
     Enable word-level bounding boxes. Runs an additional OCR model to derive bounding boxes for each word. Only applies to PDFs. Results in `response.extensions.altOutputs.wlbb`.
     """
 
-    return_html: typing_extensions.Annotated[typing.Optional[bool], FieldMetadata(alias="returnHtml")] = pydantic.Field(
-        default=None
-    )
-    """
-    Include an HTML representation of the document. When enabled, `response.markdown` is still present and the HTML is available at `response.extensions.altOutputs.html`.
-    """
-
-    return_xml: typing_extensions.Annotated[typing.Optional[bool], FieldMetadata(alias="returnXml")] = pydantic.Field(
-        default=None
-    )
-    """
-    Include an XML representation of the document. Results in `response.extensions.altOutputs.xml`. (Work in progress.)
-    """
+    return_html: typing_extensions.Annotated[
+        typing.Optional[bool],
+        FieldMetadata(alias="returnHtml"),
+        pydantic.Field(
+            alias="returnHtml",
+            description="Include an HTML representation of the document. When enabled, `response.markdown` is still present and the HTML is available at `response.extensions.altOutputs.html`.",
+        ),
+    ] = None
+    return_xml: typing_extensions.Annotated[
+        typing.Optional[bool],
+        FieldMetadata(alias="returnXml"),
+        pydantic.Field(
+            alias="returnXml",
+            description="Include an XML representation of the document. Results in `response.extensions.altOutputs.xml`. (Work in progress.)",
+        ),
+    ] = None
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2
