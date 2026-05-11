@@ -26,6 +26,13 @@ class ExtractOptions(UncheckedBaseModel):
     Extraction model to use. When set to `pulse-ultra-2`, routes the request through Pulse Ultra 2 (self-hosted VPC model) instead of the default cloud-based service. If omitted or set to `default`, the default model is used.
     """
 
+    extraction_config_id: typing_extensions.Annotated[
+        typing.Optional[str], FieldMetadata(alias="extractionConfigId")
+    ] = pydantic.Field(default=None)
+    """
+    UUID of a saved extraction configuration (a "preset"). When provided, the server loads the saved configuration and applies its options on top of any inline parameters supplied in this request. Inline parameters always take precedence over preset values for the same field. Saved configs are managed via the platform UI or the `input_extractions` admin endpoints.
+    """
+
     pages: typing.Optional[str] = pydantic.Field(default=None)
     """
     Page range filter supporting segments such as `1-2` or mixed ranges like `1-2,5`.

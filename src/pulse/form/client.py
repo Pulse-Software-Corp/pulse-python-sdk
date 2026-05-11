@@ -2,9 +2,9 @@
 
 import typing
 
+from .. import core
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.request_options import RequestOptions
-from ..types.form_cell import FormCell
 from ..types.form_result import FormResult
 from .raw_client import AsyncRawFormClient, RawFormClient
 
@@ -30,10 +30,11 @@ class FormClient:
     def detect(
         self,
         *,
-        form_id: typing.Optional[str] = OMIT,
+        file: typing.Optional[core.File] = OMIT,
         file_url: typing.Optional[str] = OMIT,
+        form_id: typing.Optional[str] = OMIT,
         page_range: typing.Optional[str] = OMIT,
-        async_: typing.Optional[bool] = OMIT,
+        async_: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> FormResult:
         """
@@ -49,11 +50,17 @@ class FormClient:
         path and reuse the cached cells.
 
         **Input modes** — provide exactly one of:
-        - `form_id` (JSON) — re-detect cells on a previously stored
-          PDF. Useful when callers want to refresh layout after editing
-          or when chaining detect calls.
-        - `file` (multipart) or `file_url` (JSON or multipart) — start
-          from a raw PDF.
+        - `form_id` — re-detect cells on a previously stored PDF.
+          Useful when callers want to refresh layout after editing or
+          when chaining detect calls.
+        - `file_url` — public or pre-signed URL Pulse will download.
+        - `file` — direct binary upload of the PDF.
+
+        All three input modes ride on the same `multipart/form-data`
+        request body. (Callers sending `Content-Type: application/json`
+        with `form_id` / `file_url` are still accepted server-side for
+        backward compatibility, but the SDKs only model the multipart
+        form.)
 
         Optional `page_range` (alias `pages`, e.g. `"1-3,5"`) restricts
         the operation to a subset of pages.
@@ -67,17 +74,20 @@ class FormClient:
 
         Parameters
         ----------
-        form_id : typing.Optional[str]
-            Re-detect cells on a previously stored PDF (returned by an earlier `/form/detect`, `/form/fill`, or `/form/clear` call). Useful when chaining detect calls or refreshing layout after edits.
+        file : typing.Optional[core.File]
+            See core.File for more documentation
 
         file_url : typing.Optional[str]
-            Public or pre-signed URL of a PDF to detect cells on.
+            Public or pre-signed URL of a PDF Pulse will download. Mutually exclusive with `file` and `form_id`.
+
+        form_id : typing.Optional[str]
+            Reference to a previously processed form. Mutually exclusive with `file` / `file_url`.
 
         page_range : typing.Optional[str]
-            Restrict the operation to a subset of pages. Accepts comma-separated page numbers and ranges, e.g. `"1-3,5"`. Alias: `pages`.
+            Restrict the operation to a subset of pages, e.g. `"1-3,5"`.
 
-        async_ : typing.Optional[bool]
-            When `true`, the endpoint returns immediately with `{job_id, status: "pending"}` (HTTP 202) and processes the job in the background. Poll [GET /job/{jobId}](api:GET/job/{jobId}) for the result. Default `false` — return the full result inline.
+        async_ : typing.Optional[str]
+            Set to `"true"` to run asynchronously and receive `{job_id, status}` immediately.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -97,7 +107,12 @@ class FormClient:
         client.form.detect()
         """
         _response = self._raw_client.detect(
-            form_id=form_id, file_url=file_url, page_range=page_range, async_=async_, request_options=request_options
+            file=file,
+            file_url=file_url,
+            form_id=form_id,
+            page_range=page_range,
+            async_=async_,
+            request_options=request_options,
         )
         return _response.data
 
@@ -105,11 +120,12 @@ class FormClient:
         self,
         *,
         instructions: str,
-        form_id: typing.Optional[str] = OMIT,
+        file: typing.Optional[core.File] = OMIT,
         file_url: typing.Optional[str] = OMIT,
-        form_fields: typing.Optional[typing.Sequence[FormCell]] = OMIT,
+        form_id: typing.Optional[str] = OMIT,
+        form_fields: typing.Optional[str] = OMIT,
         page_range: typing.Optional[str] = OMIT,
-        async_: typing.Optional[bool] = OMIT,
+        async_: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> FormResult:
         """
@@ -119,13 +135,20 @@ class FormClient:
         are rendered as an overlay using detected cells from OCR).
 
         **Input modes** — provide exactly one of:
-        - `form_id` (JSON) — reuse a previously processed form from a
-          prior `/form/detect`, `/form/fill`, or `/form/clear` call.
-          Skips re-detection (fast path); the cached `form_fields` are
+        - `form_id` — reuse a previously processed form from a prior
+          `/form/detect`, `/form/fill`, or `/form/clear` call. Skips
+          re-detection (fast path); the cached `form_fields` are
           reused.
-        - `file` (multipart) or `file_url` (JSON or multipart) — start
-          from a raw PDF. Pulse runs cell detection internally before
-          filling.
+        - `file_url` — public or pre-signed URL of a PDF Pulse will
+          download.
+        - `file` — direct binary upload of the PDF. Pulse runs cell
+          detection internally before filling.
+
+        All three input modes ride on the same `multipart/form-data`
+        request body. (Callers sending `Content-Type: application/json`
+        with `form_id` / `file_url` are still accepted server-side for
+        backward compatibility, but the SDKs only model the multipart
+        form.)
 
         Optional `form_fields` lets callers supply or edit the detected
         cells before filling. Optional `page_range` (alias `pages`,
@@ -142,22 +165,25 @@ class FormClient:
         Parameters
         ----------
         instructions : str
-            Required natural-language description of what to fill into the form (e.g. `"Use John Doe, 123 Main St, born 1990-01-01"`).
+            Required natural-language fill prompt.
 
-        form_id : typing.Optional[str]
-            ID returned by a previous `/form/detect`, `/form/fill`, or `/form/clear` call. Reuses the stored PDF and cached `form_fields` (fast path; skips re-detection).
+        file : typing.Optional[core.File]
+            See core.File for more documentation
 
         file_url : typing.Optional[str]
-            Public or pre-signed URL of a PDF to download and fill.
+            Public or pre-signed URL of a PDF Pulse will download. Mutually exclusive with `file` and `form_id`.
 
-        form_fields : typing.Optional[typing.Sequence[FormCell]]
-            Optional override for the cells used when filling / clearing. When omitted, Pulse uses the cells stored on the referenced `form_id` (fast path) or runs detection on the uploaded PDF. Useful for editing detected cells before filling.
+        form_id : typing.Optional[str]
+            Reference to a previously processed form. Mutually exclusive with `file` / `file_url`.
+
+        form_fields : typing.Optional[str]
+            Optional JSON-encoded array of `FormCell` objects to override detected cells. Multipart bodies must serialise this field as a string.
 
         page_range : typing.Optional[str]
-            Restrict the operation to a subset of pages. Accepts comma-separated page numbers and ranges, e.g. `"1-3,5"`. Alias: `pages`.
+            Restrict the operation to a subset of pages, e.g. `"1-3,5"`.
 
-        async_ : typing.Optional[bool]
-            When `true`, the endpoint returns immediately with `{job_id, status: "pending"}` (HTTP 202) and processes the job in the background. Poll [GET /job/{jobId}](api:GET/job/{jobId}) for the result. Default `false` — return the full result inline.
+        async_ : typing.Optional[str]
+            Set to `"true"` to run asynchronously and receive `{job_id, status}` immediately.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -180,8 +206,9 @@ class FormClient:
         """
         _response = self._raw_client.fill(
             instructions=instructions,
-            form_id=form_id,
+            file=file,
             file_url=file_url,
+            form_id=form_id,
             form_fields=form_fields,
             page_range=page_range,
             async_=async_,
@@ -192,12 +219,13 @@ class FormClient:
     def clear(
         self,
         *,
-        form_id: typing.Optional[str] = OMIT,
+        file: typing.Optional[core.File] = OMIT,
         file_url: typing.Optional[str] = OMIT,
+        form_id: typing.Optional[str] = OMIT,
         instructions: typing.Optional[str] = OMIT,
-        form_fields: typing.Optional[typing.Sequence[FormCell]] = OMIT,
+        form_fields: typing.Optional[str] = OMIT,
         page_range: typing.Optional[str] = OMIT,
-        async_: typing.Optional[bool] = OMIT,
+        async_: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> FormResult:
         """
@@ -208,11 +236,18 @@ class FormClient:
         preserved.
 
         **Input modes** — provide exactly one of:
-        - `form_id` (JSON) — reuse a previously processed form from a
-          prior `/form/detect`, `/form/fill`, or `/form/clear` call
-          (fast path; cached layout reused).
-        - `file` (multipart) or `file_url` (JSON or multipart) — start
-          from a raw PDF.
+        - `form_id` — reuse a previously processed form from a prior
+          `/form/detect`, `/form/fill`, or `/form/clear` call (fast
+          path; cached layout reused).
+        - `file_url` — public or pre-signed URL of a PDF Pulse will
+          download.
+        - `file` — direct binary upload of the PDF.
+
+        All three input modes ride on the same `multipart/form-data`
+        request body. (Callers sending `Content-Type: application/json`
+        with `form_id` / `file_url` are still accepted server-side for
+        backward compatibility, but the SDKs only model the multipart
+        form.)
 
         `instructions` is optional. When omitted, Pulse clears every
         user-filled field deterministically (no LLM call) on AcroForm
@@ -234,23 +269,26 @@ class FormClient:
 
         Parameters
         ----------
-        form_id : typing.Optional[str]
-            ID returned by a previous `/form/detect`, `/form/fill`, or `/form/clear` call (fast path; skips re-detection).
+        file : typing.Optional[core.File]
+            See core.File for more documentation
 
         file_url : typing.Optional[str]
-            Public or pre-signed URL of a PDF to download and clear.
+            Public or pre-signed URL of a PDF Pulse will download. Mutually exclusive with `file` and `form_id`.
+
+        form_id : typing.Optional[str]
+            Reference to a previously processed form. Mutually exclusive with `file` / `file_url`.
 
         instructions : typing.Optional[str]
-            Optional natural-language description of what to clear. When omitted, Pulse clears every user-filled value deterministically (no LLM call) on AcroForm PDFs while preserving the blank form template.
+            Optional natural language description of what to clear. When omitted, Pulse clears everything user-filled deterministically.
 
-        form_fields : typing.Optional[typing.Sequence[FormCell]]
-            Optional override for the cells used when filling / clearing. When omitted, Pulse uses the cells stored on the referenced `form_id` (fast path) or runs detection on the uploaded PDF. Useful for editing detected cells before filling.
+        form_fields : typing.Optional[str]
+            Optional JSON-encoded array of `FormCell` objects to override detected cells. Multipart bodies must serialise this field as a string.
 
         page_range : typing.Optional[str]
-            Restrict the operation to a subset of pages. Accepts comma-separated page numbers and ranges, e.g. `"1-3,5"`. Alias: `pages`.
+            Restrict the operation to a subset of pages, e.g. `"1-3,5"`.
 
-        async_ : typing.Optional[bool]
-            When `true`, the endpoint returns immediately with `{job_id, status: "pending"}` (HTTP 202) and processes the job in the background. Poll [GET /job/{jobId}](api:GET/job/{jobId}) for the result. Default `false` — return the full result inline.
+        async_ : typing.Optional[str]
+            Set to `"true"` to run asynchronously and receive `{job_id, status}` immediately.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -270,8 +308,9 @@ class FormClient:
         client.form.clear()
         """
         _response = self._raw_client.clear(
-            form_id=form_id,
+            file=file,
             file_url=file_url,
+            form_id=form_id,
             instructions=instructions,
             form_fields=form_fields,
             page_range=page_range,
@@ -299,10 +338,11 @@ class AsyncFormClient:
     async def detect(
         self,
         *,
-        form_id: typing.Optional[str] = OMIT,
+        file: typing.Optional[core.File] = OMIT,
         file_url: typing.Optional[str] = OMIT,
+        form_id: typing.Optional[str] = OMIT,
         page_range: typing.Optional[str] = OMIT,
-        async_: typing.Optional[bool] = OMIT,
+        async_: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> FormResult:
         """
@@ -318,11 +358,17 @@ class AsyncFormClient:
         path and reuse the cached cells.
 
         **Input modes** — provide exactly one of:
-        - `form_id` (JSON) — re-detect cells on a previously stored
-          PDF. Useful when callers want to refresh layout after editing
-          or when chaining detect calls.
-        - `file` (multipart) or `file_url` (JSON or multipart) — start
-          from a raw PDF.
+        - `form_id` — re-detect cells on a previously stored PDF.
+          Useful when callers want to refresh layout after editing or
+          when chaining detect calls.
+        - `file_url` — public or pre-signed URL Pulse will download.
+        - `file` — direct binary upload of the PDF.
+
+        All three input modes ride on the same `multipart/form-data`
+        request body. (Callers sending `Content-Type: application/json`
+        with `form_id` / `file_url` are still accepted server-side for
+        backward compatibility, but the SDKs only model the multipart
+        form.)
 
         Optional `page_range` (alias `pages`, e.g. `"1-3,5"`) restricts
         the operation to a subset of pages.
@@ -336,17 +382,20 @@ class AsyncFormClient:
 
         Parameters
         ----------
-        form_id : typing.Optional[str]
-            Re-detect cells on a previously stored PDF (returned by an earlier `/form/detect`, `/form/fill`, or `/form/clear` call). Useful when chaining detect calls or refreshing layout after edits.
+        file : typing.Optional[core.File]
+            See core.File for more documentation
 
         file_url : typing.Optional[str]
-            Public or pre-signed URL of a PDF to detect cells on.
+            Public or pre-signed URL of a PDF Pulse will download. Mutually exclusive with `file` and `form_id`.
+
+        form_id : typing.Optional[str]
+            Reference to a previously processed form. Mutually exclusive with `file` / `file_url`.
 
         page_range : typing.Optional[str]
-            Restrict the operation to a subset of pages. Accepts comma-separated page numbers and ranges, e.g. `"1-3,5"`. Alias: `pages`.
+            Restrict the operation to a subset of pages, e.g. `"1-3,5"`.
 
-        async_ : typing.Optional[bool]
-            When `true`, the endpoint returns immediately with `{job_id, status: "pending"}` (HTTP 202) and processes the job in the background. Poll [GET /job/{jobId}](api:GET/job/{jobId}) for the result. Default `false` — return the full result inline.
+        async_ : typing.Optional[str]
+            Set to `"true"` to run asynchronously and receive `{job_id, status}` immediately.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -374,7 +423,12 @@ class AsyncFormClient:
         asyncio.run(main())
         """
         _response = await self._raw_client.detect(
-            form_id=form_id, file_url=file_url, page_range=page_range, async_=async_, request_options=request_options
+            file=file,
+            file_url=file_url,
+            form_id=form_id,
+            page_range=page_range,
+            async_=async_,
+            request_options=request_options,
         )
         return _response.data
 
@@ -382,11 +436,12 @@ class AsyncFormClient:
         self,
         *,
         instructions: str,
-        form_id: typing.Optional[str] = OMIT,
+        file: typing.Optional[core.File] = OMIT,
         file_url: typing.Optional[str] = OMIT,
-        form_fields: typing.Optional[typing.Sequence[FormCell]] = OMIT,
+        form_id: typing.Optional[str] = OMIT,
+        form_fields: typing.Optional[str] = OMIT,
         page_range: typing.Optional[str] = OMIT,
-        async_: typing.Optional[bool] = OMIT,
+        async_: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> FormResult:
         """
@@ -396,13 +451,20 @@ class AsyncFormClient:
         are rendered as an overlay using detected cells from OCR).
 
         **Input modes** — provide exactly one of:
-        - `form_id` (JSON) — reuse a previously processed form from a
-          prior `/form/detect`, `/form/fill`, or `/form/clear` call.
-          Skips re-detection (fast path); the cached `form_fields` are
+        - `form_id` — reuse a previously processed form from a prior
+          `/form/detect`, `/form/fill`, or `/form/clear` call. Skips
+          re-detection (fast path); the cached `form_fields` are
           reused.
-        - `file` (multipart) or `file_url` (JSON or multipart) — start
-          from a raw PDF. Pulse runs cell detection internally before
-          filling.
+        - `file_url` — public or pre-signed URL of a PDF Pulse will
+          download.
+        - `file` — direct binary upload of the PDF. Pulse runs cell
+          detection internally before filling.
+
+        All three input modes ride on the same `multipart/form-data`
+        request body. (Callers sending `Content-Type: application/json`
+        with `form_id` / `file_url` are still accepted server-side for
+        backward compatibility, but the SDKs only model the multipart
+        form.)
 
         Optional `form_fields` lets callers supply or edit the detected
         cells before filling. Optional `page_range` (alias `pages`,
@@ -419,22 +481,25 @@ class AsyncFormClient:
         Parameters
         ----------
         instructions : str
-            Required natural-language description of what to fill into the form (e.g. `"Use John Doe, 123 Main St, born 1990-01-01"`).
+            Required natural-language fill prompt.
 
-        form_id : typing.Optional[str]
-            ID returned by a previous `/form/detect`, `/form/fill`, or `/form/clear` call. Reuses the stored PDF and cached `form_fields` (fast path; skips re-detection).
+        file : typing.Optional[core.File]
+            See core.File for more documentation
 
         file_url : typing.Optional[str]
-            Public or pre-signed URL of a PDF to download and fill.
+            Public or pre-signed URL of a PDF Pulse will download. Mutually exclusive with `file` and `form_id`.
 
-        form_fields : typing.Optional[typing.Sequence[FormCell]]
-            Optional override for the cells used when filling / clearing. When omitted, Pulse uses the cells stored on the referenced `form_id` (fast path) or runs detection on the uploaded PDF. Useful for editing detected cells before filling.
+        form_id : typing.Optional[str]
+            Reference to a previously processed form. Mutually exclusive with `file` / `file_url`.
+
+        form_fields : typing.Optional[str]
+            Optional JSON-encoded array of `FormCell` objects to override detected cells. Multipart bodies must serialise this field as a string.
 
         page_range : typing.Optional[str]
-            Restrict the operation to a subset of pages. Accepts comma-separated page numbers and ranges, e.g. `"1-3,5"`. Alias: `pages`.
+            Restrict the operation to a subset of pages, e.g. `"1-3,5"`.
 
-        async_ : typing.Optional[bool]
-            When `true`, the endpoint returns immediately with `{job_id, status: "pending"}` (HTTP 202) and processes the job in the background. Poll [GET /job/{jobId}](api:GET/job/{jobId}) for the result. Default `false` — return the full result inline.
+        async_ : typing.Optional[str]
+            Set to `"true"` to run asynchronously and receive `{job_id, status}` immediately.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -465,8 +530,9 @@ class AsyncFormClient:
         """
         _response = await self._raw_client.fill(
             instructions=instructions,
-            form_id=form_id,
+            file=file,
             file_url=file_url,
+            form_id=form_id,
             form_fields=form_fields,
             page_range=page_range,
             async_=async_,
@@ -477,12 +543,13 @@ class AsyncFormClient:
     async def clear(
         self,
         *,
-        form_id: typing.Optional[str] = OMIT,
+        file: typing.Optional[core.File] = OMIT,
         file_url: typing.Optional[str] = OMIT,
+        form_id: typing.Optional[str] = OMIT,
         instructions: typing.Optional[str] = OMIT,
-        form_fields: typing.Optional[typing.Sequence[FormCell]] = OMIT,
+        form_fields: typing.Optional[str] = OMIT,
         page_range: typing.Optional[str] = OMIT,
-        async_: typing.Optional[bool] = OMIT,
+        async_: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> FormResult:
         """
@@ -493,11 +560,18 @@ class AsyncFormClient:
         preserved.
 
         **Input modes** — provide exactly one of:
-        - `form_id` (JSON) — reuse a previously processed form from a
-          prior `/form/detect`, `/form/fill`, or `/form/clear` call
-          (fast path; cached layout reused).
-        - `file` (multipart) or `file_url` (JSON or multipart) — start
-          from a raw PDF.
+        - `form_id` — reuse a previously processed form from a prior
+          `/form/detect`, `/form/fill`, or `/form/clear` call (fast
+          path; cached layout reused).
+        - `file_url` — public or pre-signed URL of a PDF Pulse will
+          download.
+        - `file` — direct binary upload of the PDF.
+
+        All three input modes ride on the same `multipart/form-data`
+        request body. (Callers sending `Content-Type: application/json`
+        with `form_id` / `file_url` are still accepted server-side for
+        backward compatibility, but the SDKs only model the multipart
+        form.)
 
         `instructions` is optional. When omitted, Pulse clears every
         user-filled field deterministically (no LLM call) on AcroForm
@@ -519,23 +593,26 @@ class AsyncFormClient:
 
         Parameters
         ----------
-        form_id : typing.Optional[str]
-            ID returned by a previous `/form/detect`, `/form/fill`, or `/form/clear` call (fast path; skips re-detection).
+        file : typing.Optional[core.File]
+            See core.File for more documentation
 
         file_url : typing.Optional[str]
-            Public or pre-signed URL of a PDF to download and clear.
+            Public or pre-signed URL of a PDF Pulse will download. Mutually exclusive with `file` and `form_id`.
+
+        form_id : typing.Optional[str]
+            Reference to a previously processed form. Mutually exclusive with `file` / `file_url`.
 
         instructions : typing.Optional[str]
-            Optional natural-language description of what to clear. When omitted, Pulse clears every user-filled value deterministically (no LLM call) on AcroForm PDFs while preserving the blank form template.
+            Optional natural language description of what to clear. When omitted, Pulse clears everything user-filled deterministically.
 
-        form_fields : typing.Optional[typing.Sequence[FormCell]]
-            Optional override for the cells used when filling / clearing. When omitted, Pulse uses the cells stored on the referenced `form_id` (fast path) or runs detection on the uploaded PDF. Useful for editing detected cells before filling.
+        form_fields : typing.Optional[str]
+            Optional JSON-encoded array of `FormCell` objects to override detected cells. Multipart bodies must serialise this field as a string.
 
         page_range : typing.Optional[str]
-            Restrict the operation to a subset of pages. Accepts comma-separated page numbers and ranges, e.g. `"1-3,5"`. Alias: `pages`.
+            Restrict the operation to a subset of pages, e.g. `"1-3,5"`.
 
-        async_ : typing.Optional[bool]
-            When `true`, the endpoint returns immediately with `{job_id, status: "pending"}` (HTTP 202) and processes the job in the background. Poll [GET /job/{jobId}](api:GET/job/{jobId}) for the result. Default `false` — return the full result inline.
+        async_ : typing.Optional[str]
+            Set to `"true"` to run asynchronously and receive `{job_id, status}` immediately.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -563,8 +640,9 @@ class AsyncFormClient:
         asyncio.run(main())
         """
         _response = await self._raw_client.clear(
-            form_id=form_id,
+            file=file,
             file_url=file_url,
+            form_id=form_id,
             instructions=instructions,
             form_fields=form_fields,
             page_range=page_range,

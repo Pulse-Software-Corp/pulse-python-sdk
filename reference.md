@@ -81,6 +81,14 @@ typing.Optional[core.File]` — See core.File for more documentation
 <dl>
 <dd>
 
+**extraction_config_id:** `typing.Optional[str]` — UUID of a saved extraction configuration (a "preset"). When provided, the server loads the saved configuration and applies its options on top of any inline parameters supplied in this request. Inline parameters always take precedence over preset values for the same field. Saved configs are managed via the platform UI or the `input_extractions` admin endpoints.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
 **pages:** `typing.Optional[str]` — Page range filter supporting segments such as `1-2` or mixed ranges like `1-2,5`.
     
 </dd>
@@ -300,6 +308,14 @@ typing.Optional[core.File]` — See core.File for more documentation
 <dd>
 
 **model:** `typing.Optional[ExtractAsyncRequestModel]` — Extraction model to use. When set to `pulse-ultra-2`, routes the request through Pulse Ultra 2 (self-hosted VPC model) instead of the default cloud-based service. If omitted or set to `default`, the default model is used.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**extraction_config_id:** `typing.Optional[str]` — UUID of a saved extraction configuration (a "preset"). When provided, the server loads the saved configuration and applies its options on top of any inline parameters supplied in this request. Inline parameters always take precedence over preset values for the same field. Saved configs are managed via the platform UI or the `input_extractions` admin endpoints.
     
 </dd>
 </dl>
@@ -896,11 +912,17 @@ single input source — Pulse will skip detection on the fast
 path and reuse the cached cells.
 
 **Input modes** — provide exactly one of:
-- `form_id` (JSON) — re-detect cells on a previously stored
-  PDF. Useful when callers want to refresh layout after editing
-  or when chaining detect calls.
-- `file` (multipart) or `file_url` (JSON or multipart) — start
-  from a raw PDF.
+- `form_id` — re-detect cells on a previously stored PDF.
+  Useful when callers want to refresh layout after editing or
+  when chaining detect calls.
+- `file_url` — public or pre-signed URL Pulse will download.
+- `file` — direct binary upload of the PDF.
+
+All three input modes ride on the same `multipart/form-data`
+request body. (Callers sending `Content-Type: application/json`
+with `form_id` / `file_url` are still accepted server-side for
+backward compatibility, but the SDKs only model the multipart
+form.)
 
 Optional `page_range` (alias `pages`, e.g. `"1-3,5"`) restricts
 the operation to a subset of pages.
@@ -946,7 +968,9 @@ client.form.detect()
 <dl>
 <dd>
 
-**form_id:** `typing.Optional[str]` — Re-detect cells on a previously stored PDF (returned by an earlier `/form/detect`, `/form/fill`, or `/form/clear` call). Useful when chaining detect calls or refreshing layout after edits.
+**file:** `from __future__ import annotations
+
+typing.Optional[core.File]` — See core.File for more documentation
     
 </dd>
 </dl>
@@ -954,7 +978,7 @@ client.form.detect()
 <dl>
 <dd>
 
-**file_url:** `typing.Optional[str]` — Public or pre-signed URL of a PDF to detect cells on.
+**file_url:** `typing.Optional[str]` — Public or pre-signed URL of a PDF Pulse will download. Mutually exclusive with `file` and `form_id`.
     
 </dd>
 </dl>
@@ -962,7 +986,7 @@ client.form.detect()
 <dl>
 <dd>
 
-**page_range:** `typing.Optional[str]` — Restrict the operation to a subset of pages. Accepts comma-separated page numbers and ranges, e.g. `"1-3,5"`. Alias: `pages`.
+**form_id:** `typing.Optional[str]` — Reference to a previously processed form. Mutually exclusive with `file` / `file_url`.
     
 </dd>
 </dl>
@@ -970,7 +994,15 @@ client.form.detect()
 <dl>
 <dd>
 
-**async_:** `typing.Optional[bool]` — When `true`, the endpoint returns immediately with `{job_id, status: "pending"}` (HTTP 202) and processes the job in the background. Poll [GET /job/{jobId}](api:GET/job/{jobId}) for the result. Default `false` — return the full result inline.
+**page_range:** `typing.Optional[str]` — Restrict the operation to a subset of pages, e.g. `"1-3,5"`.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**async_:** `typing.Optional[str]` — Set to `"true"` to run asynchronously and receive `{job_id, status}` immediately.
     
 </dd>
 </dl>
@@ -1008,13 +1040,20 @@ language `instructions` prompt. Works on both AcroForm PDFs
 are rendered as an overlay using detected cells from OCR).
 
 **Input modes** — provide exactly one of:
-- `form_id` (JSON) — reuse a previously processed form from a
-  prior `/form/detect`, `/form/fill`, or `/form/clear` call.
-  Skips re-detection (fast path); the cached `form_fields` are
+- `form_id` — reuse a previously processed form from a prior
+  `/form/detect`, `/form/fill`, or `/form/clear` call. Skips
+  re-detection (fast path); the cached `form_fields` are
   reused.
-- `file` (multipart) or `file_url` (JSON or multipart) — start
-  from a raw PDF. Pulse runs cell detection internally before
-  filling.
+- `file_url` — public or pre-signed URL of a PDF Pulse will
+  download.
+- `file` — direct binary upload of the PDF. Pulse runs cell
+  detection internally before filling.
+
+All three input modes ride on the same `multipart/form-data`
+request body. (Callers sending `Content-Type: application/json`
+with `form_id` / `file_url` are still accepted server-side for
+backward compatibility, but the SDKs only model the multipart
+form.)
 
 Optional `form_fields` lets callers supply or edit the detected
 cells before filling. Optional `page_range` (alias `pages`,
@@ -1064,7 +1103,7 @@ client.form.fill(
 <dl>
 <dd>
 
-**instructions:** `str` — Required natural-language description of what to fill into the form (e.g. `"Use John Doe, 123 Main St, born 1990-01-01"`).
+**instructions:** `str` — Required natural-language fill prompt.
     
 </dd>
 </dl>
@@ -1072,7 +1111,9 @@ client.form.fill(
 <dl>
 <dd>
 
-**form_id:** `typing.Optional[str]` — ID returned by a previous `/form/detect`, `/form/fill`, or `/form/clear` call. Reuses the stored PDF and cached `form_fields` (fast path; skips re-detection).
+**file:** `from __future__ import annotations
+
+typing.Optional[core.File]` — See core.File for more documentation
     
 </dd>
 </dl>
@@ -1080,7 +1121,7 @@ client.form.fill(
 <dl>
 <dd>
 
-**file_url:** `typing.Optional[str]` — Public or pre-signed URL of a PDF to download and fill.
+**file_url:** `typing.Optional[str]` — Public or pre-signed URL of a PDF Pulse will download. Mutually exclusive with `file` and `form_id`.
     
 </dd>
 </dl>
@@ -1088,7 +1129,7 @@ client.form.fill(
 <dl>
 <dd>
 
-**form_fields:** `typing.Optional[typing.Sequence[FormCell]]` — Optional override for the cells used when filling / clearing. When omitted, Pulse uses the cells stored on the referenced `form_id` (fast path) or runs detection on the uploaded PDF. Useful for editing detected cells before filling.
+**form_id:** `typing.Optional[str]` — Reference to a previously processed form. Mutually exclusive with `file` / `file_url`.
     
 </dd>
 </dl>
@@ -1096,7 +1137,7 @@ client.form.fill(
 <dl>
 <dd>
 
-**page_range:** `typing.Optional[str]` — Restrict the operation to a subset of pages. Accepts comma-separated page numbers and ranges, e.g. `"1-3,5"`. Alias: `pages`.
+**form_fields:** `typing.Optional[str]` — Optional JSON-encoded array of `FormCell` objects to override detected cells. Multipart bodies must serialise this field as a string.
     
 </dd>
 </dl>
@@ -1104,7 +1145,15 @@ client.form.fill(
 <dl>
 <dd>
 
-**async_:** `typing.Optional[bool]` — When `true`, the endpoint returns immediately with `{job_id, status: "pending"}` (HTTP 202) and processes the job in the background. Poll [GET /job/{jobId}](api:GET/job/{jobId}) for the result. Default `false` — return the full result inline.
+**page_range:** `typing.Optional[str]` — Restrict the operation to a subset of pages, e.g. `"1-3,5"`.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**async_:** `typing.Optional[str]` — Set to `"true"` to run asynchronously and receive `{job_id, status}` immediately.
     
 </dd>
 </dl>
@@ -1143,11 +1192,18 @@ titles, section headers, and other static template content are
 preserved.
 
 **Input modes** — provide exactly one of:
-- `form_id` (JSON) — reuse a previously processed form from a
-  prior `/form/detect`, `/form/fill`, or `/form/clear` call
-  (fast path; cached layout reused).
-- `file` (multipart) or `file_url` (JSON or multipart) — start
-  from a raw PDF.
+- `form_id` — reuse a previously processed form from a prior
+  `/form/detect`, `/form/fill`, or `/form/clear` call (fast
+  path; cached layout reused).
+- `file_url` — public or pre-signed URL of a PDF Pulse will
+  download.
+- `file` — direct binary upload of the PDF.
+
+All three input modes ride on the same `multipart/form-data`
+request body. (Callers sending `Content-Type: application/json`
+with `form_id` / `file_url` are still accepted server-side for
+backward compatibility, but the SDKs only model the multipart
+form.)
 
 `instructions` is optional. When omitted, Pulse clears every
 user-filled field deterministically (no LLM call) on AcroForm
@@ -1201,7 +1257,9 @@ client.form.clear()
 <dl>
 <dd>
 
-**form_id:** `typing.Optional[str]` — ID returned by a previous `/form/detect`, `/form/fill`, or `/form/clear` call (fast path; skips re-detection).
+**file:** `from __future__ import annotations
+
+typing.Optional[core.File]` — See core.File for more documentation
     
 </dd>
 </dl>
@@ -1209,7 +1267,7 @@ client.form.clear()
 <dl>
 <dd>
 
-**file_url:** `typing.Optional[str]` — Public or pre-signed URL of a PDF to download and clear.
+**file_url:** `typing.Optional[str]` — Public or pre-signed URL of a PDF Pulse will download. Mutually exclusive with `file` and `form_id`.
     
 </dd>
 </dl>
@@ -1217,7 +1275,7 @@ client.form.clear()
 <dl>
 <dd>
 
-**instructions:** `typing.Optional[str]` — Optional natural-language description of what to clear. When omitted, Pulse clears every user-filled value deterministically (no LLM call) on AcroForm PDFs while preserving the blank form template.
+**form_id:** `typing.Optional[str]` — Reference to a previously processed form. Mutually exclusive with `file` / `file_url`.
     
 </dd>
 </dl>
@@ -1225,7 +1283,7 @@ client.form.clear()
 <dl>
 <dd>
 
-**form_fields:** `typing.Optional[typing.Sequence[FormCell]]` — Optional override for the cells used when filling / clearing. When omitted, Pulse uses the cells stored on the referenced `form_id` (fast path) or runs detection on the uploaded PDF. Useful for editing detected cells before filling.
+**instructions:** `typing.Optional[str]` — Optional natural language description of what to clear. When omitted, Pulse clears everything user-filled deterministically.
     
 </dd>
 </dl>
@@ -1233,7 +1291,7 @@ client.form.clear()
 <dl>
 <dd>
 
-**page_range:** `typing.Optional[str]` — Restrict the operation to a subset of pages. Accepts comma-separated page numbers and ranges, e.g. `"1-3,5"`. Alias: `pages`.
+**form_fields:** `typing.Optional[str]` — Optional JSON-encoded array of `FormCell` objects to override detected cells. Multipart bodies must serialise this field as a string.
     
 </dd>
 </dl>
@@ -1241,7 +1299,15 @@ client.form.clear()
 <dl>
 <dd>
 
-**async_:** `typing.Optional[bool]` — When `true`, the endpoint returns immediately with `{job_id, status: "pending"}` (HTTP 202) and processes the job in the background. Poll [GET /job/{jobId}](api:GET/job/{jobId}) for the result. Default `false` — return the full result inline.
+**page_range:** `typing.Optional[str]` — Restrict the operation to a subset of pages, e.g. `"1-3,5"`.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**async_:** `typing.Optional[str]` — Set to `"true"` to run asynchronously and receive `{job_id, status}` immediately.
     
 </dd>
 </dl>

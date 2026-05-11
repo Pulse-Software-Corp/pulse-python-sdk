@@ -141,6 +141,7 @@ class Pulse:
         file: typing.Optional[core.File] = OMIT,
         file_url: typing.Optional[str] = OMIT,
         model: typing.Optional[ExtractRequestModel] = OMIT,
+        extraction_config_id: typing.Optional[str] = OMIT,
         pages: typing.Optional[str] = OMIT,
         figure_processing: typing.Optional[ExtractRequestFigureProcessing] = OMIT,
         extensions: typing.Optional[ExtractRequestExtensions] = OMIT,
@@ -181,6 +182,9 @@ class Pulse:
 
         model : typing.Optional[ExtractRequestModel]
             Extraction model to use. When set to `pulse-ultra-2`, routes the request through Pulse Ultra 2 (self-hosted VPC model) instead of the default cloud-based service. If omitted or set to `default`, the default model is used.
+
+        extraction_config_id : typing.Optional[str]
+            UUID of a saved extraction configuration (a "preset"). When provided, the server loads the saved configuration and applies its options on top of any inline parameters supplied in this request. Inline parameters always take precedence over preset values for the same field. Saved configs are managed via the platform UI or the `input_extractions` admin endpoints.
 
         pages : typing.Optional[str]
             Page range filter supporting segments such as `1-2` or mixed ranges like `1-2,5`.
@@ -254,6 +258,7 @@ class Pulse:
             file=file,
             file_url=file_url,
             model=model,
+            extraction_config_id=extraction_config_id,
             pages=pages,
             figure_processing=figure_processing,
             extensions=extensions,
@@ -281,6 +286,7 @@ class Pulse:
         file: typing.Optional[core.File] = OMIT,
         file_url: typing.Optional[str] = OMIT,
         model: typing.Optional[ExtractAsyncRequestModel] = OMIT,
+        extraction_config_id: typing.Optional[str] = OMIT,
         pages: typing.Optional[str] = OMIT,
         figure_processing: typing.Optional[ExtractAsyncRequestFigureProcessing] = OMIT,
         extensions: typing.Optional[ExtractAsyncRequestExtensions] = OMIT,
@@ -317,6 +323,9 @@ class Pulse:
 
         model : typing.Optional[ExtractAsyncRequestModel]
             Extraction model to use. When set to `pulse-ultra-2`, routes the request through Pulse Ultra 2 (self-hosted VPC model) instead of the default cloud-based service. If omitted or set to `default`, the default model is used.
+
+        extraction_config_id : typing.Optional[str]
+            UUID of a saved extraction configuration (a "preset"). When provided, the server loads the saved configuration and applies its options on top of any inline parameters supplied in this request. Inline parameters always take precedence over preset values for the same field. Saved configs are managed via the platform UI or the `input_extractions` admin endpoints.
 
         pages : typing.Optional[str]
             Page range filter supporting segments such as `1-2` or mixed ranges like `1-2,5`.
@@ -390,6 +399,7 @@ class Pulse:
             file=file,
             file_url=file_url,
             model=model,
+            extraction_config_id=extraction_config_id,
             pages=pages,
             figure_processing=figure_processing,
             extensions=extensions,
@@ -811,6 +821,7 @@ class AsyncPulse:
         file: typing.Optional[core.File] = OMIT,
         file_url: typing.Optional[str] = OMIT,
         model: typing.Optional[ExtractRequestModel] = OMIT,
+        extraction_config_id: typing.Optional[str] = OMIT,
         pages: typing.Optional[str] = OMIT,
         figure_processing: typing.Optional[ExtractRequestFigureProcessing] = OMIT,
         extensions: typing.Optional[ExtractRequestExtensions] = OMIT,
@@ -851,6 +862,9 @@ class AsyncPulse:
 
         model : typing.Optional[ExtractRequestModel]
             Extraction model to use. When set to `pulse-ultra-2`, routes the request through Pulse Ultra 2 (self-hosted VPC model) instead of the default cloud-based service. If omitted or set to `default`, the default model is used.
+
+        extraction_config_id : typing.Optional[str]
+            UUID of a saved extraction configuration (a "preset"). When provided, the server loads the saved configuration and applies its options on top of any inline parameters supplied in this request. Inline parameters always take precedence over preset values for the same field. Saved configs are managed via the platform UI or the `input_extractions` admin endpoints.
 
         pages : typing.Optional[str]
             Page range filter supporting segments such as `1-2` or mixed ranges like `1-2,5`.
@@ -932,6 +946,7 @@ class AsyncPulse:
             file=file,
             file_url=file_url,
             model=model,
+            extraction_config_id=extraction_config_id,
             pages=pages,
             figure_processing=figure_processing,
             extensions=extensions,
@@ -959,6 +974,7 @@ class AsyncPulse:
         file: typing.Optional[core.File] = OMIT,
         file_url: typing.Optional[str] = OMIT,
         model: typing.Optional[ExtractAsyncRequestModel] = OMIT,
+        extraction_config_id: typing.Optional[str] = OMIT,
         pages: typing.Optional[str] = OMIT,
         figure_processing: typing.Optional[ExtractAsyncRequestFigureProcessing] = OMIT,
         extensions: typing.Optional[ExtractAsyncRequestExtensions] = OMIT,
@@ -995,6 +1011,9 @@ class AsyncPulse:
 
         model : typing.Optional[ExtractAsyncRequestModel]
             Extraction model to use. When set to `pulse-ultra-2`, routes the request through Pulse Ultra 2 (self-hosted VPC model) instead of the default cloud-based service. If omitted or set to `default`, the default model is used.
+
+        extraction_config_id : typing.Optional[str]
+            UUID of a saved extraction configuration (a "preset"). When provided, the server loads the saved configuration and applies its options on top of any inline parameters supplied in this request. Inline parameters always take precedence over preset values for the same field. Saved configs are managed via the platform UI or the `input_extractions` admin endpoints.
 
         pages : typing.Optional[str]
             Page range filter supporting segments such as `1-2` or mixed ranges like `1-2,5`.
@@ -1076,6 +1095,7 @@ class AsyncPulse:
             file=file,
             file_url=file_url,
             model=model,
+            extraction_config_id=extraction_config_id,
             pages=pages,
             figure_processing=figure_processing,
             extensions=extensions,

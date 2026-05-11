@@ -94,9 +94,9 @@ if typing.TYPE_CHECKING:
     from .form_cell import FormCell
     from .form_cell_type import FormCellType
     from .form_checkbox_detail import FormCheckboxDetail
-    from .form_clear_multipart_input import FormClearMultipartInput
-    from .form_detect_multipart_input import FormDetectMultipartInput
-    from .form_fill_multipart_input import FormFillMultipartInput
+    from .form_clear_json_input import FormClearJsonInput
+    from .form_detect_json_input import FormDetectJsonInput
+    from .form_fill_json_input import FormFillJsonInput
     from .form_fill_shared_options import FormFillSharedOptions
     from .form_plan_info import FormPlanInfo
     from .form_result import FormResult
@@ -242,9 +242,9 @@ _dynamic_imports: typing.Dict[str, str] = {
     "FormCell": ".form_cell",
     "FormCellType": ".form_cell_type",
     "FormCheckboxDetail": ".form_checkbox_detail",
-    "FormClearMultipartInput": ".form_clear_multipart_input",
-    "FormDetectMultipartInput": ".form_detect_multipart_input",
-    "FormFillMultipartInput": ".form_fill_multipart_input",
+    "FormClearJsonInput": ".form_clear_json_input",
+    "FormDetectJsonInput": ".form_detect_json_input",
+    "FormFillJsonInput": ".form_fill_json_input",
     "FormFillSharedOptions": ".form_fill_shared_options",
     "FormPlanInfo": ".form_plan_info",
     "FormResult": ".form_result",
@@ -406,9 +406,9 @@ __all__ = [
     "FormCell",
     "FormCellType",
     "FormCheckboxDetail",
-    "FormClearMultipartInput",
-    "FormDetectMultipartInput",
-    "FormFillMultipartInput",
+    "FormClearJsonInput",
+    "FormDetectJsonInput",
+    "FormFillJsonInput",
     "FormFillSharedOptions",
     "FormPlanInfo",
     "FormResult",
