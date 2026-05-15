@@ -20,6 +20,12 @@ if typing.TYPE_CHECKING:
     from .batch_split_response_status import BatchSplitResponseStatus
     from .batch_tables_response import BatchTablesResponse
     from .batch_tables_response_status import BatchTablesResponseStatus
+    from .bounding_box_image import BoundingBoxImage
+    from .bounding_box_image_classification import BoundingBoxImageClassification
+    from .bounding_box_item import BoundingBoxItem
+    from .bounding_box_table import BoundingBoxTable
+    from .bounding_box_table_table_info import BoundingBoxTableTableInfo
+    from .bounding_boxes import BoundingBoxes
     from .extract_async_request_extensions import ExtractAsyncRequestExtensions
     from .extract_async_request_extensions_alt_outputs import ExtractAsyncRequestExtensionsAltOutputs
     from .extract_async_request_extensions_chunking import ExtractAsyncRequestExtensionsChunking
@@ -45,7 +51,6 @@ if typing.TYPE_CHECKING:
     from .extract_input_storage import ExtractInputStorage
     from .extract_input_structured_output import ExtractInputStructuredOutput
     from .extract_large_result_response import ExtractLargeResultResponse
-    from .extract_large_result_response_plan_info import ExtractLargeResultResponsePlanInfo
     from .extract_options import ExtractOptions
     from .extract_options_extensions import ExtractOptionsExtensions
     from .extract_options_extensions_alt_outputs import ExtractOptionsExtensionsAltOutputs
@@ -77,7 +82,6 @@ if typing.TYPE_CHECKING:
     )
     from .extract_response_extensions_chunking import ExtractResponseExtensionsChunking
     from .extract_response_extensions_footnote_references_item import ExtractResponseExtensionsFootnoteReferencesItem
-    from .extract_response_plan_info import ExtractResponsePlanInfo
     from .extract_result_core import ExtractResultCore
     from .extract_result_core_extensions import ExtractResultCoreExtensions
     from .extract_result_core_extensions_alt_outputs import ExtractResultCoreExtensionsAltOutputs
@@ -89,7 +93,6 @@ if typing.TYPE_CHECKING:
     from .extract_result_core_extensions_footnote_references_item import (
         ExtractResultCoreExtensionsFootnoteReferencesItem,
     )
-    from .extract_result_core_plan_info import ExtractResultCorePlanInfo
     from .extract_source import ExtractSource
     from .form_cell import FormCell
     from .form_cell_type import FormCellType
@@ -121,7 +124,6 @@ if typing.TYPE_CHECKING:
     from .pipeline_extract_result_extensions_footnote_references_item import (
         PipelineExtractResultExtensionsFootnoteReferencesItem,
     )
-    from .pipeline_extract_result_plan_info import PipelineExtractResultPlanInfo
     from .pipeline_results import PipelineResults
     from .pipeline_schema_result import PipelineSchemaResult
     from .pipeline_split_result import PipelineSplitResult
@@ -144,6 +146,7 @@ if typing.TYPE_CHECKING:
     from .pipeline_tables_result import PipelineTablesResult
     from .pipeline_tables_result_tables_output import PipelineTablesResultTablesOutput
     from .pipeline_tables_result_tables_output_tables_item import PipelineTablesResultTablesOutputTablesItem
+    from .plan_info import PlanInfo
     from .schema_config import SchemaConfig
     from .schema_response import SchemaResponse
     from .single_schema_response import SingleSchemaResponse
@@ -161,6 +164,7 @@ if typing.TYPE_CHECKING:
     from .tables_response_tables_output_tables_item import TablesResponseTablesOutputTablesItem
     from .topic_definition import TopicDefinition
     from .topic_schema_config import TopicSchemaConfig
+    from .visual_type import VisualType
 _dynamic_imports: typing.Dict[str, str] = {
     "AsyncSubmissionResponse": ".async_submission_response",
     "AsyncSubmissionResponseStatus": ".async_submission_response_status",
@@ -176,6 +180,12 @@ _dynamic_imports: typing.Dict[str, str] = {
     "BatchSplitResponseStatus": ".batch_split_response_status",
     "BatchTablesResponse": ".batch_tables_response",
     "BatchTablesResponseStatus": ".batch_tables_response_status",
+    "BoundingBoxImage": ".bounding_box_image",
+    "BoundingBoxImageClassification": ".bounding_box_image_classification",
+    "BoundingBoxItem": ".bounding_box_item",
+    "BoundingBoxTable": ".bounding_box_table",
+    "BoundingBoxTableTableInfo": ".bounding_box_table_table_info",
+    "BoundingBoxes": ".bounding_boxes",
     "ExtractAsyncRequestExtensions": ".extract_async_request_extensions",
     "ExtractAsyncRequestExtensionsAltOutputs": ".extract_async_request_extensions_alt_outputs",
     "ExtractAsyncRequestExtensionsChunking": ".extract_async_request_extensions_chunking",
@@ -199,7 +209,6 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ExtractInputStorage": ".extract_input_storage",
     "ExtractInputStructuredOutput": ".extract_input_structured_output",
     "ExtractLargeResultResponse": ".extract_large_result_response",
-    "ExtractLargeResultResponsePlanInfo": ".extract_large_result_response_plan_info",
     "ExtractOptions": ".extract_options",
     "ExtractOptionsExtensions": ".extract_options_extensions",
     "ExtractOptionsExtensionsAltOutputs": ".extract_options_extensions_alt_outputs",
@@ -229,7 +238,6 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ExtractResponseExtensionsAltOutputsWlbbWordsItem": ".extract_response_extensions_alt_outputs_wlbb_words_item",
     "ExtractResponseExtensionsChunking": ".extract_response_extensions_chunking",
     "ExtractResponseExtensionsFootnoteReferencesItem": ".extract_response_extensions_footnote_references_item",
-    "ExtractResponsePlanInfo": ".extract_response_plan_info",
     "ExtractResultCore": ".extract_result_core",
     "ExtractResultCoreExtensions": ".extract_result_core_extensions",
     "ExtractResultCoreExtensionsAltOutputs": ".extract_result_core_extensions_alt_outputs",
@@ -237,7 +245,6 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ExtractResultCoreExtensionsAltOutputsWlbbWordsItem": ".extract_result_core_extensions_alt_outputs_wlbb_words_item",
     "ExtractResultCoreExtensionsChunking": ".extract_result_core_extensions_chunking",
     "ExtractResultCoreExtensionsFootnoteReferencesItem": ".extract_result_core_extensions_footnote_references_item",
-    "ExtractResultCorePlanInfo": ".extract_result_core_plan_info",
     "ExtractSource": ".extract_source",
     "FormCell": ".form_cell",
     "FormCellType": ".form_cell_type",
@@ -265,7 +272,6 @@ _dynamic_imports: typing.Dict[str, str] = {
     "PipelineExtractResultExtensionsAltOutputsWlbbWordsItem": ".pipeline_extract_result_extensions_alt_outputs_wlbb_words_item",
     "PipelineExtractResultExtensionsChunking": ".pipeline_extract_result_extensions_chunking",
     "PipelineExtractResultExtensionsFootnoteReferencesItem": ".pipeline_extract_result_extensions_footnote_references_item",
-    "PipelineExtractResultPlanInfo": ".pipeline_extract_result_plan_info",
     "PipelineResults": ".pipeline_results",
     "PipelineSchemaResult": ".pipeline_schema_result",
     "PipelineSplitResult": ".pipeline_split_result",
@@ -284,6 +290,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "PipelineTablesResult": ".pipeline_tables_result",
     "PipelineTablesResultTablesOutput": ".pipeline_tables_result_tables_output",
     "PipelineTablesResultTablesOutputTablesItem": ".pipeline_tables_result_tables_output_tables_item",
+    "PlanInfo": ".plan_info",
     "SchemaConfig": ".schema_config",
     "SchemaResponse": ".schema_response",
     "SingleSchemaResponse": ".single_schema_response",
@@ -301,6 +308,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "TablesResponseTablesOutputTablesItem": ".tables_response_tables_output_tables_item",
     "TopicDefinition": ".topic_definition",
     "TopicSchemaConfig": ".topic_schema_config",
+    "VisualType": ".visual_type",
 }
 
 
@@ -340,6 +348,12 @@ __all__ = [
     "BatchSplitResponseStatus",
     "BatchTablesResponse",
     "BatchTablesResponseStatus",
+    "BoundingBoxImage",
+    "BoundingBoxImageClassification",
+    "BoundingBoxItem",
+    "BoundingBoxTable",
+    "BoundingBoxTableTableInfo",
+    "BoundingBoxes",
     "ExtractAsyncRequestExtensions",
     "ExtractAsyncRequestExtensionsAltOutputs",
     "ExtractAsyncRequestExtensionsChunking",
@@ -363,7 +377,6 @@ __all__ = [
     "ExtractInputStorage",
     "ExtractInputStructuredOutput",
     "ExtractLargeResultResponse",
-    "ExtractLargeResultResponsePlanInfo",
     "ExtractOptions",
     "ExtractOptionsExtensions",
     "ExtractOptionsExtensionsAltOutputs",
@@ -393,7 +406,6 @@ __all__ = [
     "ExtractResponseExtensionsAltOutputsWlbbWordsItem",
     "ExtractResponseExtensionsChunking",
     "ExtractResponseExtensionsFootnoteReferencesItem",
-    "ExtractResponsePlanInfo",
     "ExtractResultCore",
     "ExtractResultCoreExtensions",
     "ExtractResultCoreExtensionsAltOutputs",
@@ -401,7 +413,6 @@ __all__ = [
     "ExtractResultCoreExtensionsAltOutputsWlbbWordsItem",
     "ExtractResultCoreExtensionsChunking",
     "ExtractResultCoreExtensionsFootnoteReferencesItem",
-    "ExtractResultCorePlanInfo",
     "ExtractSource",
     "FormCell",
     "FormCellType",
@@ -429,7 +440,6 @@ __all__ = [
     "PipelineExtractResultExtensionsAltOutputsWlbbWordsItem",
     "PipelineExtractResultExtensionsChunking",
     "PipelineExtractResultExtensionsFootnoteReferencesItem",
-    "PipelineExtractResultPlanInfo",
     "PipelineResults",
     "PipelineSchemaResult",
     "PipelineSplitResult",
@@ -448,6 +458,7 @@ __all__ = [
     "PipelineTablesResult",
     "PipelineTablesResultTablesOutput",
     "PipelineTablesResultTablesOutputTablesItem",
+    "PlanInfo",
     "SchemaConfig",
     "SchemaResponse",
     "SingleSchemaResponse",
@@ -465,4 +476,5 @@ __all__ = [
     "TablesResponseTablesOutputTablesItem",
     "TopicDefinition",
     "TopicSchemaConfig",
+    "VisualType",
 ]

@@ -100,7 +100,7 @@ client.extract(
 <dl>
 <dd>
 
-**figure_processing:** `typing.Optional[ExtractRequestFigureProcessing]` — Settings that control how figures in the document are processed. These affect the markdown output directly (e.g. figure descriptions, chart-to-table conversion, image embedding) and do not produce additional output fields in the response.
+**figure_processing:** `typing.Optional[ExtractRequestFigureProcessing]` — Settings that control how figures and embedded visuals are processed. Applies to both PDFs/images (where figures are detected from layout) and spreadsheets (where charts and embedded images are read directly from the workbook). These options affect the markdown output and the `bounding_boxes.Images[]` array; they do not produce additional output fields elsewhere in the response.
     
 </dd>
 </dl>
@@ -116,7 +116,7 @@ client.extract(
 <dl>
 <dd>
 
-**spreadsheet:** `typing.Optional[ExtractRequestSpreadsheet]` — Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets. Only applies to `.xlsx` and `.xls` files. Accepts both camelCase and snake_case field names.
+**spreadsheet:** `typing.Optional[ExtractRequestSpreadsheet]` — Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets. Applies to `.xlsx`, `.xlsm`, and `.xls` files. Accepts both camelCase and snake_case field names.
     
 </dd>
 </dl>
@@ -337,7 +337,7 @@ client.extract_async(
 <dl>
 <dd>
 
-**figure_processing:** `typing.Optional[ExtractAsyncRequestFigureProcessing]` — Settings that control how figures in the document are processed. These affect the markdown output directly (e.g. figure descriptions, chart-to-table conversion, image embedding) and do not produce additional output fields in the response.
+**figure_processing:** `typing.Optional[ExtractAsyncRequestFigureProcessing]` — Settings that control how figures and embedded visuals are processed. Applies to both PDFs/images (where figures are detected from layout) and spreadsheets (where charts and embedded images are read directly from the workbook). These options affect the markdown output and the `bounding_boxes.Images[]` array; they do not produce additional output fields elsewhere in the response.
     
 </dd>
 </dl>
@@ -353,7 +353,7 @@ client.extract_async(
 <dl>
 <dd>
 
-**spreadsheet:** `typing.Optional[ExtractAsyncRequestSpreadsheet]` — Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets. Only applies to `.xlsx` and `.xls` files. Accepts both camelCase and snake_case field names.
+**spreadsheet:** `typing.Optional[ExtractAsyncRequestSpreadsheet]` — Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets. Applies to `.xlsx`, `.xlsm`, and `.xls` files. Accepts both camelCase and snake_case field names.
     
 </dd>
 </dl>
@@ -2192,6 +2192,106 @@ client.results.get_pdf(
 <dd>
 
 **job_id:** `str` — Job identifier from a form endpoint.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.results.<a href="src/pulse/results/client.py">get_image</a>(...) -> typing.Iterator[bytes]</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Stream a PNG/JPEG visual image referenced by an extraction
+response under `bounding_boxes.Images[].image_url`.
+
+The URL is API-hosted instead of raw S3 — the underlying object
+store is intentionally not part of the public contract. The host
+in `image_url` mirrors the request origin (e.g. a request to a
+beta deployment returns image URLs on that same host).
+
+**Authentication is required.** Unlike the legacy single-use
+`/large_results/{jobId}` route, visual artifacts are
+independently-addressable resources — every fetch must present a
+valid API key for the owning org. There is no anonymous /
+TTL-based fallback. Use the same `x-api-key` header you use for
+`/extract`.
+
+Fetching an image does **not** consume the parent extraction's
+result-delivery slot, so one extraction can produce many image
+URLs and each can be fetched repeatedly while the artifact is
+retained.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from pulse import Pulse
+from pulse.environment import PulseEnvironment
+
+client = Pulse(
+    api_key="<value>",
+    environment=PulseEnvironment.DEFAULT,
+)
+
+client.results.get_image(
+    job_id="jobId",
+    filename="filename",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**job_id:** `str` — Job identifier — same value used in the `image_url` returned from `/extract`.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**filename:** `str` — Visual filename — e.g. `excel_image_1_1.png`. Must be the exact `filename` segment from the `image_url`.
     
 </dd>
 </dl>

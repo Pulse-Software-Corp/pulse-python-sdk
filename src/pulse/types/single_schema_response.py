@@ -5,6 +5,7 @@ import typing
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2
 from ..core.unchecked_base_model import UncheckedBaseModel
+from .plan_info import PlanInfo
 from .structured_output_result import StructuredOutputResult
 
 
@@ -41,6 +42,11 @@ class SingleSchemaResponse(UncheckedBaseModel):
     credits_used: typing.Optional[float] = pydantic.Field(default=None)
     """
     Number of credits consumed by this request. Only present when the organization has the credit billing system enabled.
+    """
+
+    plan_info: typing.Optional[PlanInfo] = pydantic.Field(default=None)
+    """
+    Billing tier and cumulative usage information for the calling org, including this schema run.
     """
 
     if IS_PYDANTIC_V2:

@@ -5,7 +5,7 @@ import typing
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2
 from ..core.unchecked_base_model import UncheckedBaseModel
-from .extract_large_result_response_plan_info import ExtractLargeResultResponsePlanInfo
+from .plan_info import PlanInfo
 
 
 class ExtractLargeResultResponse(UncheckedBaseModel):
@@ -33,9 +33,9 @@ class ExtractLargeResultResponse(UncheckedBaseModel):
     Number of pages in the document.
     """
 
-    plan_info: typing.Optional[ExtractLargeResultResponsePlanInfo] = pydantic.Field(default=None)
+    plan_info: typing.Optional[PlanInfo] = pydantic.Field(default=None)
     """
-    Billing tier and usage information.
+    Billing tier and cumulative usage information. Includes `total_credits_used` (primary billing metric) and `pages_used` (legacy compatibility).
     """
 
     if IS_PYDANTIC_V2:

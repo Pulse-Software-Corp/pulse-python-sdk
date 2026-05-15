@@ -44,7 +44,7 @@ class ExtractOptions(UncheckedBaseModel):
         FieldMetadata(alias="figureProcessing"),
         pydantic.Field(
             alias="figureProcessing",
-            description="Settings that control how figures in the document are processed. These affect the markdown output directly (e.g. figure descriptions, chart-to-table conversion, image embedding) and do not produce additional output fields in the response.",
+            description="Settings that control how figures and embedded visuals are processed. Applies to both PDFs/images (where figures are detected from layout) and spreadsheets (where charts and embedded images are read directly from the workbook). These options affect the markdown output and the `bounding_boxes.Images[]` array; they do not produce additional output fields elsewhere in the response.",
         ),
     ] = None
     extensions: typing.Optional[ExtractOptionsExtensions] = pydantic.Field(default=None)
@@ -54,7 +54,7 @@ class ExtractOptions(UncheckedBaseModel):
 
     spreadsheet: typing.Optional[ExtractOptionsSpreadsheet] = pydantic.Field(default=None)
     """
-    Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets. Only applies to `.xlsx` and `.xls` files. Accepts both camelCase and snake_case field names.
+    Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets. Applies to `.xlsx`, `.xlsm`, and `.xls` files. Accepts both camelCase and snake_case field names.
     """
 
     storage: typing.Optional[ExtractOptionsStorage] = pydantic.Field(default=None)

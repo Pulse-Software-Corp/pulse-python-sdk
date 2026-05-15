@@ -6,7 +6,7 @@ import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2
 from ..core.unchecked_base_model import UncheckedBaseModel
 from .form_cell import FormCell
-from .form_plan_info import FormPlanInfo
+from .plan_info import PlanInfo
 
 
 class FormResult(UncheckedBaseModel):
@@ -52,7 +52,10 @@ class FormResult(UncheckedBaseModel):
     Number of credits consumed by **this request**. Detect charges 1 credit per page; fill and clear charge 3 credits per page.
     """
 
-    plan_info: typing.Optional[FormPlanInfo] = None
+    plan_info: typing.Optional[PlanInfo] = pydantic.Field(default=None)
+    """
+    Billing tier and cumulative usage information for the calling org, including this form run.
+    """
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

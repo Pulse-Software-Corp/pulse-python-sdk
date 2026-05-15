@@ -5,8 +5,9 @@ import typing
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2
 from ..core.unchecked_base_model import UncheckedBaseModel
+from .bounding_boxes import BoundingBoxes
 from .pipeline_extract_result_extensions import PipelineExtractResultExtensions
-from .pipeline_extract_result_plan_info import PipelineExtractResultPlanInfo
+from .plan_info import PlanInfo
 
 
 class PipelineExtractResult(UncheckedBaseModel):
@@ -24,9 +25,9 @@ class PipelineExtractResult(UncheckedBaseModel):
     Output from enabled extensions. Each key corresponds to an extension that was enabled in the request under `extensions.*`. Only keys for enabled extensions are present.
     """
 
-    bounding_boxes: typing.Optional[typing.Dict[str, typing.Any]] = pydantic.Field(default=None)
+    bounding_boxes: typing.Optional[BoundingBoxes] = pydantic.Field(default=None)
     """
-    Positional bounding-box data for text, titles, headers, footers, images, and tables. Used by the frontend for annotation overlays.
+    Positional bounding-box data for text, titles, headers, footers, images, and tables. `Images` carries chart/image visuals (with `image_url` when `figure_processing.show_images` is enabled), `Tables` the detected tables, and `Text`/`Title`/`Footer` the paragraph/title/footer regions. Additional keys (e.g. `markdown_with_ids`, `defined_names`) round-trip without being typed.
     """
 
     extraction_id: typing.Optional[str] = pydantic.Field(default=None)
@@ -44,9 +45,9 @@ class PipelineExtractResult(UncheckedBaseModel):
     Number of pages processed.
     """
 
-    plan_info: typing.Optional[PipelineExtractResultPlanInfo] = pydantic.Field(default=None)
+    plan_info: typing.Optional[PlanInfo] = pydantic.Field(default=None)
     """
-    Billing tier and usage information.
+    Billing tier and cumulative usage information. Includes `total_credits_used` (primary billing metric) and `pages_used` (legacy compatibility).
     """
 
     warnings: typing.Optional[typing.List[str]] = pydantic.Field(default=None)

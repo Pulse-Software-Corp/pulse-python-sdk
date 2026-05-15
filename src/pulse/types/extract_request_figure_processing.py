@@ -11,12 +11,12 @@ from ..core.unchecked_base_model import UncheckedBaseModel
 
 class ExtractRequestFigureProcessing(UncheckedBaseModel):
     """
-    Settings that control how figures in the document are processed. These affect the markdown output directly (e.g. figure descriptions, chart-to-table conversion, image embedding) and do not produce additional output fields in the response.
+    Settings that control how figures and embedded visuals are processed. Applies to both PDFs/images (where figures are detected from layout) and spreadsheets (where charts and embedded images are read directly from the workbook). These options affect the markdown output and the `bounding_boxes.Images[]` array; they do not produce additional output fields elsewhere in the response.
     """
 
     description: typing.Optional[bool] = pydantic.Field(default=None)
     """
-    Generate descriptive captions for extracted figures.
+    Generate descriptive captions for extracted visuals. When `true`, applies to both detected charts and non-chart images. Captions appear under `bounding_boxes.Images[].description` and inline in the markdown output where applicable.
     """
 
     show_images: typing_extensions.Annotated[
@@ -24,7 +24,7 @@ class ExtractRequestFigureProcessing(UncheckedBaseModel):
         FieldMetadata(alias="showImages"),
         pydantic.Field(
             alias="showImages",
-            description="Embed base64-encoded images inline in figure tags in the output. Increases response size.",
+            description="Return image URLs for extracted visuals. When `true`, applies to both charts and non-chart images. URLs are emitted under `bounding_boxes.Images[].image_url` — typically a Pulse-hosted proxy URL served from `GET /results/{jobId}/images/{filename}`. Spreadsheet charts and embedded images are read directly from the workbook; PDF/image inputs use detected figure regions.",
         ),
     ] = None
 

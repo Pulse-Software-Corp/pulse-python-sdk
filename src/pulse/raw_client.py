@@ -108,13 +108,13 @@ class RawPulse:
             Page range filter supporting segments such as `1-2` or mixed ranges like `1-2,5`.
 
         figure_processing : typing.Optional[ExtractRequestFigureProcessing]
-            Settings that control how figures in the document are processed. These affect the markdown output directly (e.g. figure descriptions, chart-to-table conversion, image embedding) and do not produce additional output fields in the response.
+            Settings that control how figures and embedded visuals are processed. Applies to both PDFs/images (where figures are detected from layout) and spreadsheets (where charts and embedded images are read directly from the workbook). These options affect the markdown output and the `bounding_boxes.Images[]` array; they do not produce additional output fields elsewhere in the response.
 
         extensions : typing.Optional[ExtractRequestExtensions]
             Settings that enable additional processing passes or alternate output formats. Each enabled extension produces a corresponding output field under `response.extensions.*`.
 
         spreadsheet : typing.Optional[ExtractRequestSpreadsheet]
-            Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets. Only applies to `.xlsx` and `.xls` files. Accepts both camelCase and snake_case field names.
+            Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets. Applies to `.xlsx`, `.xlsm`, and `.xls` files. Accepts both camelCase and snake_case field names.
 
         storage : typing.Optional[ExtractRequestStorage]
             Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created.
@@ -322,13 +322,13 @@ class RawPulse:
             Page range filter supporting segments such as `1-2` or mixed ranges like `1-2,5`.
 
         figure_processing : typing.Optional[ExtractAsyncRequestFigureProcessing]
-            Settings that control how figures in the document are processed. These affect the markdown output directly (e.g. figure descriptions, chart-to-table conversion, image embedding) and do not produce additional output fields in the response.
+            Settings that control how figures and embedded visuals are processed. Applies to both PDFs/images (where figures are detected from layout) and spreadsheets (where charts and embedded images are read directly from the workbook). These options affect the markdown output and the `bounding_boxes.Images[]` array; they do not produce additional output fields elsewhere in the response.
 
         extensions : typing.Optional[ExtractAsyncRequestExtensions]
             Settings that enable additional processing passes or alternate output formats. Each enabled extension produces a corresponding output field under `response.extensions.*`.
 
         spreadsheet : typing.Optional[ExtractAsyncRequestSpreadsheet]
-            Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets. Only applies to `.xlsx` and `.xls` files. Accepts both camelCase and snake_case field names.
+            Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets. Applies to `.xlsx`, `.xlsm`, and `.xls` files. Accepts both camelCase and snake_case field names.
 
         storage : typing.Optional[ExtractAsyncRequestStorage]
             Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created.
@@ -1065,13 +1065,13 @@ class AsyncRawPulse:
             Page range filter supporting segments such as `1-2` or mixed ranges like `1-2,5`.
 
         figure_processing : typing.Optional[ExtractRequestFigureProcessing]
-            Settings that control how figures in the document are processed. These affect the markdown output directly (e.g. figure descriptions, chart-to-table conversion, image embedding) and do not produce additional output fields in the response.
+            Settings that control how figures and embedded visuals are processed. Applies to both PDFs/images (where figures are detected from layout) and spreadsheets (where charts and embedded images are read directly from the workbook). These options affect the markdown output and the `bounding_boxes.Images[]` array; they do not produce additional output fields elsewhere in the response.
 
         extensions : typing.Optional[ExtractRequestExtensions]
             Settings that enable additional processing passes or alternate output formats. Each enabled extension produces a corresponding output field under `response.extensions.*`.
 
         spreadsheet : typing.Optional[ExtractRequestSpreadsheet]
-            Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets. Only applies to `.xlsx` and `.xls` files. Accepts both camelCase and snake_case field names.
+            Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets. Applies to `.xlsx`, `.xlsm`, and `.xls` files. Accepts both camelCase and snake_case field names.
 
         storage : typing.Optional[ExtractRequestStorage]
             Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created.
@@ -1279,13 +1279,13 @@ class AsyncRawPulse:
             Page range filter supporting segments such as `1-2` or mixed ranges like `1-2,5`.
 
         figure_processing : typing.Optional[ExtractAsyncRequestFigureProcessing]
-            Settings that control how figures in the document are processed. These affect the markdown output directly (e.g. figure descriptions, chart-to-table conversion, image embedding) and do not produce additional output fields in the response.
+            Settings that control how figures and embedded visuals are processed. Applies to both PDFs/images (where figures are detected from layout) and spreadsheets (where charts and embedded images are read directly from the workbook). These options affect the markdown output and the `bounding_boxes.Images[]` array; they do not produce additional output fields elsewhere in the response.
 
         extensions : typing.Optional[ExtractAsyncRequestExtensions]
             Settings that enable additional processing passes or alternate output formats. Each enabled extension produces a corresponding output field under `response.extensions.*`.
 
         spreadsheet : typing.Optional[ExtractAsyncRequestSpreadsheet]
-            Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets. Only applies to `.xlsx` and `.xls` files. Accepts both camelCase and snake_case field names.
+            Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets. Applies to `.xlsx`, `.xlsm`, and `.xls` files. Accepts both camelCase and snake_case field names.
 
         storage : typing.Optional[ExtractAsyncRequestStorage]
             Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created.

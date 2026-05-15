@@ -7,25 +7,14 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2
 from ..core.unchecked_base_model import UncheckedBaseModel
 
 
-class ExtractResponsePlanInfo(UncheckedBaseModel):
+class BoundingBoxImageClassification(UncheckedBaseModel):
     """
-    Billing tier and usage information.
-    """
-
-    tier: typing.Optional[str] = pydantic.Field(default=None)
-    """
-    Current plan tier name.
+    Visual classification metadata when classification was run. Includes confidence, model name, and any non-fatal classification error.
     """
 
-    pages_used: typing.Optional[int] = pydantic.Field(default=None)
-    """
-    Cumulative pages used after this extraction.
-    """
-
-    note: typing.Optional[str] = pydantic.Field(default=None)
-    """
-    Human-readable plan note.
-    """
+    confidence: typing.Optional[float] = None
+    model: typing.Optional[str] = None
+    error: typing.Optional[str] = None
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

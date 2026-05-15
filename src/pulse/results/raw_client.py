@@ -11,8 +11,11 @@ from ..core.jsonable_encoder import encode_path_param
 from ..core.parse_error import ParsingError
 from ..core.request_options import RequestOptions
 from ..core.unchecked_base_model import construct_type
+from ..errors.bad_request_error import BadRequestError
+from ..errors.forbidden_error import ForbiddenError
 from ..errors.internal_server_error import InternalServerError
 from ..errors.not_found_error import NotFoundError
+from ..errors.unauthorized_error import UnauthorizedError
 from pydantic import ValidationError
 
 
@@ -99,6 +102,132 @@ class RawResultsClient:
 
             yield _stream()
 
+    @contextlib.contextmanager
+    def get_image(
+        self, job_id: str, filename: str, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> typing.Iterator[HttpResponse[typing.Iterator[bytes]]]:
+        """
+        Stream a PNG/JPEG visual image referenced by an extraction
+        response under `bounding_boxes.Images[].image_url`.
+
+        The URL is API-hosted instead of raw S3 — the underlying object
+        store is intentionally not part of the public contract. The host
+        in `image_url` mirrors the request origin (e.g. a request to a
+        beta deployment returns image URLs on that same host).
+
+        **Authentication is required.** Unlike the legacy single-use
+        `/large_results/{jobId}` route, visual artifacts are
+        independently-addressable resources — every fetch must present a
+        valid API key for the owning org. There is no anonymous /
+        TTL-based fallback. Use the same `x-api-key` header you use for
+        `/extract`.
+
+        Fetching an image does **not** consume the parent extraction's
+        result-delivery slot, so one extraction can produce many image
+        URLs and each can be fetched repeatedly while the artifact is
+        retained.
+
+        Parameters
+        ----------
+        job_id : str
+            Job identifier — same value used in the `image_url` returned from `/extract`.
+
+        filename : str
+            Visual filename — e.g. `excel_image_1_1.png`. Must be the exact `filename` segment from the `image_url`.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration. You can pass in configuration such as `chunk_size`, and more to customize the request and response.
+
+        Returns
+        -------
+        typing.Iterator[HttpResponse[typing.Iterator[bytes]]]
+            Visual image bytes (`image/png` or `image/jpeg`).
+        """
+        with self._client_wrapper.httpx_client.stream(
+            f"results/{encode_path_param(job_id)}/images/{encode_path_param(filename)}",
+            method="GET",
+            request_options=request_options,
+        ) as _response:
+
+            def _stream() -> HttpResponse[typing.Iterator[bytes]]:
+                try:
+                    if 200 <= _response.status_code < 300:
+                        _chunk_size = request_options.get("chunk_size", None) if request_options is not None else None
+                        return HttpResponse(
+                            response=_response, data=(_chunk for _chunk in _response.iter_bytes(chunk_size=_chunk_size))
+                        )
+                    _response.read()
+                    if _response.status_code == 400:
+                        raise BadRequestError(
+                            headers=dict(_response.headers),
+                            body=typing.cast(
+                                typing.Any,
+                                construct_type(
+                                    type_=typing.Any,  # type: ignore
+                                    object_=_response.json(),
+                                ),
+                            ),
+                        )
+                    if _response.status_code == 401:
+                        raise UnauthorizedError(
+                            headers=dict(_response.headers),
+                            body=typing.cast(
+                                typing.Any,
+                                construct_type(
+                                    type_=typing.Any,  # type: ignore
+                                    object_=_response.json(),
+                                ),
+                            ),
+                        )
+                    if _response.status_code == 403:
+                        raise ForbiddenError(
+                            headers=dict(_response.headers),
+                            body=typing.cast(
+                                typing.Any,
+                                construct_type(
+                                    type_=typing.Any,  # type: ignore
+                                    object_=_response.json(),
+                                ),
+                            ),
+                        )
+                    if _response.status_code == 404:
+                        raise NotFoundError(
+                            headers=dict(_response.headers),
+                            body=typing.cast(
+                                typing.Any,
+                                construct_type(
+                                    type_=typing.Any,  # type: ignore
+                                    object_=_response.json(),
+                                ),
+                            ),
+                        )
+                    if _response.status_code == 500:
+                        raise InternalServerError(
+                            headers=dict(_response.headers),
+                            body=typing.cast(
+                                typing.Any,
+                                construct_type(
+                                    type_=typing.Any,  # type: ignore
+                                    object_=_response.json(),
+                                ),
+                            ),
+                        )
+                    _response_json = _response.json()
+                except JSONDecodeError:
+                    raise ApiError(
+                        status_code=_response.status_code, headers=dict(_response.headers), body=_response.text
+                    )
+                except ValidationError as e:
+                    raise ParsingError(
+                        status_code=_response.status_code,
+                        headers=dict(_response.headers),
+                        body=_response.json(),
+                        cause=e,
+                    )
+                raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+            yield _stream()
+
 
 class AsyncRawResultsClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
@@ -146,6 +275,133 @@ class AsyncRawResultsClient:
                             data=(_chunk async for _chunk in _response.aiter_bytes(chunk_size=_chunk_size)),
                         )
                     await _response.aread()
+                    if _response.status_code == 404:
+                        raise NotFoundError(
+                            headers=dict(_response.headers),
+                            body=typing.cast(
+                                typing.Any,
+                                construct_type(
+                                    type_=typing.Any,  # type: ignore
+                                    object_=_response.json(),
+                                ),
+                            ),
+                        )
+                    if _response.status_code == 500:
+                        raise InternalServerError(
+                            headers=dict(_response.headers),
+                            body=typing.cast(
+                                typing.Any,
+                                construct_type(
+                                    type_=typing.Any,  # type: ignore
+                                    object_=_response.json(),
+                                ),
+                            ),
+                        )
+                    _response_json = _response.json()
+                except JSONDecodeError:
+                    raise ApiError(
+                        status_code=_response.status_code, headers=dict(_response.headers), body=_response.text
+                    )
+                except ValidationError as e:
+                    raise ParsingError(
+                        status_code=_response.status_code,
+                        headers=dict(_response.headers),
+                        body=_response.json(),
+                        cause=e,
+                    )
+                raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+            yield await _stream()
+
+    @contextlib.asynccontextmanager
+    async def get_image(
+        self, job_id: str, filename: str, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> typing.AsyncIterator[AsyncHttpResponse[typing.AsyncIterator[bytes]]]:
+        """
+        Stream a PNG/JPEG visual image referenced by an extraction
+        response under `bounding_boxes.Images[].image_url`.
+
+        The URL is API-hosted instead of raw S3 — the underlying object
+        store is intentionally not part of the public contract. The host
+        in `image_url` mirrors the request origin (e.g. a request to a
+        beta deployment returns image URLs on that same host).
+
+        **Authentication is required.** Unlike the legacy single-use
+        `/large_results/{jobId}` route, visual artifacts are
+        independently-addressable resources — every fetch must present a
+        valid API key for the owning org. There is no anonymous /
+        TTL-based fallback. Use the same `x-api-key` header you use for
+        `/extract`.
+
+        Fetching an image does **not** consume the parent extraction's
+        result-delivery slot, so one extraction can produce many image
+        URLs and each can be fetched repeatedly while the artifact is
+        retained.
+
+        Parameters
+        ----------
+        job_id : str
+            Job identifier — same value used in the `image_url` returned from `/extract`.
+
+        filename : str
+            Visual filename — e.g. `excel_image_1_1.png`. Must be the exact `filename` segment from the `image_url`.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration. You can pass in configuration such as `chunk_size`, and more to customize the request and response.
+
+        Returns
+        -------
+        typing.AsyncIterator[AsyncHttpResponse[typing.AsyncIterator[bytes]]]
+            Visual image bytes (`image/png` or `image/jpeg`).
+        """
+        async with self._client_wrapper.httpx_client.stream(
+            f"results/{encode_path_param(job_id)}/images/{encode_path_param(filename)}",
+            method="GET",
+            request_options=request_options,
+        ) as _response:
+
+            async def _stream() -> AsyncHttpResponse[typing.AsyncIterator[bytes]]:
+                try:
+                    if 200 <= _response.status_code < 300:
+                        _chunk_size = request_options.get("chunk_size", None) if request_options is not None else None
+                        return AsyncHttpResponse(
+                            response=_response,
+                            data=(_chunk async for _chunk in _response.aiter_bytes(chunk_size=_chunk_size)),
+                        )
+                    await _response.aread()
+                    if _response.status_code == 400:
+                        raise BadRequestError(
+                            headers=dict(_response.headers),
+                            body=typing.cast(
+                                typing.Any,
+                                construct_type(
+                                    type_=typing.Any,  # type: ignore
+                                    object_=_response.json(),
+                                ),
+                            ),
+                        )
+                    if _response.status_code == 401:
+                        raise UnauthorizedError(
+                            headers=dict(_response.headers),
+                            body=typing.cast(
+                                typing.Any,
+                                construct_type(
+                                    type_=typing.Any,  # type: ignore
+                                    object_=_response.json(),
+                                ),
+                            ),
+                        )
+                    if _response.status_code == 403:
+                        raise ForbiddenError(
+                            headers=dict(_response.headers),
+                            body=typing.cast(
+                                typing.Any,
+                                construct_type(
+                                    type_=typing.Any,  # type: ignore
+                                    object_=_response.json(),
+                                ),
+                            ),
+                        )
                     if _response.status_code == 404:
                         raise NotFoundError(
                             headers=dict(_response.headers),

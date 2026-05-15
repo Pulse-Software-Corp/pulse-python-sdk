@@ -62,6 +62,61 @@ class ResultsClient:
         with self._raw_client.get_pdf(job_id, request_options=request_options) as r:
             yield from r.data
 
+    def get_image(
+        self, job_id: str, filename: str, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> typing.Iterator[bytes]:
+        """
+        Stream a PNG/JPEG visual image referenced by an extraction
+        response under `bounding_boxes.Images[].image_url`.
+
+        The URL is API-hosted instead of raw S3 — the underlying object
+        store is intentionally not part of the public contract. The host
+        in `image_url` mirrors the request origin (e.g. a request to a
+        beta deployment returns image URLs on that same host).
+
+        **Authentication is required.** Unlike the legacy single-use
+        `/large_results/{jobId}` route, visual artifacts are
+        independently-addressable resources — every fetch must present a
+        valid API key for the owning org. There is no anonymous /
+        TTL-based fallback. Use the same `x-api-key` header you use for
+        `/extract`.
+
+        Fetching an image does **not** consume the parent extraction's
+        result-delivery slot, so one extraction can produce many image
+        URLs and each can be fetched repeatedly while the artifact is
+        retained.
+
+        Parameters
+        ----------
+        job_id : str
+            Job identifier — same value used in the `image_url` returned from `/extract`.
+
+        filename : str
+            Visual filename — e.g. `excel_image_1_1.png`. Must be the exact `filename` segment from the `image_url`.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration. You can pass in configuration such as `chunk_size`, and more to customize the request and response.
+
+        Returns
+        -------
+        typing.Iterator[bytes]
+            Visual image bytes (`image/png` or `image/jpeg`).
+
+        Examples
+        --------
+        from pulse import Pulse
+
+        client = Pulse(
+            api_key="YOUR_API_KEY",
+        )
+        client.results.get_image(
+            job_id="jobId",
+            filename="filename",
+        )
+        """
+        with self._raw_client.get_image(job_id, filename, request_options=request_options) as r:
+            yield from r.data
+
 
 class AsyncResultsClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
@@ -124,5 +179,69 @@ class AsyncResultsClient:
         asyncio.run(main())
         """
         async with self._raw_client.get_pdf(job_id, request_options=request_options) as r:
+            async for _chunk in r.data:
+                yield _chunk
+
+    async def get_image(
+        self, job_id: str, filename: str, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> typing.AsyncIterator[bytes]:
+        """
+        Stream a PNG/JPEG visual image referenced by an extraction
+        response under `bounding_boxes.Images[].image_url`.
+
+        The URL is API-hosted instead of raw S3 — the underlying object
+        store is intentionally not part of the public contract. The host
+        in `image_url` mirrors the request origin (e.g. a request to a
+        beta deployment returns image URLs on that same host).
+
+        **Authentication is required.** Unlike the legacy single-use
+        `/large_results/{jobId}` route, visual artifacts are
+        independently-addressable resources — every fetch must present a
+        valid API key for the owning org. There is no anonymous /
+        TTL-based fallback. Use the same `x-api-key` header you use for
+        `/extract`.
+
+        Fetching an image does **not** consume the parent extraction's
+        result-delivery slot, so one extraction can produce many image
+        URLs and each can be fetched repeatedly while the artifact is
+        retained.
+
+        Parameters
+        ----------
+        job_id : str
+            Job identifier — same value used in the `image_url` returned from `/extract`.
+
+        filename : str
+            Visual filename — e.g. `excel_image_1_1.png`. Must be the exact `filename` segment from the `image_url`.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration. You can pass in configuration such as `chunk_size`, and more to customize the request and response.
+
+        Returns
+        -------
+        typing.AsyncIterator[bytes]
+            Visual image bytes (`image/png` or `image/jpeg`).
+
+        Examples
+        --------
+        import asyncio
+
+        from pulse import AsyncPulse
+
+        client = AsyncPulse(
+            api_key="YOUR_API_KEY",
+        )
+
+
+        async def main() -> None:
+            await client.results.get_image(
+                job_id="jobId",
+                filename="filename",
+            )
+
+
+        asyncio.run(main())
+        """
+        async with self._raw_client.get_image(job_id, filename, request_options=request_options) as r:
             async for _chunk in r.data:
                 yield _chunk

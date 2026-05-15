@@ -11,7 +11,7 @@ from ..core.unchecked_base_model import UncheckedBaseModel
 
 class PipelineStepBatchExtractConfigSpreadsheet(UncheckedBaseModel):
     """
-    Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets. Only applies to `.xlsx` and `.xls` files. Accepts both camelCase and snake_case field names.
+    Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets. Applies to `.xlsx`, `.xlsm`, and `.xls` files. Accepts both camelCase and snake_case field names.
     """
 
     include_hidden_rows: typing_extensions.Annotated[
