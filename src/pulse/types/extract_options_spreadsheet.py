@@ -11,7 +11,7 @@ from ..core.unchecked_base_model import UncheckedBaseModel
 
 class ExtractOptionsSpreadsheet(UncheckedBaseModel):
     """
-    Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets. Applies to `.xlsx`, `.xlsm`, and `.xls` files. Accepts both camelCase and snake_case field names.
+    Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets, and whether numeric cells are rendered using their display format or underlying raw value. Applies to `.xlsx`, `.xlsm`, and `.xls` files. Accepts both camelCase and snake_case field names.
     """
 
     include_hidden_rows: typing_extensions.Annotated[
@@ -29,6 +29,14 @@ class ExtractOptionsSpreadsheet(UncheckedBaseModel):
         FieldMetadata(alias="includeHiddenSheets"),
         pydantic.Field(
             alias="includeHiddenSheets", description="Include sheets that are hidden in the Excel workbook."
+        ),
+    ] = None
+    use_raw_values: typing_extensions.Annotated[
+        typing.Optional[bool],
+        FieldMetadata(alias="useRawValues"),
+        pydantic.Field(
+            alias="useRawValues",
+            description="Emit the underlying numeric value for number cells instead of the Excel display-formatted text (e.g. `1201.67` rather than `$1,202` when the cell uses a rounded currency format). Percent-formatted cells and dates keep their display rendering. Does not apply to legacy `.xls` files.",
         ),
     ] = None
 

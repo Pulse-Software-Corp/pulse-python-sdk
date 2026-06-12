@@ -55,7 +55,7 @@ class PipelineStepBatchExtractConfig(UncheckedBaseModel):
 
     spreadsheet: typing.Optional[PipelineStepBatchExtractConfigSpreadsheet] = pydantic.Field(default=None)
     """
-    Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets. Applies to `.xlsx`, `.xlsm`, and `.xls` files. Accepts both camelCase and snake_case field names.
+    Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets, and whether numeric cells are rendered using their display format or underlying raw value. Applies to `.xlsx`, `.xlsm`, and `.xls` files. Accepts both camelCase and snake_case field names.
     """
 
     storage: typing.Optional[PipelineStepBatchExtractConfigStorage] = pydantic.Field(default=None)
