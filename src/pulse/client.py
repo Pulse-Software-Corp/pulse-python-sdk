@@ -208,7 +208,7 @@ class Pulse:
             Settings that enable additional processing passes or alternate output formats. Each enabled extension produces a corresponding output field under `response.extensions.*`.
 
         spreadsheet : typing.Optional[ExtractRequestSpreadsheet]
-            Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets. Applies to `.xlsx`, `.xlsm`, and `.xls` files. Accepts both camelCase and snake_case field names.
+            Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets, whether numeric cells are rendered using their display format or underlying raw value, and optional trimming of empty phantom rows/columns past the last data-bearing cell. Applies to `.xlsx`, `.xlsm`, and `.xls` files. Accepts both camelCase and snake_case field names.
 
         storage : typing.Optional[ExtractRequestStorage]
             Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created.
@@ -349,7 +349,7 @@ class Pulse:
             Settings that enable additional processing passes or alternate output formats. Each enabled extension produces a corresponding output field under `response.extensions.*`.
 
         spreadsheet : typing.Optional[ExtractAsyncRequestSpreadsheet]
-            Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets. Applies to `.xlsx`, `.xlsm`, and `.xls` files. Accepts both camelCase and snake_case field names.
+            Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets, whether numeric cells are rendered using their display format or underlying raw value, and optional trimming of empty phantom rows/columns past the last data-bearing cell. Applies to `.xlsx`, `.xlsm`, and `.xls` files. Accepts both camelCase and snake_case field names.
 
         storage : typing.Optional[ExtractAsyncRequestStorage]
             Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created.
@@ -915,7 +915,7 @@ class AsyncPulse:
             Settings that enable additional processing passes or alternate output formats. Each enabled extension produces a corresponding output field under `response.extensions.*`.
 
         spreadsheet : typing.Optional[ExtractRequestSpreadsheet]
-            Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets. Applies to `.xlsx`, `.xlsm`, and `.xls` files. Accepts both camelCase and snake_case field names.
+            Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets, whether numeric cells are rendered using their display format or underlying raw value, and optional trimming of empty phantom rows/columns past the last data-bearing cell. Applies to `.xlsx`, `.xlsm`, and `.xls` files. Accepts both camelCase and snake_case field names.
 
         storage : typing.Optional[ExtractRequestStorage]
             Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created.
@@ -1064,7 +1064,7 @@ class AsyncPulse:
             Settings that enable additional processing passes or alternate output formats. Each enabled extension produces a corresponding output field under `response.extensions.*`.
 
         spreadsheet : typing.Optional[ExtractAsyncRequestSpreadsheet]
-            Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets. Applies to `.xlsx`, `.xlsm`, and `.xls` files. Accepts both camelCase and snake_case field names.
+            Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets, whether numeric cells are rendered using their display format or underlying raw value, and optional trimming of empty phantom rows/columns past the last data-bearing cell. Applies to `.xlsx`, `.xlsm`, and `.xls` files. Accepts both camelCase and snake_case field names.
 
         storage : typing.Optional[ExtractAsyncRequestStorage]
             Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created.
