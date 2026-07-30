@@ -26,6 +26,10 @@ if typing.TYPE_CHECKING:
     from .bounding_box_table import BoundingBoxTable
     from .bounding_box_table_table_info import BoundingBoxTableTableInfo
     from .bounding_boxes import BoundingBoxes
+    from .document_metadata_file import DocumentMetadataFile
+    from .document_metadata_properties import DocumentMetadataProperties
+    from .document_metadata_result import DocumentMetadataResult
+    from .document_metadata_structure import DocumentMetadataStructure
     from .extract_async_request_extensions import ExtractAsyncRequestExtensions
     from .extract_async_request_extensions_alt_outputs import ExtractAsyncRequestExtensionsAltOutputs
     from .extract_async_request_extensions_chunking import ExtractAsyncRequestExtensionsChunking
@@ -186,6 +190,10 @@ _dynamic_imports: typing.Dict[str, str] = {
     "BoundingBoxTable": ".bounding_box_table",
     "BoundingBoxTableTableInfo": ".bounding_box_table_table_info",
     "BoundingBoxes": ".bounding_boxes",
+    "DocumentMetadataFile": ".document_metadata_file",
+    "DocumentMetadataProperties": ".document_metadata_properties",
+    "DocumentMetadataResult": ".document_metadata_result",
+    "DocumentMetadataStructure": ".document_metadata_structure",
     "ExtractAsyncRequestExtensions": ".extract_async_request_extensions",
     "ExtractAsyncRequestExtensionsAltOutputs": ".extract_async_request_extensions_alt_outputs",
     "ExtractAsyncRequestExtensionsChunking": ".extract_async_request_extensions_chunking",
@@ -354,6 +362,10 @@ __all__ = [
     "BoundingBoxTable",
     "BoundingBoxTableTableInfo",
     "BoundingBoxes",
+    "DocumentMetadataFile",
+    "DocumentMetadataProperties",
+    "DocumentMetadataResult",
+    "DocumentMetadataStructure",
     "ExtractAsyncRequestExtensions",
     "ExtractAsyncRequestExtensionsAltOutputs",
     "ExtractAsyncRequestExtensionsChunking",

@@ -23,6 +23,10 @@ class ExtractInputExtensions(UncheckedBaseModel):
             alias="footnoteReferences", description="Link footnote markers to their corresponding footnote text."
         ),
     ] = None
+    document_metadata: typing.Optional[bool] = pydantic.Field(
+        default=None,
+        description="Extract the maximum safely recoverable metadata from the original file bytes. Results appear under `response.extensions.document_metadata`.",
+    )
     chunking: typing.Optional[ExtractInputExtensionsChunking] = pydantic.Field(default=None)
     """
     Chunking configuration. When provided, the document is split into chunks using the specified strategies. Results appear in `response.extensions.chunking`.

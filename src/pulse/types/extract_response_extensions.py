@@ -7,6 +7,7 @@ import typing_extensions
 from ..core.pydantic_utilities import IS_PYDANTIC_V2
 from ..core.serialization import FieldMetadata
 from ..core.unchecked_base_model import UncheckedBaseModel
+from .document_metadata_result import DocumentMetadataResult
 from .extract_response_extensions_alt_outputs import ExtractResponseExtensionsAltOutputs
 from .extract_response_extensions_chunking import ExtractResponseExtensionsChunking
 from .extract_response_extensions_footnote_references_item import ExtractResponseExtensionsFootnoteReferencesItem
@@ -15,6 +16,11 @@ from .extract_response_extensions_footnote_references_item import ExtractRespons
 class ExtractResponseExtensions(UncheckedBaseModel):
     """
     Output from enabled extensions. Each key corresponds to an extension that was enabled in the request under `extensions.*`. Only keys for enabled extensions are present.
+    """
+
+    document_metadata: typing.Optional[DocumentMetadataResult] = pydantic.Field(default=None)
+    """
+    Native and structural metadata from the original file. Present only when `extensions.document_metadata` was true.
     """
 
     chunking: typing.Optional[ExtractResponseExtensionsChunking] = pydantic.Field(default=None)
