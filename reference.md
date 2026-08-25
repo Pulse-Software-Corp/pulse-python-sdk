@@ -116,7 +116,7 @@ client.extract(
 <dl>
 <dd>
 
-**spreadsheet:** `typing.Optional[ExtractRequestSpreadsheet]` — Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets. Applies to `.xlsx`, `.xlsm`, and `.xls` files. Accepts both camelCase and snake_case field names.
+**spreadsheet:** `typing.Optional[ExtractRequestSpreadsheet]` — Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets, whether numeric cells are rendered using their display format or underlying raw value, and optional trimming of empty phantom rows/columns past the last data-bearing cell. Applies to `.xlsx`, `.xlsm`, and `.xls` files. Accepts both camelCase and snake_case field names.
     
 </dd>
 </dl>
@@ -353,7 +353,7 @@ client.extract_async(
 <dl>
 <dd>
 
-**spreadsheet:** `typing.Optional[ExtractAsyncRequestSpreadsheet]` — Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets. Applies to `.xlsx`, `.xlsm`, and `.xls` files. Accepts both camelCase and snake_case field names.
+**spreadsheet:** `typing.Optional[ExtractAsyncRequestSpreadsheet]` — Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets, whether numeric cells are rendered using their display format or underlying raw value, and optional trimming of empty phantom rows/columns past the last data-bearing cell. Applies to `.xlsx`, `.xlsm`, and `.xls` files. Accepts both camelCase and snake_case field names.
     
 </dd>
 </dl>
@@ -612,11 +612,6 @@ use `extraction_id-bb_id` format to disambiguate across source documents.
 different schemas to different page groups from a prior `/split` call.
 Each topic can have its own schema, prompt, and effort setting.
 
-**Excel template mode** — Provide `excel_template` (base64 .xlsx) in
-`schema_config` instead of `input_schema`. The schema is auto-generated
-from the template's column headers, and a filled copy is returned as
-`excel_output_url`.
-
 Creates a versioned schema record that can be retrieved later.
 Set `async: true` to return immediately with a job_id for polling.
 
@@ -710,82 +705,6 @@ client.schema()
 <dd>
 
 **async:** `typing.Optional[bool]` — If true, returns immediately with a job_id for polling via  GET /job/{jobId}. Otherwise processes synchronously.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.<a href="src/pulse/client.py">download_schema_excel</a>(...) -> typing.Iterator[bytes]</code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-Download the filled Excel template produced by a schema extraction that
-used `excel_template` in its `schema_config`. Requires the same API key
-authentication as other endpoints. The caller must belong to the org
-that owns the underlying extraction.
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```python
-from pulse import Pulse
-from pulse.environment import PulseEnvironment
-
-client = Pulse(
-    api_key="<value>",
-    environment=PulseEnvironment.DEFAULT,
-)
-
-client.download_schema_excel(
-    schema_id="schemaId",
-)
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**schema_id:** `str` — The schema ID returned from a prior `POST /schema` call.
     
 </dd>
 </dl>

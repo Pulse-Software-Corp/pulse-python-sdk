@@ -208,7 +208,7 @@ class Pulse:
             Settings that enable additional processing passes or alternate output formats. Each enabled extension produces a corresponding output field under `response.extensions.*`.
 
         spreadsheet : typing.Optional[ExtractRequestSpreadsheet]
-            Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets. Applies to `.xlsx`, `.xlsm`, and `.xls` files. Accepts both camelCase and snake_case field names.
+            Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets, whether numeric cells are rendered using their display format or underlying raw value, and optional trimming of empty phantom rows/columns past the last data-bearing cell. Applies to `.xlsx`, `.xlsm`, and `.xls` files. Accepts both camelCase and snake_case field names.
 
         storage : typing.Optional[ExtractRequestStorage]
             Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created.
@@ -349,7 +349,7 @@ class Pulse:
             Settings that enable additional processing passes or alternate output formats. Each enabled extension produces a corresponding output field under `response.extensions.*`.
 
         spreadsheet : typing.Optional[ExtractAsyncRequestSpreadsheet]
-            Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets. Applies to `.xlsx`, `.xlsm`, and `.xls` files. Accepts both camelCase and snake_case field names.
+            Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets, whether numeric cells are rendered using their display format or underlying raw value, and optional trimming of empty phantom rows/columns past the last data-bearing cell. Applies to `.xlsx`, `.xlsm`, and `.xls` files. Accepts both camelCase and snake_case field names.
 
         storage : typing.Optional[ExtractAsyncRequestStorage]
             Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created.
@@ -526,11 +526,6 @@ class Pulse:
         different schemas to different page groups from a prior `/split` call.
         Each topic can have its own schema, prompt, and effort setting.
 
-        **Excel template mode** — Provide `excel_template` (base64 .xlsx) in
-        `schema_config` instead of `input_schema`. The schema is auto-generated
-        from the template's column headers, and a filled copy is returned as
-        `excel_output_url`.
-
         Creates a versioned schema record that can be retrieved later.
         Set `async: true` to return immediately with a job_id for polling.
 
@@ -589,42 +584,6 @@ class Pulse:
             request_options=request_options,
         )
         return _response.data
-
-    def download_schema_excel(
-        self, schema_id: str, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> typing.Iterator[bytes]:
-        """
-        Download the filled Excel template produced by a schema extraction that
-        used `excel_template` in its `schema_config`. Requires the same API key
-        authentication as other endpoints. The caller must belong to the org
-        that owns the underlying extraction.
-
-        Parameters
-        ----------
-        schema_id : str
-            The schema ID returned from a prior `POST /schema` call.
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration. You can pass in configuration such as `chunk_size`, and more to customize the request and response.
-
-        Returns
-        -------
-        typing.Iterator[bytes]
-            Filled Excel file
-
-        Examples
-        --------
-        from pulse import Pulse
-
-        client = Pulse(
-            api_key="YOUR_API_KEY",
-        )
-        client.download_schema_excel(
-            schema_id="schemaId",
-        )
-        """
-        with self._raw_client.download_schema_excel(schema_id, request_options=request_options) as r:
-            yield from r.data
 
     def tables(
         self,
@@ -915,7 +874,7 @@ class AsyncPulse:
             Settings that enable additional processing passes or alternate output formats. Each enabled extension produces a corresponding output field under `response.extensions.*`.
 
         spreadsheet : typing.Optional[ExtractRequestSpreadsheet]
-            Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets. Applies to `.xlsx`, `.xlsm`, and `.xls` files. Accepts both camelCase and snake_case field names.
+            Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets, whether numeric cells are rendered using their display format or underlying raw value, and optional trimming of empty phantom rows/columns past the last data-bearing cell. Applies to `.xlsx`, `.xlsm`, and `.xls` files. Accepts both camelCase and snake_case field names.
 
         storage : typing.Optional[ExtractRequestStorage]
             Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created.
@@ -1064,7 +1023,7 @@ class AsyncPulse:
             Settings that enable additional processing passes or alternate output formats. Each enabled extension produces a corresponding output field under `response.extensions.*`.
 
         spreadsheet : typing.Optional[ExtractAsyncRequestSpreadsheet]
-            Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets. Applies to `.xlsx`, `.xlsm`, and `.xls` files. Accepts both camelCase and snake_case field names.
+            Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets, whether numeric cells are rendered using their display format or underlying raw value, and optional trimming of empty phantom rows/columns past the last data-bearing cell. Applies to `.xlsx`, `.xlsm`, and `.xls` files. Accepts both camelCase and snake_case field names.
 
         storage : typing.Optional[ExtractAsyncRequestStorage]
             Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created.
@@ -1257,11 +1216,6 @@ class AsyncPulse:
         different schemas to different page groups from a prior `/split` call.
         Each topic can have its own schema, prompt, and effort setting.
 
-        **Excel template mode** — Provide `excel_template` (base64 .xlsx) in
-        `schema_config` instead of `input_schema`. The schema is auto-generated
-        from the template's column headers, and a filled copy is returned as
-        `excel_output_url`.
-
         Creates a versioned schema record that can be retrieved later.
         Set `async: true` to return immediately with a job_id for polling.
 
@@ -1328,51 +1282,6 @@ class AsyncPulse:
             request_options=request_options,
         )
         return _response.data
-
-    async def download_schema_excel(
-        self, schema_id: str, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> typing.AsyncIterator[bytes]:
-        """
-        Download the filled Excel template produced by a schema extraction that
-        used `excel_template` in its `schema_config`. Requires the same API key
-        authentication as other endpoints. The caller must belong to the org
-        that owns the underlying extraction.
-
-        Parameters
-        ----------
-        schema_id : str
-            The schema ID returned from a prior `POST /schema` call.
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration. You can pass in configuration such as `chunk_size`, and more to customize the request and response.
-
-        Returns
-        -------
-        typing.AsyncIterator[bytes]
-            Filled Excel file
-
-        Examples
-        --------
-        import asyncio
-
-        from pulse import AsyncPulse
-
-        client = AsyncPulse(
-            api_key="YOUR_API_KEY",
-        )
-
-
-        async def main() -> None:
-            await client.download_schema_excel(
-                schema_id="schemaId",
-            )
-
-
-        asyncio.run(main())
-        """
-        async with self._raw_client.download_schema_excel(schema_id, request_options=request_options) as r:
-            async for _chunk in r.data:
-                yield _chunk
 
     async def tables(
         self,

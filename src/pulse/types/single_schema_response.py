@@ -34,11 +34,6 @@ class SingleSchemaResponse(UncheckedBaseModel):
     Present when multiple extractions were combined (via batch extract auto-detection or explicit `extraction_ids` input). Lists all source extraction IDs that contributed to the result.
     """
 
-    excel_output_url: typing.Optional[str] = pydantic.Field(default=None)
-    """
-    API path to download the filled Excel template (e.g. `/schema/{schema_id}/excel`). Requires the same API key authentication. Only present when `excel_template` was provided in the request.
-    """
-
     credits_used: typing.Optional[float] = pydantic.Field(default=None)
     """
     Number of credits consumed by this request. Only present when the organization has the credit billing system enabled.

@@ -67,7 +67,7 @@ class ExtractInput(UncheckedBaseModel):
 
     spreadsheet: typing.Optional[ExtractInputSpreadsheet] = pydantic.Field(default=None)
     """
-    Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets. Applies to `.xlsx`, `.xlsm`, and `.xls` files. Accepts both camelCase and snake_case field names.
+    Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets, whether numeric cells are rendered using their display format or underlying raw value, and optional trimming of empty phantom rows/columns past the last data-bearing cell. Applies to `.xlsx`, `.xlsm`, and `.xls` files. Accepts both camelCase and snake_case field names.
     """
 
     storage: typing.Optional[ExtractInputStorage] = pydantic.Field(default=None)

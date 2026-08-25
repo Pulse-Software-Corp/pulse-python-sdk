@@ -9,17 +9,12 @@ from ..core.unchecked_base_model import UncheckedBaseModel
 
 class SchemaConfig(UncheckedBaseModel):
     """
-    Inline schema configuration. Provide `input_schema` (JSON Schema) OR `excel_template` (base64 .xlsx) — not both. When `excel_template` is provided, the JSON Schema is auto-generated from the spreadsheet's column headers.
+    Inline schema configuration.
     """
 
     input_schema: typing.Optional[typing.Dict[str, typing.Any]] = pydantic.Field(default=None)
     """
-    JSON Schema defining the structured data to extract. Required unless `excel_template` is provided.
-    """
-
-    excel_template: typing.Optional[str] = pydantic.Field(default=None)
-    """
-    Base64-encoded Excel template (.xlsx). When provided, the template's column headers are used to auto-generate the JSON Schema and a filled copy of the template is returned in the response as `excel_output_url`. Mutually exclusive with `input_schema`.
+    JSON Schema defining the structured data to extract.
     """
 
     schema_prompt: typing.Optional[str] = pydantic.Field(default=None)
